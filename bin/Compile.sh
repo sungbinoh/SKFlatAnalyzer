@@ -4,7 +4,7 @@ mv $SKFlat_LIB_PATH/*.pcm src/
 mv $SKFlat_LIB_PATH/*.d src/
 mv $SKFlat_LIB_PATH/*.so src/
 
-for cy in SKFlatValidation GetEffLumi ExampleRun
+for cy in SKFlatValidation GetEffLumi CalcCFRate CalcFakeRate GenStudy HNPairAnalyzer ExampleRun HNWRAnalyzer
 do
   root -l -b -q src/$cy.C+
   mv src/$cy"_C_ACLiC_dict_rdict.pcm" $SKFlat_LIB_PATH/
