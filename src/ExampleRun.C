@@ -205,6 +205,7 @@ void ExampleRun::executeEventFromParameter(AnalyzerParameter param){
     Electron el = electrons.at(i);
 
     FillHist("RelIso", el.RelIso(), 1, 100, 0., 1.);
+    JSFillHist("Electron", "Electron_RelIso", el.RelIso(), 1, 100, 0., 1.);
 
   }
 

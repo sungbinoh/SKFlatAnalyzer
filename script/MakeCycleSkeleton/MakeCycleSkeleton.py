@@ -1,6 +1,6 @@
 import os
 
-cyclename = "HNWRAnalyzer"
+cyclename = "NewAnalyzer"
 
 out_h = open(cyclename+'.h','w')
 print>>out_h,'''#ifndef {0}_h
@@ -51,13 +51,13 @@ void {0}::executeEventFromParameter(AnalyzerParameter param){{
 
 }}
 
-{0}::{0}(){
+{0}::{0}(){{
 
-}
+}}
 
-{0}::~{0}(){
+{0}::~{0}(){{
 
-}
+}}
 
 '''.format(cyclename)
 out_c.close()
@@ -104,4 +104,5 @@ void run_{0}(){{
 '''.format(cyclename)
 out_run.close()
 
+print '## For Single job test ##'
 print 'mv run_'+cyclename+'.C ../../'

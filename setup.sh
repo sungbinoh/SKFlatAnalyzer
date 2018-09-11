@@ -7,8 +7,7 @@ export ROOT_INCLUDE_PATH=$ROOT_INCLUDE_PATH:$SKFlat_WD/include/:$SKFlat_WD/src/
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SKFlat_LIB_PATH
 
 export SKFlatV="v946p1_3"
-export SAMPLE_DATA_DIR=$SKFlat_WD/data/$SKFlatV
-mkdir -p $SAMPLE_DATA_DIR
+mkdir -p $SKFlat_WD/data/$SKFlatV
 
 export SKFlatSEDir="/xrootd/store/user/$USER/SKFlatOutput/"
 export SKFlatLogEmail=''

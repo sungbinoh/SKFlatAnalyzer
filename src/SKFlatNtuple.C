@@ -51,7 +51,7 @@ SKFlatNtuple::SKFlatNtuple(){
   MCSample = "";
   xsec = 1.;
   sumW = 1.;
-  weight_norm_1invfb = 1.;
+  weight_norm_1invpb = 1.;
   Userflags.clear();
 }
 
@@ -103,13 +103,13 @@ void SKFlatNtuple::Init()
         //cout << "N_MC = " << N_MC << endl;
         //cout << "sumW = " << sumW << endl;
 
-        weight_norm_1invfb = xsec/sumW;
+        weight_norm_1invpb = xsec/sumW;
 
       }
     }
 */
 
-    weight_norm_1invfb = xsec/sumW;
+    weight_norm_1invpb = xsec/sumW;
 
   }
 

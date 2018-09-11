@@ -99,6 +99,7 @@ public:
   bool IsFromHadron(Gen me, std::vector<Gen> gens);
   int GetLeptonType(Lepton lep, std::vector<Gen> gens);
   int GetGenPhotonType(Gen genph, std::vector<Gen> gens);
+  bool IsSignalPID(int pid);
 
   //==== Plotting
 

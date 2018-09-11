@@ -724,7 +724,7 @@ bool AnalyzerCore::IsFromHadron(Gen me, std::vector<Gen> gens){
 
   //==== Status 21~29 are from hardprocess
   //==== Means it's lepton from hardprocess
-  //==== e.g., leptons frtom Z start their lives with status 23
+  //==== e.g., leptons from Z start their lives with status 23
   if( 20 < Start.Status() && Start.Status() < 30 ) return false;
 
   Gen current_me = Start; // me will always be Start
@@ -735,6 +735,7 @@ bool AnalyzerCore::IsFromHadron(Gen me, std::vector<Gen> gens){
 
     //==== Go one generation up
     //==== not being used after this line
+    //==== not a bug!!
     current_me = gens.at(current_history[1]);
 
     //==== Now look at mother of previous "me"
@@ -744,7 +745,13 @@ bool AnalyzerCore::IsFromHadron(Gen me, std::vector<Gen> gens){
     Gen StartOf_current_mother = gens.at(current_mother_history[0]);
     int current_mother_PID = current_mother.PID();
 
-    if( current_mother_PID==23 || current_mother_PID==24 || current_mother_PID==25 || current_mother_PID==6 || current_mother_PID==36 || current_mother_PID==32 ){
+    //==== From Z,W,H,t
+    if( current_mother_PID==23 || current_mother_PID==24 || current_mother_PID==25 || current_mother_PID==6 ){
+      out = false;
+      break;
+    }
+    //==== From Signal
+    if( IsSignalPID(current_mother_PID) ){
       out = false;
       break;
     }
@@ -848,7 +855,7 @@ int AnalyzerCore::GetLeptonType(Lepton lep, std::vector<Gen> gens){
     else if( MotherOf_Start_PID==23 || MotherOf_Start_PID==24 || MotherOf_Start_PID==25 ){
       return 1;
     }
-    else if( MotherOf_Start_PID>9900000){
+    else if( IsSignalPID(MotherOf_Start_PID) ){
       return 2;
     }
     else if( MotherOf_Start_PID>50 ){
@@ -881,6 +888,10 @@ int AnalyzerCore::GetLeptonType(Lepton lep, std::vector<Gen> gens){
 
       //==== tau from Z,W,H
       if     ( MotherOf_StartOf_tau_PID==23 || MotherOf_StartOf_tau_PID==24 || MotherOf_StartOf_tau_PID==25 ){
+        return 3;
+      }
+      //==== tau from Signal
+      else if( IsSignalPID(MotherOf_StartOf_tau_PID) ){
         return 3;
       }
       else if( 20 < StartOf_MotherOf_StartOf_tau.Status() && StartOf_MotherOf_StartOf_tau.Status() < 30 ){
@@ -1029,6 +1040,19 @@ int AnalyzerCore::GetGenPhotonType(Gen genph, std::vector<Gen> gens){
 
 
   else return 0;
+
+}
+
+bool AnalyzerCore::IsSignalPID(int pid){
+
+  pid = abs(pid);
+
+  //==== HeavyNeutrino
+  if(pid>=9900000) return true;
+  //==== ChargedHiggs
+  if(pid==32 || pid==36) return true;
+
+  return false;
 
 }
 
