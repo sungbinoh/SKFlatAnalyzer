@@ -18,6 +18,8 @@ void ExampleRun::executeEvent(){
 
   param.MCCorrrectionIgnoreNoHist = true;
 
+  param.Electron_Tight_ID = "HNPairTight";
+
   param.Muon_Tight_ID = "POGTight";
   param.Muon_Tight_RelIso = 0.15;
 
@@ -199,13 +201,13 @@ void ExampleRun::executeEventFromParameter(AnalyzerParameter param){
   }
 */
 
-  vector<Electron> electrons = GetElectrons("HNWRLoose", 10., 2.5);
+  vector<Electron> electrons = GetElectrons(param.Electron_Tight_ID, 10., 2.5);
   for(unsigned int i=0; i<electrons.size(); i++){
 
     Electron el = electrons.at(i);
 
     FillHist("RelIso", el.RelIso(), 1, 100, 0., 1.);
-    JSFillHist("Electron", "Electron_RelIso", el.RelIso(), 1, 100, 0., 1.);
+    JSFillHist(param.Electron_Tight_ID, "RelIso_"+param.Electron_Tight_ID, el.RelIso(), 1, 100, 0., 1.);
 
   }
 
