@@ -203,9 +203,9 @@ void SKFlatValidation::executeEventFromParameter(AnalyzerParameter param){
 
     double weight = 1.;
     if(!IsDATA){
-      //cout << "weight_norm_1invfb = " << weight_norm_1invfb << endl;
+      //cout << "weight_norm_1invpb = " << weight_norm_1invpb << endl;
       //cout << "GetTriggerLumi = " << ev.GetTriggerLumi("Full") << endl;
-      weight *= weight_norm_1invfb*ev.GetTriggerLumi("Full")*ev.MCweight();
+      weight *= weight_norm_1invpb*ev.GetTriggerLumi("Full")*ev.MCweight();
 
       mcCorr.IgnoreNoHist = param.MCCorrrectionIgnoreNoHist;
 

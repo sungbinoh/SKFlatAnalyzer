@@ -322,7 +322,7 @@ void CalcFakeRate::executeEventFromParameter(AnalyzerParameter param){
         //==== TODO Add SFs
         double weight = 1.;
         if(!IsDATA){
-          weight *= weight_norm_1invfb * ev.GetTriggerLumi(this_trigger) * ev.MCweight();
+          weight *= weight_norm_1invpb * ev.GetTriggerLumi(this_trigger) * ev.MCweight();
         }
 
         if(OneLeptonEvent){
@@ -379,7 +379,7 @@ void CalcFakeRate::executeEventFromParameter(AnalyzerParameter param){
         //==== TODO Add SFs
         double weight = 1.;
         if(!IsDATA){
-          weight *= weight_norm_1invfb * ev.GetTriggerLumi(this_trigger) * ev.MCweight();
+          weight *= weight_norm_1invpb * ev.GetTriggerLumi(this_trigger) * ev.MCweight();
         }
 
         if(OneLeptonEvent){
@@ -489,7 +489,7 @@ void CalcFakeRate::executeEventFromParameter(AnalyzerParameter param){
 
       double weight = 1.;
       if(!IsDATA){
-        weight *= weight_norm_1invfb * ev.GetTriggerLumi(ThisPtTrigger) * ev.MCweight();
+        weight *= weight_norm_1invpb * ev.GetTriggerLumi(ThisPtTrigger) * ev.MCweight();
       }
 
       //TODO add Scale factors

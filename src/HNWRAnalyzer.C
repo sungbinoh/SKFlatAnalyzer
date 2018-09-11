@@ -216,7 +216,7 @@ void HNWRAnalyzer::executeEventFromParameter(AnalyzerParameter param){
 
     double weight = 1.;
     if(!IsDATA){
-      weight *= weight_norm_1invfb*ev.GetTriggerLumi("Full")*ev.MCweight();
+      weight *= weight_norm_1invpb*ev.GetTriggerLumi("Full")*ev.MCweight();
 
       mcCorr.IgnoreNoHist = param.MCCorrrectionIgnoreNoHist;
 
