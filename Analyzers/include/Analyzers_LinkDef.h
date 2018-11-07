@@ -13,6 +13,8 @@
 #pragma link C++ class AnalyzerCore+;
 #pragma link C++ class GetEffLumi+;
 #pragma link C++ class ExampleRun+;
+#pragma link C++ class HN_pair_all+;
+#pragma link C++ class NvtxProfile+;
 #pragma link C++ class SKFlatValidation+;
 
 #endif

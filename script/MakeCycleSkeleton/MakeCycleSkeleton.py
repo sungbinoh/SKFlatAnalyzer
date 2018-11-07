@@ -1,6 +1,6 @@
 import os
 
-cyclename = "NewAnalyzer"
+cyclename = "NvtxProfile"
 
 out_h = open(cyclename+'.h','w')
 print>>out_h,'''#ifndef {0}_h
