@@ -1,9 +1,11 @@
 #include "AnalyzerCore.h"
 
 AnalyzerCore::AnalyzerCore(){
-
-
-
+  cout << "[AnalyzerCore::AnalyzerCore] Setting mcCorr.SetMCSample as " << MCSample << endl;
+  if(!IsDATA){
+    mcCorr.SetMCSample(MCSample);
+  }
+  
 }
 
 AnalyzerCore::~AnalyzerCore(){
@@ -14,6 +16,13 @@ AnalyzerCore::~AnalyzerCore(){
   maphist_TH1D.clear();
 
   outfile->Close();
+}
+
+void AnalyzerCore::Set_MCSample_for_mcCorr(){
+  cout << "[AnalyzerCore::Set_MCSample_for_mcCorr] Setting mcCorr.SetMCSample as " << MCSample << endl;
+  if(!IsDATA){
+    mcCorr.SetMCSample(MCSample);
+  }
 }
 
 Event AnalyzerCore::GetEvent(){

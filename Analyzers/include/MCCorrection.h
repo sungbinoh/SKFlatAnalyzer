@@ -24,6 +24,9 @@ public:
   MCCorrection();
   ~MCCorrection();
 
+  TString MCSample;
+  void SetMCSample(TString s);
+
   bool IgnoreNoHist;
 
   double MuonID_SF(TString ID, double eta, double pt, int sys=0);
@@ -39,6 +42,9 @@ public:
   std::map< TString, TH2F* > map_hist_prefire;
   double GetPrefireWeight(std::vector<Photon> photons, std::vector<Jet> jets, int sys);
 
+  std::map< TString, TH1D* > map_hist_pileup;
+  double GetPileUpWeightAsSampleName(int syst, int N_vtx);
+  
 };
 
 #endif
