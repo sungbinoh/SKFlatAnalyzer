@@ -364,7 +364,7 @@ double MCCorrection::GetPrefireWeight(std::vector<Photon> photons, std::vector<J
 
 double MCCorrection::GetPileUpWeightAsSampleName(int syst, int N_vtx){
   
-  cout << "[GetPileUpWeightAsSampleName] MCSample : " << MCSample << endl;
+  //cout << "[GetPileUpWeightAsSampleName] MCSample : " << MCSample << endl;
   
   double out = 1.;
   if(syst == 0){

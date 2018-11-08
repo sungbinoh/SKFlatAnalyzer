@@ -16,7 +16,7 @@ void NvtxProfile::executeEvent(){
 void NvtxProfile::executeEventFromParameter(AnalyzerParameter param){
 
   if(!PassMETFilter()) return;
-  cout << "[executeEventFromParameter] MCSample : " << MCSample << endl;
+  //cout << "[executeEventFromParameter] MCSample : " << MCSample << endl;
 
   
   Event ev = GetEvent();
@@ -24,7 +24,7 @@ void NvtxProfile::executeEventFromParameter(AnalyzerParameter param){
   int nPV = ev.nPV();
   double pileup_reweight = mcCorr.GetPileUpWeightAsSampleName(0, nPV);
   
-  cout << "[executeEventFromParameter] pileup_reweight : " << pileup_reweight << endl;
+  //cout << "[executeEventFromParameter] pileup_reweight : " << pileup_reweight << endl;
   FillHist("Nvtx", nPV, 1., 100, 0., 100.);
 
 

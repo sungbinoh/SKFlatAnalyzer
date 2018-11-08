@@ -1,10 +1,6 @@
 #include "AnalyzerCore.h"
 
 AnalyzerCore::AnalyzerCore(){
-  cout << "[AnalyzerCore::AnalyzerCore] Setting mcCorr.SetMCSample as " << MCSample << endl;
-  if(!IsDATA){
-    mcCorr.SetMCSample(MCSample);
-  }
   
 }
 
