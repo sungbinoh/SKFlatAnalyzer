@@ -407,7 +407,8 @@ void {2}(){{
       thisfilename = lines_files[it_file].strip('\n')
       out.write('  m.AddFile("'+thisfilename+'");\n')
 
-    print>>out,'''  m.Init();
+    print>>out,'''  m.Set_MCSample_for_mcCorr(); 
+  m.Init();
 
   m.initializeAnalyzer();
   m.Loop();
