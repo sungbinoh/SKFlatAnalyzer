@@ -432,7 +432,8 @@ void HN_pair_all::CR_Z_mass(AnalyzerParameter param, TString channel, bool trig_
   int nPV = ev.nPV();
   double pileup_reweight = 1.;
   if(!IsData){
-    //pileup_reweight = mcCorr.GetPileUpWeight(0, nPV);
+    pileup_reweight = mcCorr.GetPileUpWeightAsSampleName(0, nPV);
+    //if(channel.Contains("central")) cout << "[CR_Z_mass] pileup_reweight : " << pileup_reweight << endl; 
   }
   JSFillHist(Region_str + channel, "Nvtx_noCorr_" + Region_str + channel, nPV, weight, 1000, 0., 1000.);
   JSFillHist(Region_str + channel, "Nvtx_69p2_" + Region_str + channel, nPV, weight * pileup_reweight, 1000, 0., 1000.);
@@ -547,7 +548,7 @@ void HN_pair_all::CR_ttbar_dom(AnalyzerParameter param, TString channel, bool tr
   int nPV = ev.nPV();
   double pileup_reweight = 1.;
   if(!IsData){
-    //pileup_reweight = mcCorr.GetPileUpWeight(0, nPV);
+    pileup_reweight = mcCorr.GetPileUpWeightAsSampleName(0, nPV);
   }
   JSFillHist(Region_str + channel, "Nvtx_noCorr_" + Region_str + channel, nPV, weight, 1000, 0., 1000.);
   JSFillHist(Region_str + channel, "Nvtx_69p2_" + Region_str + channel, nPV, weight * pileup_reweight, 1000, 0., 1000.);
@@ -735,7 +736,7 @@ void HN_pair_all::SR(AnalyzerParameter param, TString channel, bool trig_pass, d
   int nPV = ev.nPV();
   double pileup_reweight = 1.;
   if(!IsData){
-    //pileup_reweight = mcCorr.GetPileUpWeight(0, nPV);
+    pileup_reweight = mcCorr.GetPileUpWeightAsSampleName(0, nPV);
   }
   JSFillHist(Region_str + channel, "Nvtx_noCorr_" + Region_str + channel, nPV, weight, 1000, 0., 1000.);
   JSFillHist(Region_str + channel, "Nvtx_69p2_" + Region_str + channel, nPV, weight * pileup_reweight, 1000, 0., 1000.);

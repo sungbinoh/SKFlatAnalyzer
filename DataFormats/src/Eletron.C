@@ -111,6 +111,8 @@ bool Electron::PassID(TString ID){
   //==== Customized
   if(ID=="SUSYTight") return Pass_SUSYTight();
   if(ID=="SUSYLoose") return Pass_SUSYLoose();
+  if(ID=="HEEP_OR_LooseNoIso") return Pass_HEEP_OR_LooseNoIso();
+  if(ID=="HEEP_dZ") return Pass_HEEP_dZ();
   if(ID=="HNPairTight") return Pass_HNPairTight();
   if(ID=="HNPairLoose") return Pass_HNPairLoose();
   if(ID=="HNPairLooseNoIP") return Pass_HNPairLooseNoIP();
@@ -176,6 +178,32 @@ bool Electron::Pass_SUSYLoose(){
 }
 
 //==== HN Pair
+bool Electron::Pass_HEEP_OR_LooseNoIso(){
+  if(!Pass_CutBasedLooseNoIso() && !passHEEPID() ) return false;
+
+  if( fabs(scEta()) <= 1.479 ){
+    if(!( fabs(dXY())<0.05 )) return false;
+    if(!( fabs(dZ()) <0.10 )) return false;
+  }
+  else{
+    if(!( fabs(dXY())<0.10 )) return false;
+    if(!( fabs(dZ()) <0.20 )) return false;
+  }
+
+  return true;
+}
+bool Electron::Pass_HEEP_dZ(){
+  if(!Pass_CutBasedLooseNoIso() && !passHEEPID() ) return false;
+
+  if( fabs(scEta()) <= 1.479 ){
+    if(!( fabs(dZ()) <0.10 )) return false;
+  }
+  else{
+    if(!( fabs(dZ()) <0.20 )) return false;
+  }
+
+  return true;
+}
 
 bool Electron::Pass_HNPairTight(){
 /*

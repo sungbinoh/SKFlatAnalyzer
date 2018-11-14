@@ -59,6 +59,8 @@ public:
   bool Pass_SUSYMVAWP(TString wp);
   bool Pass_SUSYTight();
   bool Pass_SUSYLoose();
+  bool Pass_HEEP_OR_LooseNoIso();
+  bool Pass_HEEP_dZ();
   bool Pass_HNPairTight();
   bool Pass_HNPairLoose();
   bool Pass_HNPairLooseNoIP();
