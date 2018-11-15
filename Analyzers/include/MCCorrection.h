@@ -24,8 +24,13 @@ public:
   MCCorrection();
   ~MCCorrection();
 
+  void ReadHistograms();
+
   TString MCSample;
   void SetMCSample(TString s);
+
+  int DataYear;
+  void SetDataYear(int i);
 
   bool IgnoreNoHist;
 

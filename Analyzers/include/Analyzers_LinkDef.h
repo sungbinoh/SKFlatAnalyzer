@@ -16,5 +16,6 @@
 #pragma link C++ class HN_pair_all+;
 #pragma link C++ class NvtxProfile+;
 #pragma link C++ class SKFlatValidation+;
+#pragma link C++ class SkimTree_LRSMHighPt+;
 
 #endif

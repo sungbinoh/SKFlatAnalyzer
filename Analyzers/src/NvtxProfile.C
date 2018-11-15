@@ -29,7 +29,11 @@ void NvtxProfile::executeEventFromParameter(AnalyzerParameter param){
   FillHist("Nvtx", nPV, 1., 100, 0., 100.);
   FillHist("n_true_vertex", n_true_vertex, 1., 100, 0., 100.);
   if(Pass_mu50) FillHist("Nvtx_HLT_Mu50", nPV, 1., 100, 0., 100.);
-
+  
+  for(int i_Nvtx = 0; i_Nvtx < 100; i_Nvtx++){
+    TString current_true_Nvtx = TString::Itoa(n_true_vertex, 10);
+    FillHist("Nvtx_N_true_vtx_" + current_true_Nvtx, nPV, 1., 100, 0., 100.);
+  }
 
 }
 
