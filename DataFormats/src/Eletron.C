@@ -130,6 +130,7 @@ bool Electron::PassID(TString ID){
   if(ID=="HNWRTight") return Pass_HNWRTight();
   if(ID=="HNWRLoose") return Pass_HNWRLoose();
   if(ID=="HNWRVeto") return Pass_HNWRVeto();
+
   if(ID=="NOCUT") return true;
   if(ID=="TEST") return Pass_TESTID();
 
@@ -186,6 +187,7 @@ bool Electron::Pass_SUSYLoose(){
 
   return true;
 }
+
 
 //==== HN Pair
 bool Electron::Pass_HEEP_OR_LooseNoIso(){
