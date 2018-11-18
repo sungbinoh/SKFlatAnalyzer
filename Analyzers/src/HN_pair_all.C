@@ -205,9 +205,8 @@ void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector
     weight_1pb = weight_norm_1invpb * ev.MCweight();
     weight_trig_diele = ev.GetTriggerLumi(trig_diele);
     weight_trig_mu50 = ev.GetTriggerLumi(trig_mu50);
-
-    //int nPV = ev.nPV();
-    //pileup_reweight = mcCorr.GetPileUpWeight(0, nPV);
+    
+    pileup_reweight = mcCorr.GetPileUpWeightAsSampleName(0, nPileUp);
   }
   
   
@@ -431,13 +430,14 @@ void HN_pair_all::CR_Z_mass(AnalyzerParameter param, TString channel, bool trig_
   Event ev = GetEvent();
   int nPV = ev.nPV();
   
+  /*
   double pileup_reweight = 1.;
   if(!IsData){
     pileup_reweight = mcCorr.GetPileUpWeightAsSampleName(0, nPileUp);
-    //if(channel.Contains("central")) cout << "[CR_Z_mass] pileup_reweight : " << pileup_reweight << endl; 
-  }
+    }
   JSFillHist(Region_str + channel, "Nvtx_noCorr_" + Region_str + channel, nPV, weight, 1000, 0., 1000.);
-  JSFillHist(Region_str + channel, "Nvtx_69p2_" + Region_str + channel, nPV, weight * pileup_reweight, 1000, 0., 1000.);
+  */
+  JSFillHist(Region_str + channel, "Nvtx_69p2_" + Region_str + channel, nPV, weight, 1000, 0., 1000.);
   
   
   JSFillHist(Region_str + channel, "mll_" + Region_str + channel, M_ll, weight, 1000, 0., 1000.);
@@ -547,14 +547,14 @@ void HN_pair_all::CR_ttbar_dom(AnalyzerParameter param, TString channel, bool tr
  
   Event ev = GetEvent();
   int nPV = ev.nPV();
+  /*
   double pileup_reweight = 1.;
   if(!IsData){
     pileup_reweight = mcCorr.GetPileUpWeightAsSampleName(0, nPileUp);
   }
   JSFillHist(Region_str + channel, "Nvtx_noCorr_" + Region_str + channel, nPV, weight, 1000, 0., 1000.);
-  JSFillHist(Region_str + channel, "Nvtx_69p2_" + Region_str + channel, nPV, weight * pileup_reweight, 1000, 0., 1000.);
-
-
+  */
+  JSFillHist(Region_str + channel, "Nvtx_69p2_" + Region_str + channel, nPV, weight, 1000, 0., 1000.);
 
   JSFillHist(Region_str + channel, "mll_" + Region_str + channel, M_ll, weight, 1000, 0., 1000.);
   if(Leptons.size() == 2){
@@ -735,12 +735,14 @@ void HN_pair_all::SR(AnalyzerParameter param, TString channel, bool trig_pass, d
 
   Event ev = GetEvent();
   int nPV = ev.nPV();
+  /*
   double pileup_reweight = 1.;
   if(!IsData){
     pileup_reweight = mcCorr.GetPileUpWeightAsSampleName(0, nPileUp);
   }
   JSFillHist(Region_str + channel, "Nvtx_noCorr_" + Region_str + channel, nPV, weight, 1000, 0., 1000.);
-  JSFillHist(Region_str + channel, "Nvtx_69p2_" + Region_str + channel, nPV, weight * pileup_reweight, 1000, 0., 1000.);
+  */
+  JSFillHist(Region_str + channel, "Nvtx_69p2_" + Region_str + channel, nPV, weight, 1000, 0., 1000.);
 
   
   
