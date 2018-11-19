@@ -506,29 +506,30 @@ void HN_pair_all::CR_ttbar_dom(AnalyzerParameter param, TString channel, bool tr
   for(unsigned int i=0; i<alljets_sub.size(); i++){
     if(alljets_sub.at(i).IsTagged(Jet::CSVv2, Jet::Medium)) NBJets++;
   }
+  
+  Particle ll = *(Leptons_veto.at(0)) + *(Leptons_veto.at(1));
+  double M_ll = ll.M();
+  if(M_ll < 150) return;
+
   //if(N_jet < 2 || NBJets < 1) return;
   JSFillHist("CR_ttbar_" + channel, "Nbjet_CR_ttbar_" + channel, NBJets, weight, 10, 0., 10.);
   JSFillHist("CR_ttbar_" + channel, "Njet_CR_ttbar_" + channel, N_jet, weight, 10, 0., 10.);
   JSFillHist("CR_ttbar_" + channel, "Nfatjet_CR_ttbar_" + channel, fatjets.size(), weight, 10, 0., 10.);
   
   
-  if(NBJets < 2) return;
+  if(NBJets < 1) return;
   
   //m(ll) > 55 GeV (no DYlow sample)
-  Particle ll = *(Leptons_veto.at(0)) + *(Leptons_veto.at(1));
-  double M_ll = ll.M();
-  
-  if(M_ll < 150) return;
   //if(M_ll < 55 || M_ll > 150) return;
   //if(fabs(M_Z - M_ll) < 10 ) return;
   
-
+  
   // MET > 40 GeV
   Event ev_CR_ttbar = GetEvent();
   Particle METv_CR_ttbar = ev_CR_ttbar.GetMETVector();
   JSFillHist("CR_ttbar_" + channel, "MET_CR_ttbar_" + channel, METv_CR_ttbar.Pt(), weight, 1000, 0., 1000.);
-  //if(METv_CR_ttbar.Pt() < 100) return;
-
+  if(METv_CR_ttbar.Pt() < 40) return;
+  
 
   if(channel.Contains("DiEle")){
     FillHist("signal_eff", 12.5, weight, 40, 0., 40.); // cutflow - DiEle ttbar CR
