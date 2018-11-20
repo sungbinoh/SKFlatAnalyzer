@@ -404,6 +404,8 @@ double MCCorrection::GetPileUpWeightAsSampleName(int syst, int N_vtx){
   }
 
   TH1D *this_hist = map_hist_pileup[this_histname];
+  if(this_histname.Contains("HNPair")) return 1.;
+  
   if(!this_hist){
     cout << "[MCCorrection::GetPileUpWeightAsSampleName] No " << this_histname << endl;
     exit(EXIT_FAILURE);
