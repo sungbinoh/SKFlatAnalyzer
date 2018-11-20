@@ -119,11 +119,33 @@ void HN_pair_all::Select_syst_objects(AnalyzerParameter param){
   if(!IsData) FatJets_all_Res_Down = SmearFatJets(  GetAllFatJets(), -1);
   else FatJets_all_Res_Down = GetAllFatJets();
   
+  std::vector<FatJet> FatJets_all_SDMass_Scale_Up;
+  if(!IsData) FatJets_all_SDMass_Scale_Up = ScaleSDMassFatJets(  GetAllFatJets(),  1);
+  else FatJets_all_SDMass_Scale_Up = GetAllFatJets();
+  
+  std::vector<FatJet> FatJets_all_SDMass_Scale_Down;
+  if(!IsData) FatJets_all_SDMass_Scale_Down = ScaleSDMassFatJets(  GetAllFatJets(),  -1);
+  else FatJets_all_SDMass_Scale_Down = GetAllFatJets();
+  
+  std::vector<FatJet> FatJets_all_SDMass_Res_Up;
+  if(!IsData) FatJets_all_SDMass_Res_Up = SmearSDMassFatJets(  GetAllFatJets(),  1);
+  else FatJets_all_SDMass_Res_Up = GetAllFatJets();
+  
+  std::vector<FatJet> FatJets_all_SDMass_Res_Down;
+  if(!IsData) FatJets_all_SDMass_Res_Down = SmearSDMassFatJets(  GetAllFatJets(),  -1);
+  else FatJets_all_SDMass_Res_Down = GetAllFatJets();
+
+  
   std::sort(FatJets_all.begin(), FatJets_all.end(), PtComparing);
   std::sort(FatJets_all_Scale_Up.begin(), FatJets_all_Scale_Up.end(), PtComparing);
   std::sort(FatJets_all_Scale_Down.begin(), FatJets_all_Scale_Down.end(), PtComparing);
   std::sort(FatJets_all_Res_Up.begin(), FatJets_all_Res_Up.end(), PtComparing);
   std::sort(FatJets_all_Res_Down.begin(), FatJets_all_Res_Down.end(), PtComparing);
+  
+  std::sort(FatJets_all_SDMass_Scale_Up.begin(), FatJets_all_SDMass_Scale_Up.end(), PtComparing);
+  std::sort(FatJets_all_SDMass_Scale_Down.begin(), FatJets_all_SDMass_Scale_Down.end(), PtComparing);
+  std::sort(FatJets_all_SDMass_Res_Up.begin(), FatJets_all_SDMass_Res_Up.end(), PtComparing);
+  std::sort(FatJets_all_SDMass_Res_Down.begin(), FatJets_all_SDMass_Res_Down.end(), PtComparing);
   
   std::vector<std::vector<FatJet>> FatJets_all_syst;
   FatJets_all_syst.clear();
@@ -132,10 +154,14 @@ void HN_pair_all::Select_syst_objects(AnalyzerParameter param){
   FatJets_all_syst.push_back(FatJets_all_Scale_Down);
   FatJets_all_syst.push_back(FatJets_all_Res_Up);
   FatJets_all_syst.push_back(FatJets_all_Res_Down);
-
-
+  FatJets_all_syst.push_back(FatJets_all_SDMass_Scale_Up);
+  FatJets_all_syst.push_back(FatJets_all_SDMass_Scale_Down);
+  FatJets_all_syst.push_back(FatJets_all_SDMass_Res_Up);
+  FatJets_all_syst.push_back(FatJets_all_SDMass_Res_Down);
+  
+  
   //cout << "[Select_syst_objects] call pdf errors" << endl;
-
+  
   // ==== Get PDF weights with errors & Save in to a vector
   double PDF_weight_central = 1.;
   //cout << "[Select_syst_objects] PDF_Norm_Up" << endl;
@@ -158,15 +184,18 @@ void HN_pair_all::Select_syst_objects(AnalyzerParameter param){
   //cout << "[Select_syst_objects] Let's run" << endl;
 
   // ==== Define Systematic flag strings and order
-  const int N_systs = 13;
-  TString syst_flags[N_systs] = {"central", "ElectronScaleUp", "ElectronScaleDown", "ElectronSmearUp", "ElectronSmearDown", "JetsScaleUp", "JetsScaleDown", "JetsResUp", "JetsResDown", "PDFNormUp", "PDFNormDown", "PDFScaleUp", "PDFScaleDown"};
-  int electron_index[N_systs] = {0        , 1                , 2                  , 3                , 4                  , 0            , 0              , 0          , 0            , 0          , 0            , 0           , 0             };
-  int jet_index[N_systs]      = {0        , 0                , 0                  , 0                , 0                  , 1            , 2              , 3          , 4            , 0          , 0            , 0           , 0             };
-  int PDF_index[N_systs]      = {0        , 0                , 0                  , 0                , 0                  , 0            , 0              , 0          , 0            , 1          , 2            , 3           , 4             };
-
+  const int N_systs = 17;
+  TString syst_flags[N_systs] = {"central", "ElectronScaleUp", "ElectronScaleDown", "ElectronSmearUp", "ElectronSmearDown", "JetsScaleUp", "JetsScaleDown", "JetsResUp", "JetsResDown", 
+				 "SD_JMS_Up", "SD_JMS_Down", "SD_JMR_Up", "SD_JMR_Down", "PDFNormUp", "PDFNormDown", "PDFScaleUp", "PDFScaleDown"};
+  
+  int electron_index[N_systs] = {0, 1, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  int jet_index[N_systs]      = {0, 0, 0, 0, 0, 1, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0, 0};
+  int fatjet_index[N_systs]   = {0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 0, 0, 0, 0};
+  int PDF_index[N_systs]      = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4};
+  
 
   for(int i_syst = 0; i_syst < N_systs; i_syst++){
-    executeEventFromParameter(  param, electrons_all_syst.at(electron_index[i_syst]), muons_all, Jets_all_syst.at(jet_index[i_syst]), FatJets_all_syst.at(jet_index[i_syst]), syst_flags[i_syst], PDF_weight_syst.at(PDF_index[i_syst])  ); 
+    executeEventFromParameter(  param, electrons_all_syst.at(electron_index[i_syst]), muons_all, Jets_all_syst.at(jet_index[i_syst]), FatJets_all_syst.at(fatjet_index[i_syst]), syst_flags[i_syst], PDF_weight_syst.at(PDF_index[i_syst])  ); 
   }
   
 }
@@ -506,29 +535,30 @@ void HN_pair_all::CR_ttbar_dom(AnalyzerParameter param, TString channel, bool tr
   for(unsigned int i=0; i<alljets_sub.size(); i++){
     if(alljets_sub.at(i).IsTagged(Jet::CSVv2, Jet::Medium)) NBJets++;
   }
+  
+  Particle ll = *(Leptons_veto.at(0)) + *(Leptons_veto.at(1));
+  double M_ll = ll.M();
+  if(M_ll < 150) return;
+
   //if(N_jet < 2 || NBJets < 1) return;
   JSFillHist("CR_ttbar_" + channel, "Nbjet_CR_ttbar_" + channel, NBJets, weight, 10, 0., 10.);
   JSFillHist("CR_ttbar_" + channel, "Njet_CR_ttbar_" + channel, N_jet, weight, 10, 0., 10.);
   JSFillHist("CR_ttbar_" + channel, "Nfatjet_CR_ttbar_" + channel, fatjets.size(), weight, 10, 0., 10.);
   
   
-  if(NBJets < 2) return;
+  if(NBJets < 1) return;
   
   //m(ll) > 55 GeV (no DYlow sample)
-  Particle ll = *(Leptons_veto.at(0)) + *(Leptons_veto.at(1));
-  double M_ll = ll.M();
-  
-  if(M_ll < 150) return;
   //if(M_ll < 55 || M_ll > 150) return;
   //if(fabs(M_Z - M_ll) < 10 ) return;
   
-
+  
   // MET > 40 GeV
   Event ev_CR_ttbar = GetEvent();
   Particle METv_CR_ttbar = ev_CR_ttbar.GetMETVector();
   JSFillHist("CR_ttbar_" + channel, "MET_CR_ttbar_" + channel, METv_CR_ttbar.Pt(), weight, 1000, 0., 1000.);
-  //if(METv_CR_ttbar.Pt() < 100) return;
-
+  if(METv_CR_ttbar.Pt() < 40) return;
+  
 
   if(channel.Contains("DiEle")){
     FillHist("signal_eff", 12.5, weight, 40, 0., 40.); // cutflow - DiEle ttbar CR

@@ -1,8 +1,8 @@
 R__LOAD_LIBRARY(libPhysics.so)
 R__LOAD_LIBRARY(libTree.so)
 R__LOAD_LIBRARY(libHist.so)
-R__LOAD_LIBRARY(libDataFormats.so)
-R__LOAD_LIBRARY(libAnalyzers.so)
+R__LOAD_LIBRARY(./lib/libDataFormats.so)
+R__LOAD_LIBRARY(./lib/libAnalyzers.so)
 
 void run_HN_pair_all(){
 
