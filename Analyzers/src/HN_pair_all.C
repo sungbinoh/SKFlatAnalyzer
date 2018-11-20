@@ -297,8 +297,8 @@ void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector
   
   
   // -- Save Jets
-  std::vector<FatJet>   fatjets         = GetFatJets(param.FatJet_ID, 300, 2.7);
-  std::vector<Jet>      alljets         = GetJets(param.Jet_ID, 40., 2.7);
+  std::vector<FatJet>   fatjets         = SelectFatJets(fatjets_all,param.FatJet_ID, 300, 2.7);
+  std::vector<Jet>      alljets         = SelectJets(jets_all, param.Jet_ID, 40., 2.7);
   std::vector<Jet>      jets            = JetsVetoLeptonInside(JetsAwayFromFatJet(alljets, fatjets), electrons_Veto, muons_Veto);
   
   int NBJets=0;
