@@ -184,16 +184,20 @@ void HN_pair_all::Select_syst_objects(AnalyzerParameter param){
   //cout << "[Select_syst_objects] Let's run" << endl;
 
   // ==== Define Systematic flag strings and order
-  const int N_systs = 17;
-  TString syst_flags[N_systs] = {"central", "ElectronScaleUp", "ElectronScaleDown", "ElectronSmearUp", "ElectronSmearDown", "JetsScaleUp", "JetsScaleDown", "JetsResUp", "JetsResDown", 
-				 "SD_JMS_Up", "SD_JMS_Down", "SD_JMR_Up", "SD_JMR_Down", "PDFNormUp", "PDFNormDown", "PDFScaleUp", "PDFScaleDown"};
+  const int N_systs = 19;
+  TString syst_flags[N_systs] = {"central", 
+				 "ElectronScaleUp", "ElectronScaleDown", "ElectronSmearUp", "ElectronSmearDown", 
+				 "JetsScaleUp", "JetsScaleDown", "JetsResUp", "JetsResDown", 
+				 "SD_JMS_Up", "SD_JMS_Down", "SD_JMR_Up", "SD_JMR_Down", 
+				 "PDFNormUp", "PDFNormDown", "PDFScaleUp", "PDFScaleDown", 
+				 "PUReweight_Up", "PUReweight_Down"};
   
-  int electron_index[N_systs] = {0, 1, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-  int jet_index[N_systs]      = {0, 0, 0, 0, 0, 1, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0, 0};
-  int fatjet_index[N_systs]   = {0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 0, 0, 0, 0};
-  int PDF_index[N_systs]      = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4};
+  int electron_index[N_systs] = {0, 1, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  int jet_index[N_systs]      = {0, 0, 0, 0, 0, 1, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  int fatjet_index[N_systs]   = {0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 0, 0, 0, 0, 0, 0};
+  int PDF_index[N_systs]      = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 0, 0};
   
-
+  
   for(int i_syst = 0; i_syst < N_systs; i_syst++){
     executeEventFromParameter(  param, electrons_all_syst.at(electron_index[i_syst]), muons_all, Jets_all_syst.at(jet_index[i_syst]), FatJets_all_syst.at(fatjet_index[i_syst]), syst_flags[i_syst], PDF_weight_syst.at(PDF_index[i_syst])  ); 
   }
@@ -236,6 +240,8 @@ void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector
     weight_trig_mu50 = ev.GetTriggerLumi(trig_mu50);
     
     pileup_reweight = mcCorr.GetPileUpWeightAsSampleName(0, nPileUp);
+    if(syst_flag.Contains("PUReweight_Up")) pileup_reweight = mcCorr.GetPileUpWeightAsSampleName(1, nPileUp);
+    if(syst_flag.Contains("PUReweight_Down")) pileup_reweight = mcCorr.GetPileUpWeightAsSampleName(-1, nPileUp);
   }
   
   
