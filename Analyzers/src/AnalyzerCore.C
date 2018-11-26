@@ -714,6 +714,7 @@ std::vector<FatJet> AnalyzerCore::SmearSDMassFatJets(std::vector<FatJet> jets, i
 bool AnalyzerCore::PassMETFilter(){
 
   //==== https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#Moriond_2018
+  //==== TODO If FastSIM, it should be changed
 
   if(!Flag_goodVertices) return false;
   if(!Flag_globalSuperTightHalo2016Filter) return false;
@@ -723,7 +724,11 @@ bool AnalyzerCore::PassMETFilter(){
   if(!Flag_BadPFMuonFilter) return false;
   if(!Flag_BadChargedCandidateFilter) return false;
   if(IsDATA && !Flag_eeBadScFilter) return false;
-  if(!Flag_ecalBadCalibFilter) return false;
+
+  //TODO Check this
+  if(DataYear==2017){
+    if(!Flag_ecalBadCalibFilter) return false;
+  }
 
   return true;
 
@@ -753,8 +758,11 @@ double AnalyzerCore::GetPrefireWeight(int sys){
   if(IsDATA) return 1.;
   else{
 
-    //==== TODO Add 2016
-    if(DataYear==2017){
+    if(DataYear==2016){
+      //==== TODO Add 2016 : https://github.com/nsmith-/PrefireAnalysis/#jet-prefire-efficiencies
+      return 1.;
+    }
+    else if(DataYear==2017){
 
       vector<Photon> photons = GetPhotons("passMediumID", 20., 3.0);
       vector<Jet> jets = GetJets("tight", 40., 3.5);
