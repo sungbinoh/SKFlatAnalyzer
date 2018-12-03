@@ -4,6 +4,7 @@
 #include "TLorentzVector.h"
 #include "TString.h"
 #include "TMath.h"
+#include "TRandom.h"
 
 #include "SKFlatNtuple.h"
 #include "Event.h"
@@ -80,7 +81,9 @@ public:
 
   std::vector<Muon> UseTunePMuon(std::vector<Muon> muons);
   std::vector<Muon> SelectMuons(std::vector<Muon> muons, TString id, double ptmin, double fetamax);
-
+  std::vector<Muon> ScaleTunePMuons(std::vector<Muon> muons, int sys);
+  std::vector<Muon> SmearTunePMuons(std::vector<Muon> muons, int sys);
+  
   std::vector<Jet> SelectJets(std::vector<Jet> jets, TString id, double ptmin, double fetamax);
 
   std::vector<FatJet> SelectFatJets(std::vector<FatJet> jets, TString id, double ptmin, double fetamax);
@@ -112,7 +115,7 @@ public:
   //===== Estimators
 
   MCCorrection mcCorr;
-  void Set_MCSample_for_mcCorr();
+  //void Set_MCSample_for_mcCorr();
   FakeBackgroundEstimator fakeEst;
   CFBackgroundEstimator cfEst;
   void initializeAnalyzerTools();
