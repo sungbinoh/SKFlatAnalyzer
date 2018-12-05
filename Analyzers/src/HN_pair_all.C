@@ -249,8 +249,8 @@ void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector
     
   
   // -- Save HLT String and Boolean. Return if the event does not fire any on these triggers
-  TString trig_diele = "HLT_Photon200_v";
-  //TString trig_diele = "HLT_DoublePhoton70_v";
+  //TString trig_diele = "HLT_Photon200_v";
+  TString trig_diele = "HLT_DoublePhoton70_v";
   TString trig_mu50 = "HLT_Mu50_v";
   //TString trig_oldmu100 = "HLT_oldMu100_v";
   //TString trig_tkmu100 = "HLT_TkMu100_v";
@@ -446,13 +446,13 @@ void HN_pair_all::CR_Z_mass(AnalyzerParameter param, TString channel, bool trig_
   Lep_2nd_Pt = Leptons_veto.at(1)->Pt();
 
   if(channel.Contains("DiEle")){
-    if(Lep_1st_Pt < 210 || Lep_2nd_Pt < 40) return;
+    if(Lep_1st_Pt < 75 || Lep_2nd_Pt < 75) return;
   }
   else if(channel.Contains("DiMu")){
     if(Lep_1st_Pt < 55 || Lep_2nd_Pt < 20) return;
   }
   else if(channel.Contains("EMu")){
-    if(Lep_1st_Pt < 55 || Lep_2nd_Pt < 55) return;
+    if(Lep_1st_Pt < 75 || Lep_2nd_Pt < 55) return;
   }
   else return;
   
