@@ -75,11 +75,39 @@ void HN_pair_all::Select_syst_objects(AnalyzerParameter param){
   //cout << "[Select_syst_objects] call muon vectors" << endl;
 
   // ==== Save Muons with TuneP
-  std::vector<Muon> muons_all = UseTunePMuon( GetAllMuons() );
-
-  std::sort(muons_all.begin(), muons_all.end(), PtComparing);
-
+  std::vector<Muon> muons_all;
+  if(!IsData) muons_all = ScaleTunePMuons(UseTunePMuon( GetAllMuons() ), 0);   else muons_all = UseTunePMuon( GetAllMuons() );
+  std::vector<Muon> muons_all_Scale_Up;
+  if(!IsData) muons_all_Scale_Up = ScaleTunePMuons(muons_all, 1);              else muons_all_Scale_Up = UseTunePMuon( GetAllMuons() );
+  std::vector<Muon> muons_all_Scale_Down;
+  if(!IsData) muons_all_Scale_Down = ScaleTunePMuons(muons_all, -1);           else muons_all_Scale_Down = UseTunePMuon( GetAllMuons() );
+  std::vector<Muon> muons_all_Smear_Up;   
+  if(!IsData) muons_all_Smear_Up = SmearTunePMuons(muons_all, 1);              else muons_all_Smear_Up = UseTunePMuon( GetAllMuons() );
+  std::vector<Muon> muons_all_Smear_Down; 
+  if(!IsData) muons_all_Smear_Down = SmearTunePMuons(muons_all, -1);           else muons_all_Smear_Down = UseTunePMuon( GetAllMuons() );
   
+  std::sort(muons_all.begin(), muons_all.end(), PtComparing);
+  std::sort(muons_all_Scale_Up.begin(), muons_all_Scale_Up.end(), PtComparing);
+  std::sort(muons_all_Scale_Down.begin(), muons_all_Scale_Down.end(), PtComparing);
+  std::sort(muons_all_Smear_Up.begin(), muons_all_Smear_Up.end(), PtComparing);
+  std::sort(muons_all_Smear_Down.begin(), muons_all_Smear_Down.end(), PtComparing);
+  /*
+  cout << "-------------------------------------------------------------" << endl;
+  for(unsigned int i_mu = 0; i_mu < muons_all.size(); i_mu++){
+    cout << i_mu << "'th mu central pt = " << muons_all.at(i_mu).Pt() << ", Scale Up : " << muons_all_Scale_Up.at(i_mu).Pt() << ", Scale Down : " << muons_all_Scale_Down.at(i_mu).Pt() << 
+      ", Smear Up : " << muons_all_Smear_Up.at(i_mu).Pt() << ", Smear Down : " << muons_all_Smear_Down.at(i_mu).Pt() << endl;
+  }
+  */
+  std::vector<std::vector<Muon>> muons_all_syst;
+  muons_all_syst.clear();
+  muons_all_syst.push_back(muons_all);
+  muons_all_syst.push_back(muons_all_Scale_Up);
+  muons_all_syst.push_back(muons_all_Scale_Down);
+  muons_all_syst.push_back(muons_all_Smear_Up);
+  muons_all_syst.push_back(muons_all_Smear_Down);
+  
+
+
   //cout << "[Select_syst_objects] call jet vectors" << endl;
 
   // ==== Get Jets selection with syst flags & Save in to a vector of vectors
@@ -134,7 +162,7 @@ void HN_pair_all::Select_syst_objects(AnalyzerParameter param){
   std::vector<FatJet> FatJets_all_SDMass_Res_Down;
   if(!IsData) FatJets_all_SDMass_Res_Down = SmearSDMassFatJets(  GetAllFatJets(),  -1);
   else FatJets_all_SDMass_Res_Down = GetAllFatJets();
-
+  
   
   std::sort(FatJets_all.begin(), FatJets_all.end(), PtComparing);
   std::sort(FatJets_all_Scale_Up.begin(), FatJets_all_Scale_Up.end(), PtComparing);
@@ -184,22 +212,24 @@ void HN_pair_all::Select_syst_objects(AnalyzerParameter param){
   //cout << "[Select_syst_objects] Let's run" << endl;
 
   // ==== Define Systematic flag strings and order
-  const int N_systs = 19;
+  const int N_systs = 23;
   TString syst_flags[N_systs] = {"central", 
 				 "ElectronScaleUp", "ElectronScaleDown", "ElectronSmearUp", "ElectronSmearDown", 
+				 "MuonScaleUp", "MuonScaleDown", "MuonSmearUp", "MuonSmearDown",
 				 "JetsScaleUp", "JetsScaleDown", "JetsResUp", "JetsResDown", 
 				 "SD_JMS_Up", "SD_JMS_Down", "SD_JMR_Up", "SD_JMR_Down", 
 				 "PDFNormUp", "PDFNormDown", "PDFScaleUp", "PDFScaleDown", 
-				 "PUReweight_Up", "PUReweight_Down"};
+				 "PUReweight_Up", "PUReweight_Down",
+  };
   
-  int electron_index[N_systs] = {0, 1, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-  int jet_index[N_systs]      = {0, 0, 0, 0, 0, 1, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-  int fatjet_index[N_systs]   = {0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 0, 0, 0, 0, 0, 0};
-  int PDF_index[N_systs]      = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 0, 0};
-  
-  
+  int electron_index[N_systs] = {0, 1, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  int muon_index[N_systs]     = {0, 0, 0, 0, 0, 1, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  int jet_index[N_systs]      = {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  int fatjet_index[N_systs]   = {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 0, 0, 0, 0, 0, 0};
+  int PDF_index[N_systs]      = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 0, 0};
+    
   for(int i_syst = 0; i_syst < N_systs; i_syst++){
-    executeEventFromParameter(  param, electrons_all_syst.at(electron_index[i_syst]), muons_all, Jets_all_syst.at(jet_index[i_syst]), FatJets_all_syst.at(fatjet_index[i_syst]), syst_flags[i_syst], PDF_weight_syst.at(PDF_index[i_syst])  ); 
+    executeEventFromParameter(  param, electrons_all_syst.at(electron_index[i_syst]), muons_all_syst.at(muon_index[i_syst]), Jets_all_syst.at(jet_index[i_syst]), FatJets_all_syst.at(fatjet_index[i_syst]), syst_flags[i_syst], PDF_weight_syst.at(PDF_index[i_syst])  ); 
   }
   
 }
@@ -219,7 +249,8 @@ void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector
     
   
   // -- Save HLT String and Boolean. Return if the event does not fire any on these triggers
-  TString trig_diele = "HLT_DoublePhoton70_v";
+  TString trig_diele = "HLT_Photon200_v";
+  //TString trig_diele = "HLT_DoublePhoton70_v";
   TString trig_mu50 = "HLT_Mu50_v";
   //TString trig_oldmu100 = "HLT_oldMu100_v";
   //TString trig_tkmu100 = "HLT_TkMu100_v";
@@ -406,15 +437,26 @@ void HN_pair_all::CR_Z_mass(AnalyzerParameter param, TString channel, bool trig_
   for(unsigned int i=0;i<leps_electron.size(); i++) Leptons.push_back( leps_electron.at(i) );
   for(unsigned int i=0;i<leps_muon.size(); i++) Leptons.push_back( leps_muon.at(i) );
   
-
+  
   if(Leptons.size() > 2) return;
   
   // -- Pt of Leptons > 75 GeV
   double Lep_1st_Pt, Lep_2nd_Pt;
   Lep_1st_Pt = Leptons_veto.at(0)->Pt();
   Lep_2nd_Pt = Leptons_veto.at(1)->Pt();
+
+  if(channel.Contains("DiEle")){
+    if(Lep_1st_Pt < 210 || Lep_2nd_Pt < 40) return;
+  }
+  else if(channel.Contains("DiMu")){
+    if(Lep_1st_Pt < 55 || Lep_2nd_Pt < 20) return;
+  }
+  else if(channel.Contains("EMu")){
+    if(Lep_1st_Pt < 55 || Lep_2nd_Pt < 55) return;
+  }
+  else return;
   
-  if(Lep_1st_Pt < 75 || Lep_2nd_Pt < 75) return;
+  //if(Lep_1st_Pt < 75 || Lep_2nd_Pt < 75) return;
   
   if(channel.Contains("SS")){
     if(Leptons_veto.at(0)->Charge() != Leptons_veto.at(1)->Charge()) return; // SS
@@ -531,7 +573,17 @@ void HN_pair_all::CR_ttbar_dom(AnalyzerParameter param, TString channel, bool tr
   Lep_2nd_Pt = Leptons_veto.at(1)->Pt();
   
   //if(Leptons_veto.at(0)->Charge() == Leptons_veto.at(1)->Charge()) return; // OS
-  if(Lep_1st_Pt < 75 || Lep_2nd_Pt < 75) return;
+  if(channel.Contains("DiEle")){
+    if(Lep_1st_Pt < 210 || Lep_2nd_Pt < 40) return;
+  }
+  else if(channel.Contains("DiMu")){
+    if(Lep_1st_Pt < 55 || Lep_2nd_Pt < 20) return;
+  }
+  else if(channel.Contains("EMu")){
+    if(Lep_1st_Pt < 55 || Lep_2nd_Pt < 55) return;
+  }
+  else return;
+  //if(Lep_1st_Pt < 75 || Lep_2nd_Pt < 75) return;
 
   //Njet >= 2 && Nbjet >= 1
   std::vector<Jet>      alljets_sub         = JetsVetoLeptonInside(GetJets(param.Jet_ID, 40., 2.7), electrons_veto, muons_veto); //no fatjet veto
@@ -660,7 +712,7 @@ void HN_pair_all::SR(AnalyzerParameter param, TString channel, bool trig_pass, d
   Lep_1st_Pt = Leptons_veto.at(0)->Pt();
   Lep_2nd_Pt = Leptons_veto.at(1)->Pt();
   
- 
+  
   if(channel.Contains("SS")){
     if(Leptons_veto.at(0)->Charge() != Leptons_veto.at(1)->Charge()) return;
   }
@@ -678,9 +730,18 @@ void HN_pair_all::SR(AnalyzerParameter param, TString channel, bool trig_pass, d
     FillHist("signal_eff", 23.5, weight, 40, 0., 40.); // cutflow - EMu lepton Charge
   }
   else return;
-
-
-  if(Lep_1st_Pt < 75 || Lep_2nd_Pt < 75) return;
+  
+  if(channel.Contains("DiEle")){
+    if(Lep_1st_Pt < 210 || Lep_2nd_Pt < 40) return;
+  }
+  else if(channel.Contains("DiMu")){
+    if(Lep_1st_Pt < 55 || Lep_2nd_Pt < 20) return;
+  }
+  else if(channel.Contains("EMu")){
+    if(Lep_1st_Pt < 55 || Lep_2nd_Pt < 55) return;
+  }
+  else return;
+  //if(Lep_1st_Pt < 75 || Lep_2nd_Pt < 75) return;
   
   if(channel.Contains("DiEle")){
     FillHist("signal_eff", 6.5, weight, 40, 0., 40.); // cutflow - DiEle lepton Pt 

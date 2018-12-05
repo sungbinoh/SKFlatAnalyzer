@@ -38,14 +38,22 @@ std::vector<Muon> AnalyzerCore::GetAllMuons(){
   for(unsigned int i=0; i<muon_pt->size(); i++){
 
     Muon mu;
+
+    mu.SetCharge(muon_charge->at(i));
+    mu.SetMiniAODPt(muon_pt->at(i));
+    mu.SetMiniAODTunePPt(muon_TuneP_pt->at(i));
+
     double rc = muon_roch_sf->at(i);
     double rc_err = muon_roch_sf_up->at(i)-rc;
-    
-    mu.SetMiniAODPt(muon_pt->at(i));
+    mu.SetMomentumScaleAndError(rc, rc_err);
     mu.SetPtEtaPhiM(muon_pt->at(i)*rc, muon_eta->at(i), muon_phi->at(i), muon_mass->at(i));
-    mu.SetMomentumUpDown( (rc+rc_err)*muon_pt->at(i), (rc-rc_err)*muon_pt->at(i) );
-    mu.SetCharge(muon_charge->at(i));
-    mu.SetTuneP4(muon_TuneP_pt->at(i),muon_TuneP_ptError->at(i),muon_TuneP_eta->at(i),muon_TuneP_phi->at(i),muon_TuneP_charge->at(i));
+
+    //==== TuneP
+    //==== Apply rochester correction for pt<200 GeV
+    double this_tuneP_pt = muon_TuneP_pt->at(i);
+    if(this_tuneP_pt < 200.) this_tuneP_pt *= rc;
+    mu.SetTuneP4(this_tuneP_pt, muon_TuneP_ptError->at(i), muon_TuneP_eta->at(i), muon_TuneP_phi->at(i), muon_TuneP_charge->at(i));
+
     mu.SetdXY(muon_dxyVTX->at(i), muon_dxyerrVTX->at(i));
     mu.SetdZ(muon_dzVTX->at(i), muon_dzerrVTX->at(i));
     mu.SetIP3D(muon_3DIPVTX->at(i), muon_3DIPerrVTX->at(i));
@@ -53,7 +61,7 @@ std::vector<Muon> AnalyzerCore::GetAllMuons(){
     mu.SetIDBit(muon_IDBit->at(i));
     mu.SetChi2(muon_normchi->at(i));
     mu.SetIso(muon_PfChargedHadronIsoR04->at(i),muon_PfNeutralHadronIsoR04->at(i),muon_PfGammaIsoR04->at(i),muon_PFSumPUIsoR04->at(i),muon_trkiso->at(i));
-
+    
     //==== Should be set after Eta is set
     mu.SetMiniIso(
       muon_PfChargedHadronMiniIso->at(i), 
@@ -101,6 +109,10 @@ std::vector<Electron> AnalyzerCore::GetAllElectrons(){
   for(unsigned int i=0; i<electron_pt->size(); i++){
 
     Electron el;
+
+    el.SetEnShift(  electron_Energy_Scale_Up->at(i)/electron_Energy->at(i), electron_Energy_Scale_Down->at(i)/electron_Energy->at(i) );
+    el.SetResShift( electron_Energy_Smear_Up->at(i)/electron_Energy->at(i), electron_Energy_Smear_Down->at(i)/electron_Energy->at(i) );
+
     el.SetPtEtaPhiE(electron_pt->at(i), electron_eta->at(i), electron_phi->at(i), electron_Energy->at(i));
     el.SetUncorrE(electron_EnergyUnCorr->at(i));
     el.SetSC(electron_scEta->at(i), electron_scPhi->at(i), electron_scEnergy->at(i));
@@ -279,6 +291,8 @@ std::vector<Jet> AnalyzerCore::GetAllJets(){
   for(unsigned int i=0; i<jet_pt->size(); i++){
     Jet jet;
     jet.SetPtEtaPhiM(jet_pt->at(i), jet_eta->at(i), jet_phi->at(i), jet_m->at(i));
+
+    //==== Jet energy up and down are 1.xx or 0.99, not energy
     jet.SetEnShift( jet_shiftedEnUp->at(i), jet_shiftedEnDown->at(i) );
     if(!IsDATA){
       jet *= jet_smearedRes->at(i);
@@ -412,7 +426,7 @@ std::vector<Gen> AnalyzerCore::GetGens(){
 
   std::vector<Gen> out;
   if(IsDATA) return out;
-
+  
   for(unsigned int i=0; i<gen_pt->size(); i++){
 
     Gen gen;
@@ -452,7 +466,12 @@ std::vector<Muon> AnalyzerCore::UseTunePMuon(std::vector<Muon> muons){
 
     Particle this_tunep4 = this_muon.TuneP4();
     this_muon.SetPtEtaPhiM( this_tunep4.Pt(), this_tunep4.Eta(), this_tunep4.Phi(), this_tunep4.M() );
-    //==== FIXME Add TuneP Charge here
+    this_muon.SetCharge( this_tunep4.Charge() );
+    this_muon.SetMiniAODPt( this_muon.MiniAODTunePPt() );
+
+    //==== TODO If MiniAODTunePPt >= 200, we don't use Rochester correction
+    //==== so let's set rc=1 and rc_err=0
+    if( this_muon.MiniAODTunePPt() >= 200. ) this_muon.SetMomentumScaleAndError(1., 0.);
 
     out.push_back(this_muon);
   }
@@ -550,7 +569,7 @@ std::vector<FatJet> AnalyzerCore::SelectFatJets(std::vector<FatJet> jets, TStrin
     out.push_back(this_jet);
   }
   return out;
-
+  
 }
 
 std::vector<Electron> AnalyzerCore::ScaleElectrons(std::vector<Electron> electrons, int sys){
@@ -559,36 +578,25 @@ std::vector<Electron> AnalyzerCore::ScaleElectrons(std::vector<Electron> electro
   for(unsigned int i=0; i<electrons.size(); i++){
     Electron this_electron = electrons.at(i);
 
-    if(sys<0){
-      this_electron.SetPtEtaPhiE( electron_pt_Scale_Down->at(i), this_electron.Eta(), this_electron.Phi(), electron_Energy_Scale_Down->at(i) );
-    }
-    else{
-      this_electron.SetPtEtaPhiE( electron_pt_Scale_Up->at(i), this_electron.Eta(), this_electron.Phi(), electron_Energy_Scale_Up->at(i) );
-    }
+    double this_sf = this_electron.EnShift(sys);
+    this_electron.SetPtEtaPhiM( this_electron.Pt() * this_sf, this_electron.Eta(), this_electron.Phi(), this_electron.M() );
 
-    out.push_back(this_electron);
-
+    out.push_back( this_electron );
   }
 
   return out;
 
 }
-
 std::vector<Electron> AnalyzerCore::SmearElectrons(std::vector<Electron> electrons, int sys){
 
   std::vector<Electron> out;
   for(unsigned int i=0; i<electrons.size(); i++){
     Electron this_electron = electrons.at(i);
 
-    if(sys<0){
-      this_electron.SetPtEtaPhiE( electron_pt_Smear_Down->at(i), this_electron.Eta(), this_electron.Phi(), electron_Energy_Smear_Down->at(i) );
-    }
-    else{
-      this_electron.SetPtEtaPhiE( electron_pt_Smear_Up->at(i), this_electron.Eta(), this_electron.Phi(), electron_Energy_Smear_Up->at(i) );
-    }
+    double this_sf = this_electron.ResShift(sys);
+    this_electron.SetPtEtaPhiM( this_electron.Pt() * this_sf, this_electron.Eta(), this_electron.Phi(), this_electron.M() );
 
-    out.push_back(this_electron);
-
+    out.push_back( this_electron );
   }
 
   return out;
@@ -601,20 +609,10 @@ std::vector<Muon> AnalyzerCore::ScaleMuons(std::vector<Muon> muons, int sys){
   for(unsigned int i=0; i<muons.size(); i++){
     Muon this_muon = muons.at(i);
 
-    if(sys<0){
-      this_muon.SetPtEtaPhiM( this_muon.MomentumDown(), this_muon.Eta(), this_muon.Phi(), this_muon.M() );
+    //==== TODO When we use TuneP, if MiniAODTunePPt >= 200., we set rc=1 and rc_err=0
+    //==== So we can just use MomentumShift()
 
-      //==== TODO how about tuneP?
-      //==== TODO IS THIS CORRECT?!
-      //this_muon.SetTuneP4(this_muon.MomentumDown(),muon_TuneP_ptError->at(i),muon_TuneP_eta->at(i),muon_TuneP_phi->at(i),muon_TuneP_charge->at(i));
-    }
-    else{
-      this_muon.SetPtEtaPhiM( this_muon.MomentumUp(), this_muon.Eta(), this_muon.Phi(), this_muon.M() );
-
-      //==== TODO how about tuneP?
-      //==== TODO IS THIS CORRECT?!
-      //this_muon.SetTuneP4(this_muon.MomentumUp(),muon_TuneP_ptError->at(i),muon_TuneP_eta->at(i),muon_TuneP_phi->at(i),muon_TuneP_charge->at(i));
-    }
+    this_muon.SetPtEtaPhiM( this_muon.MomentumShift(sys), this_muon.Eta(), this_muon.Phi(), this_muon.M() );
 
     out.push_back(this_muon);
 
@@ -623,6 +621,133 @@ std::vector<Muon> AnalyzerCore::ScaleMuons(std::vector<Muon> muons, int sys){
   return out;
 
 }
+
+std::vector<Muon> AnalyzerCore::ScaleTunePMuons(std::vector<Muon> muons, int sys){
+  // -- Follwed
+  // -- https://twiki.cern.ch/twiki/bin/viewauth/CMS/MuonReferenceSelectionAndCalibrationsRun2
+  // -- https://github.com/cms-analysis/SUSYBSMAnalysis-Zprime2muAnalysis/blob/mini-AOD/src/GeneralizedEndpoint.cc
+  
+  // Values for scale correction q/pt -> q/pt + k, while k is coming from random choise of Gauss(_Correction, _CorrectionError)
+  // For systemtacis, the randomly chosen k values are shifted by +- _CorrectionError as up/down systematics
+  double _Correction[6][3];
+  double _CorrectionError[6][3];
+  _Correction[0][0] = -0.388122; _CorrectionError[0][0] = 0.045881; //-180,-60
+  _Correction[0][1] =  0.376061; _CorrectionError[0][1] = 0.090062; //-60,60
+  _Correction[0][2] =  -0.153950; _CorrectionError[0][2] = 0.063053; //60,180
+  //[-2.1, -1.2]                                                                                           
+  _Correction[1][0] =  -0.039346; _CorrectionError[1][0] = 0.031655;
+  _Correction[1][1] =  0.041069;  _CorrectionError[1][1] = 0.030070;
+  _Correction[1][2] =  -0.113320; _CorrectionError[1][2] = 0.028683;
+  //[-1.2, 0.]
+  _Correction[2][0] =  0.0;      _CorrectionError[2][0] = 0.025;
+  _Correction[2][1] =  0.0;      _CorrectionError[2][1] = 0.025;
+  _Correction[2][2] =  0.0;      _CorrectionError[2][2] = 0.025;
+  //[-0., 1.2]
+  _Correction[3][0] =  0.0;      _CorrectionError[3][0] = 0.025;
+  _Correction[3][1] =  0.0;      _CorrectionError[3][1] = 0.025;
+  _Correction[3][2] =  0.0;      _CorrectionError[3][2] = 0.025;
+  //[1.2, 2.1]
+  _Correction[4][0] =  0.005114; _CorrectionError[4][0] = 0.033115;
+  _Correction[4][1] =  0.035573; _CorrectionError[4][1] = 0.038574;
+  _Correction[4][2] =  0.070002; _CorrectionError[4][2] = 0.035002;
+  //[2.1, 2.4]
+  _Correction[5][0] =  -0.235470; _CorrectionError[5][0] = 0.077534;
+  _Correction[5][1] =  -0.122719; _CorrectionError[5][1] = 0.061283;
+  _Correction[5][2] =  0.091502;  _CorrectionError[5][2] = 0.074502;
+  
+  // Eta Binning
+  unsigned int etaBINS = 6;
+  unsigned int kEtaBin = etaBINS;
+  double EtaBin[etaBINS+1];
+  EtaBin[0]=-2.4; EtaBin[1]=-2.1; EtaBin[2]=-1.2; EtaBin[3]=0.;
+  EtaBin[4]=1.2; EtaBin[5]=2.1; EtaBin[6]=2.4;  
+  
+  // Phi Binning.
+  unsigned int phiBINS =3;
+  unsigned int kPhiBin = phiBINS;
+  double PhiBin[phiBINS+1];
+  PhiBin[0]=-180.; PhiBin[1]=-60.; PhiBin[2]=60.; PhiBin[3]=180.;
+  
+  // -- Loop over muon vector
+  std::vector<Muon> out;
+  for(unsigned int i=0; i<muons.size(); i++){
+    Muon this_muon = muons.at(i);
+    double MuonEta = this_muon.Eta();
+    double MuonPhi = this_muon.Phi();
+    double MuonPt = this_muon.Pt();
+    int MuonCharge = this_muon.Charge();
+    // -- Get Eta Bin Number
+    
+    for (unsigned int kbin=0; kbin<=etaBINS; ++kbin) {
+      if (MuonEta<EtaBin[kbin+1]) {
+	kEtaBin = kbin;
+	break;
+      }
+    }
+    // -- Get Phi Bin Number
+    for (unsigned int kbin=0; kbin<=phiBINS; ++kbin) {
+      if (MuonPhi<PhiBin[kbin+1]) {
+	kPhiBin = kbin;
+	break;
+      }
+    }
+    float KappaBias=_Correction[kEtaBin][kPhiBin];
+    float KappaBiasError=_CorrectionError[kEtaBin][kPhiBin];
+    
+    float rnd = KappaBias+99*KappaBiasError;
+    while (abs(KappaBias-rnd) > KappaBiasError)
+      rnd = gRandom->Gaus(KappaBias,KappaBiasError);
+    
+    KappaBias = rnd;
+    
+    if (sys==-1) KappaBias = KappaBias+KappaBiasError; //Take bias + UpSystematic.
+    if (sys== 1) KappaBias = KappaBias-KappaBiasError; //Takes bias - DownSystematic.
+    
+    MuonPt = MuonPt/1000.; //GeV to TeV.
+    MuonPt = fabs(MuonPt) * double(MuonCharge); //Signed Pt.
+    MuonPt = 1/MuonPt; //Convert to Curvature.
+    MuonPt = MuonPt + KappaBias; //Apply the bias.
+    if (fabs(MuonPt) < 0.14) MuonPt = KappaBiasError; //To avoid a division by set the curvature to its error if after the correction the pt is larger than 7 TeV.
+    MuonPt = 1/MuonPt;//Return to Pt.
+    MuonPt = fabs(MuonPt);//returns unsigned Pt, any possible sign flip due to the curvature is absorbed here.
+    MuonPt = MuonPt*1000.;//Return to Pt in GeV.
+    
+    this_muon.SetPtEtaPhiM( MuonPt, this_muon.Eta(), this_muon.Phi(), this_muon.M() );
+    out.push_back(this_muon);
+    
+  }// -- Muon vector loop ends
+
+  return out;
+
+}
+
+std::vector<Muon> AnalyzerCore::SmearTunePMuons(std::vector<Muon> muons, int sys){
+  
+  std::vector<Muon> out;
+  // -- Loop over muon vector
+  for(unsigned int i=0; i<muons.size(); i++){
+    Muon this_muon = muons.at(i);
+    double eta = fabs(this_muon.Eta());
+    double smear = 1.;
+    if(eta < 1.6){
+      if(this_muon.Pt() < 200) smear = 1. + double(sys) *  0.003;
+      else if(this_muon.Pt() < 500) smear =  1. + double(sys) * 0.005; 
+      else smear = 1. + double(sys) * 0.01;
+    }
+    else if(eta < 2.4){
+      if(this_muon.Pt() < 200) smear = 1. + double(sys) *  0.006;
+      else if(this_muon.Pt() < 500) smear =  1. + double(sys) * 0.01;
+      else smear = 1. + double(sys) * 0.02;
+    }
+    else smear = 1.;
+    
+    this_muon *= smear;
+    out.push_back(this_muon);
+  }// -- Muon vector loop ends
+  
+  return out;
+}
+
 
 std::vector<Jet> AnalyzerCore::ScaleJets(std::vector<Jet> jets, int sys){
 
@@ -714,6 +839,7 @@ std::vector<FatJet> AnalyzerCore::SmearSDMassFatJets(std::vector<FatJet> jets, i
 bool AnalyzerCore::PassMETFilter(){
 
   //==== https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#Moriond_2018
+  //==== TODO If FastSIM, it should be changed
 
   if(!Flag_goodVertices) return false;
   if(!Flag_globalSuperTightHalo2016Filter) return false;
@@ -723,7 +849,11 @@ bool AnalyzerCore::PassMETFilter(){
   if(!Flag_BadPFMuonFilter) return false;
   if(!Flag_BadChargedCandidateFilter) return false;
   if(IsDATA && !Flag_eeBadScFilter) return false;
-  if(!Flag_ecalBadCalibFilter) return false;
+
+  //TODO Check this
+  if(DataYear==2017){
+    if(!Flag_ecalBadCalibFilter) return false;
+  }
 
   return true;
 
@@ -753,8 +883,11 @@ double AnalyzerCore::GetPrefireWeight(int sys){
   if(IsDATA) return 1.;
   else{
 
-    //==== TODO Add 2016
-    if(DataYear==2017){
+    if(DataYear==2016){
+      //==== TODO Add 2016 : https://github.com/nsmith-/PrefireAnalysis/#jet-prefire-efficiencies
+      return 1.;
+    }
+    else if(DataYear==2017){
 
       vector<Photon> photons = GetPhotons("passMediumID", 20., 3.0);
       vector<Jet> jets = GetJets("tight", 40., 3.5);
@@ -1050,8 +1183,8 @@ Gen AnalyzerCore::GetGenMatchedLepton(Lepton lep, std::vector<Gen> gens){
 
     //==== Status 1
     if( gen.Status() != 1 ) continue;
-    //==== PID & deltaR matching first
-    if( abs(gen.PID() ) != reco_PID ) continue;
+    //==== PID
+    if( abs( gen.PID() ) != reco_PID ) continue;
     //==== reject ISR?
     if( gen.MotherIndex() < 0 ) continue;
     //==== dR matching
