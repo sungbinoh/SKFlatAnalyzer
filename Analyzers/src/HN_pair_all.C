@@ -249,7 +249,8 @@ void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector
     
   
   // -- Save HLT String and Boolean. Return if the event does not fire any on these triggers
-  TString trig_diele = "HLT_DoublePhoton70_v";
+  TString trig_diele = "HLT_Photon200_v";
+  //TString trig_diele = "HLT_DoublePhoton70_v";
   TString trig_mu50 = "HLT_Mu50_v";
   //TString trig_oldmu100 = "HLT_oldMu100_v";
   //TString trig_tkmu100 = "HLT_TkMu100_v";
@@ -436,15 +437,26 @@ void HN_pair_all::CR_Z_mass(AnalyzerParameter param, TString channel, bool trig_
   for(unsigned int i=0;i<leps_electron.size(); i++) Leptons.push_back( leps_electron.at(i) );
   for(unsigned int i=0;i<leps_muon.size(); i++) Leptons.push_back( leps_muon.at(i) );
   
-
+  
   if(Leptons.size() > 2) return;
   
   // -- Pt of Leptons > 75 GeV
   double Lep_1st_Pt, Lep_2nd_Pt;
   Lep_1st_Pt = Leptons_veto.at(0)->Pt();
   Lep_2nd_Pt = Leptons_veto.at(1)->Pt();
+
+  if(channel.Contains("DiEle")){
+    if(Lep_1st_Pt < 210 || Lep_2nd_Pt < 40) return;
+  }
+  else if(channel.Contains("DiMu")){
+    if(Lep_1st_Pt < 55 || Lep_2nd_Pt < 20) return;
+  }
+  else if(channel.Contains("EMu")){
+    if(Lep_1st_Pt < 55 || Lep_2nd_Pt < 55) return;
+  }
+  else return;
   
-  if(Lep_1st_Pt < 75 || Lep_2nd_Pt < 75) return;
+  //if(Lep_1st_Pt < 75 || Lep_2nd_Pt < 75) return;
   
   if(channel.Contains("SS")){
     if(Leptons_veto.at(0)->Charge() != Leptons_veto.at(1)->Charge()) return; // SS
@@ -561,7 +573,17 @@ void HN_pair_all::CR_ttbar_dom(AnalyzerParameter param, TString channel, bool tr
   Lep_2nd_Pt = Leptons_veto.at(1)->Pt();
   
   //if(Leptons_veto.at(0)->Charge() == Leptons_veto.at(1)->Charge()) return; // OS
-  if(Lep_1st_Pt < 75 || Lep_2nd_Pt < 75) return;
+  if(channel.Contains("DiEle")){
+    if(Lep_1st_Pt < 210 || Lep_2nd_Pt < 40) return;
+  }
+  else if(channel.Contains("DiMu")){
+    if(Lep_1st_Pt < 55 || Lep_2nd_Pt < 20) return;
+  }
+  else if(channel.Contains("EMu")){
+    if(Lep_1st_Pt < 55 || Lep_2nd_Pt < 55) return;
+  }
+  else return;
+  //if(Lep_1st_Pt < 75 || Lep_2nd_Pt < 75) return;
 
   //Njet >= 2 && Nbjet >= 1
   std::vector<Jet>      alljets_sub         = JetsVetoLeptonInside(GetJets(param.Jet_ID, 40., 2.7), electrons_veto, muons_veto); //no fatjet veto
@@ -690,7 +712,7 @@ void HN_pair_all::SR(AnalyzerParameter param, TString channel, bool trig_pass, d
   Lep_1st_Pt = Leptons_veto.at(0)->Pt();
   Lep_2nd_Pt = Leptons_veto.at(1)->Pt();
   
- 
+  
   if(channel.Contains("SS")){
     if(Leptons_veto.at(0)->Charge() != Leptons_veto.at(1)->Charge()) return;
   }
@@ -708,9 +730,18 @@ void HN_pair_all::SR(AnalyzerParameter param, TString channel, bool trig_pass, d
     FillHist("signal_eff", 23.5, weight, 40, 0., 40.); // cutflow - EMu lepton Charge
   }
   else return;
-
-
-  if(Lep_1st_Pt < 75 || Lep_2nd_Pt < 75) return;
+  
+  if(channel.Contains("DiEle")){
+    if(Lep_1st_Pt < 210 || Lep_2nd_Pt < 40) return;
+  }
+  else if(channel.Contains("DiMu")){
+    if(Lep_1st_Pt < 55 || Lep_2nd_Pt < 20) return;
+  }
+  else if(channel.Contains("EMu")){
+    if(Lep_1st_Pt < 55 || Lep_2nd_Pt < 55) return;
+  }
+  else return;
+  //if(Lep_1st_Pt < 75 || Lep_2nd_Pt < 75) return;
   
   if(channel.Contains("DiEle")){
     FillHist("signal_eff", 6.5, weight, 40, 0., 40.); // cutflow - DiEle lepton Pt 
