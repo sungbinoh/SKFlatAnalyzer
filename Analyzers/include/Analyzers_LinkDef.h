@@ -14,6 +14,8 @@
 #pragma link C++ class GetEffLumi+;
 #pragma link C++ class ExampleRun+;
 #pragma link C++ class HN_pair_all+;
+#pragma link C++ class SR_prompt;
+#pragma link C++ class SR_nonprompt;
 #pragma link C++ class NvtxProfile+;
 #pragma link C++ class SKFlatValidation+;
 #pragma link C++ class SkimTree_LRSMHighPt+;

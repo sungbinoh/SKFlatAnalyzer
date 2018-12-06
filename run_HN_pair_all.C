@@ -7,7 +7,8 @@ R__LOAD_LIBRARY(./lib/libAnalyzers.so)
 
 void run_HN_pair_all(){
 
-  HN_pair_all m;
+  //HN_pair_all m;
+  SR_prompt m;
 
   TString outputdir = getenv("OUTPUTDIR");
 
