@@ -1,6 +1,7 @@
 #ifndef AnalyzerCore_h
 #define AnalyzerCore_h
 
+#include "LHAPDF/LHAPDF.h"
 #include "TLorentzVector.h"
 #include "TString.h"
 #include "TMath.h"
@@ -123,8 +124,11 @@ public:
   //==== Prefire
   double GetPrefireWeight(int sys);
 
+  //==== PDF functions
+  double GetPDFWeight(TString PDF_name, int syst);
+  double GetPDFError_alphaS(TString PDF_name, int syst);
+  
   //==== Functions
-
   bool IsOnZ(double m, double width);
   double MT(TLorentzVector a, TLorentzVector b);
   bool HasFlag(TString flag);

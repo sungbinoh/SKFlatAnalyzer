@@ -3,18 +3,18 @@ R__LOAD_LIBRARY(libTree.so)
 R__LOAD_LIBRARY(libHist.so)
 R__LOAD_LIBRARY(./lib/libDataFormats.so)
 R__LOAD_LIBRARY(./lib/libAnalyzers.so)
-
+R__LOAD_LIBRARY(./lib/libLHAPDF.so)
 
 void run_HN_pair_all(){
 
   //HN_pair_all m;
-  SR_prompt m;
+  HN_pair_all m;
 
   TString outputdir = getenv("OUTPUTDIR");
-
+  
   m.SetTreeName("recoTree/SKFlat");
-
-  m.MaxEvent = 100000;
+  
+  m.MaxEvent = 100;
   
   //==== For Data Run
   /*
