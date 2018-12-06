@@ -1,6 +1,7 @@
 #ifndef AnalyzerCore_h
 #define AnalyzerCore_h
 
+#include "LHAPDF/LHAPDF.h"
 #include "TLorentzVector.h"
 #include "TString.h"
 #include "TMath.h"

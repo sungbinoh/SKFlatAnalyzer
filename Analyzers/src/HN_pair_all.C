@@ -40,7 +40,11 @@ void HN_pair_all::executeEvent(){
   param.Jet_ID = "tight";
   param.FatJet_ID = "HN";  
 
-  Select_syst_objects(param);
+  const double x = 1e-3, Q = 200;
+  LHAPDF::PDF* pdf = LHAPDF::mkPDF("CT10nlo", 0);
+  cout << "xf_g = " << pdf->xfxQ(21, x, Q) << std::endl;
+
+  //Select_syst_objects(param);
   //executeEventFromParameter(param);
   
 }

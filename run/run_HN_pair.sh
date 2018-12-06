@@ -9,7 +9,7 @@ python python/SKFlat.py -a HN_pair_all -l ./run/MC_minor.txt --skim SkimTree_LRS
 
 #DATA
 python python/SKFlat.py -a HN_pair_all -i SingleMuon --skim SkimTree_LRSMHighPt -q fastq -n 20
-python python/SKFlat.py -a HN_pair_all -i DoubleEG --skim SkimTree_LRSMHighPt -q fastq -n 20
+#python python/SKFlat.py -a HN_pair_all -i DoubleEG --skim SkimTree_LRSMHighPt -q fastq -n 20
 
 #TEST
 #python python/SKFlat.py -a HN_pair_all --skim SkimTree_LRSMHighPt -i DYJets -q fastq -n 1
