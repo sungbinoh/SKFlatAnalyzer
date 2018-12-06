@@ -905,6 +905,70 @@ double AnalyzerCore::GetPrefireWeight(int sys){
 
 }
 
+double AnalyzerCore::GetPDFWeight(TString PDF_name, int syst){
+  
+  double out = 1.;
+  const char *pdf_name_char = PDF_name.Data();
+  
+  LHAPDF::PDF* pdf = LHAPDF::mkPDF(pdf_name_char, 0);
+  double pdf_1 = 1.;
+  double pdf_2 = 1.;
+  pdf_1 = pdf->xfxQ(genWeight_id1, genWeight_X1, genWeight_Q);
+  pdf_2 = pdf->xfxQ(genWeight_id2, genWeight_X2, genWeight_Q);
+  
+  out = pdf_1 * pdf_2;
+  
+  return out;
+}
+
+double AnalyzerCore::GetPDFError_alphaS(TString PDF_name, int syst){
+  
+  // -1 : central - sigma(alphaS), 1 : central + sigma(alphaS)
+  if(syst == 1 || syst == -1){
+  
+    double out = 1.;
+    TString PDF_name_up = PDF_name + "_as_0116";
+    TString PDF_name_down = PDF_name + "_as_0120";
+    
+    const char *pdf_name_char = PDF_name.Data();
+    const char *pdf_name_char_up = PDF_name_up.Data();
+    const char *pdf_name_char_down = PDF_name_down.Data();
+
+    LHAPDF::PDF* pdf = LHAPDF::mkPDF(pdf_name_char, 0);
+    LHAPDF::PDF* pdf_up = LHAPDF::mkPDF(pdf_name_char_up, 0);
+    LHAPDF::PDF* pdf_down = LHAPDF::mkPDF(pdf_name_char_down, 0);
+    
+    double pdf_1 = 1.;
+    double pdf_2 = 1.;
+    double pdf_weight = 1.;
+    double pdf_weight_up = 1.;
+    double pdf_weight_down = 1.;
+    pdf_1 = pdf->xfxQ(genWeight_id1, genWeight_X1, genWeight_Q);
+    pdf_2 = pdf->xfxQ(genWeight_id2, genWeight_X2, genWeight_Q);
+    pdf_weight = pdf_1 * pdf_2;
+    pdf_1 = pdf_up->xfxQ(genWeight_id1, genWeight_X1, genWeight_Q);
+    pdf_2 = pdf_up->xfxQ(genWeight_id2, genWeight_X2, genWeight_Q);
+    pdf_weight_up = pdf_1 * pdf_2;
+    pdf_1 = pdf_down->xfxQ(genWeight_id1, genWeight_X1, genWeight_Q);
+    pdf_2 = pdf_down->xfxQ(genWeight_id2, genWeight_X2, genWeight_Q);
+    pdf_weight_down = pdf_1* pdf_2;
+    
+    double sigma = (pdf_weight_up - pdf_weight_down) * 0.5 * 0.75;
+    
+    if(syst == 1){
+      return pdf_weight + sigma;
+    }
+    else{
+      return pdf_weight - sigma;
+    }
+  }
+  else{
+    cout << "[AnalyzerCore::GetPDFError_alphaS(TString PDF_name, int syst)] Wront syst option.." << endl;
+    exit(EXIT_FAILURE);
+  }
+
+}
+
 bool AnalyzerCore::IsOnZ(double m, double width){
   if( fabs(m-M_Z) < width ) return true;
   else return false;

@@ -39,11 +39,17 @@ void HN_pair_all::executeEvent(){
   
   param.Jet_ID = "tight";
   param.FatJet_ID = "HN";  
-
-  const double x = 1e-3, Q = 200;
-  LHAPDF::PDF* pdf = LHAPDF::mkPDF("CT10nlo", 0);
-  cout << "xf_g = " << pdf->xfxQ(21, x, Q) << std::endl;
-
+  
+  cout << "---------------------" << endl;
+  cout << "genWeight_Q : " << genWeight_Q << endl;
+  cout << "genWeight_id1 : " << genWeight_id1 << ", genWeight_X1 : " << genWeight_X1 << endl;
+  cout << "genWeight_id2 : " << genWeight_id2 << ", genWeight_X2 : " << genWeight_X2 << endl;
+  
+  double nnpdf_nnlo_pdf = GetPDFWeight("NNPDF31_nnlo_hessian_pdfas", 0);
+  double ct14_nlo_pdf = GetPDFWeight("CT14nlo", 0);
+  cout << "nnpdf_nnlo_pdf : " << nnpdf_nnlo_pdf << endl;
+  cout << "ct14_nlo_pdf : " << ct14_nlo_pdf << endl;
+  
   //Select_syst_objects(param);
   //executeEventFromParameter(param);
   
