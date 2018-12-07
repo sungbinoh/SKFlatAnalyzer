@@ -28,7 +28,7 @@ void run_HN_pair_all(){
   m.xsec = 5765.4;
   m.sumW = 123584524;
   m.DataYear = 2017;
-  m.AddFile("root://cms-xrdr.sdfarm.kr:1094///xrd/store/user/jskim/SKFlat/2017/DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8/SKFlat_v949cand2_2_MCPDFFIX/181126_102511/0000/SKFlatNtuple_2017_MC_39.root");
+  m.AddFile("/data7/DATA/SKFlat/v949cand2_2/2017/MC/DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8/181126_102511/0000/SKFlatNtuple_2017_MC_125.root");
   m.SetOutfilePath("hists.root");
   m.Init();
   m.initializeAnalyzerTools();

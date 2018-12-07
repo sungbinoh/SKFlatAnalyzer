@@ -39,7 +39,7 @@ void HN_pair_all::executeEvent(){
   
   param.Jet_ID = "tight";
   param.FatJet_ID = "HN";  
-  
+  /*
   cout << "---------------------" << endl;
   cout << "genWeight_Q : " << genWeight_Q << endl;
   cout << "genWeight_id1 : " << genWeight_id1 << ", genWeight_X1 : " << genWeight_X1 << endl;
@@ -49,7 +49,7 @@ void HN_pair_all::executeEvent(){
   double ct14_nlo_pdf = GetPDFWeight("CT14nlo", 0);
   cout << "nnpdf_nnlo_pdf : " << nnpdf_nnlo_pdf << endl;
   cout << "ct14_nlo_pdf : " << ct14_nlo_pdf << endl;
-  
+  */
   //Select_syst_objects(param);
   //executeEventFromParameter(param);
   
@@ -237,9 +237,14 @@ void HN_pair_all::Select_syst_objects(AnalyzerParameter param){
   int jet_index[N_systs]      = {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
   int fatjet_index[N_systs]   = {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 0, 0, 0, 0, 0, 0};
   int PDF_index[N_systs]      = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 0, 0};
-    
+  
+  double nnpdf_nnlo_pdf = GetPDFWeight("NNPDF31_nnlo_hessian_pdfas", 0);
+  double ct14_nlo_pdf = GetPDFWeight("CT14nlo", 0);
+  double pdf_ratio = ct14_nlo_pdf / nnpdf_nnlo_pdf;
+  
   for(int i_syst = 0; i_syst < N_systs; i_syst++){
-    executeEventFromParameter(  param, electrons_all_syst.at(electron_index[i_syst]), muons_all_syst.at(muon_index[i_syst]), Jets_all_syst.at(jet_index[i_syst]), FatJets_all_syst.at(fatjet_index[i_syst]), syst_flags[i_syst], PDF_weight_syst.at(PDF_index[i_syst])  ); 
+    //executeEventFromParameter(  param, electrons_all_syst.at(electron_index[i_syst]), muons_all_syst.at(muon_index[i_syst]), Jets_all_syst.at(jet_index[i_syst]), FatJets_all_syst.at(fatjet_index[i_syst]), syst_flags[i_syst], PDF_weight_syst.at(PDF_index[i_syst])  ); 
+    executeEventFromParameter(  param, electrons_all_syst.at(electron_index[i_syst]), muons_all_syst.at(muon_index[i_syst]), Jets_all_syst.at(jet_index[i_syst]), FatJets_all_syst.at(fatjet_index[i_syst]), syst_flags[i_syst], pdf_ratio  );
   }
   
 }
