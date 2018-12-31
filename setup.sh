@@ -50,8 +50,9 @@ elif [[ $HOSTNAME == *"cms.snu.ac.kr"* ]]; then
   eval `scramv1 runtime -sh`
   cd -
   #source /cvmfs/cms.cern.ch/slc6_amd64_gcc630/cms/cmssw/CMSSW_9_4_9_cand2/external/slc6_amd64_gcc630/bin/thisroot.sh
-
-  source /share/apps/root_v6-12-06/bin/thisroot.sh
+  source /cvmfs/cms.cern.ch/slc6_amd64_gcc630/lcg/root/6.12.07/bin/thisroot.sh
+  
+  #source /share/apps/root_v6-12-06/bin/thisroot.sh
   #export GCC_HOME=/share/apps/gcc491
   #export PATH=$GCC_HOME/bin:$PATH
   #export LD_LIBRARY_PATH=$GCC_HOME/lib64:$GCC_HOME/lib:$LD_LIBRARY_PATH

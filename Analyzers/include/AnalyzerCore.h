@@ -119,8 +119,9 @@ public:
   //void Set_MCSample_for_mcCorr();
   FakeBackgroundEstimator fakeEst;
   CFBackgroundEstimator cfEst;
+  std::map< TString, LHAPDF::PDF* > map_PDF;
   void initializeAnalyzerTools();
-
+  
   //==== Prefire
   double GetPrefireWeight(int sys);
 

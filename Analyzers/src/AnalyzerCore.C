@@ -867,7 +867,7 @@ void AnalyzerCore::initializeAnalyzerTools(){
     mcCorr.SetDataYear(DataYear);
     mcCorr.ReadHistograms();
   }
-
+  
   //==== FakeBackgroundEstimator
   fakeEst.SetDataYear(DataYear);
   fakeEst.ReadHistograms();
@@ -875,6 +875,14 @@ void AnalyzerCore::initializeAnalyzerTools(){
   //==== CFBackgroundEstimator
   cfEst.SetDataYear(DataYear);
   cfEst.ReadHistograms();
+
+  TString current_pdf_name = "NNPDF31_nnlo_hessian_pdfas";
+  const char *pdf_name_char = current_pdf_name.Data();
+  map_PDF[current_pdf_name] = LHAPDF::mkPDF(pdf_name_char, 0);
+
+  current_pdf_name = "CT14nlo";
+  const char *pdf_name_char_1 = current_pdf_name.Data();
+  map_PDF[current_pdf_name] = LHAPDF::mkPDF(pdf_name_char_1, 0);
 
 }
 
@@ -906,15 +914,12 @@ double AnalyzerCore::GetPrefireWeight(int sys){
 }
 
 double AnalyzerCore::GetPDFWeight(TString PDF_name, int syst){
-  
   double out = 1.;
-  const char *pdf_name_char = PDF_name.Data();
-  
-  LHAPDF::PDF* pdf = LHAPDF::mkPDF(pdf_name_char, 0);
+
   double pdf_1 = 1.;
   double pdf_2 = 1.;
-  pdf_1 = pdf->xfxQ(genWeight_id1, genWeight_X1, genWeight_Q);
-  pdf_2 = pdf->xfxQ(genWeight_id2, genWeight_X2, genWeight_Q);
+  pdf_1 = map_PDF[PDF_name]->xfxQ(genWeight_id1, genWeight_X1, genWeight_Q);
+  pdf_2 = map_PDF[PDF_name]->xfxQ(genWeight_id2, genWeight_X2, genWeight_Q);
   
   out = pdf_1 * pdf_2;
   

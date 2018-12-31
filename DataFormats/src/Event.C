@@ -41,7 +41,7 @@ bool Event::PassTrigger(std::vector<TString> trigs){
 
       //cout << j_HLT_TriggerName.at(j) << endl;
       if( j_HLT_TriggerName.at(j).find(this_check_trig)!=std::string::npos ){
-        return true;
+	return true;
       }
     }
 

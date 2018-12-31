@@ -394,6 +394,7 @@ queue {2}
     IncludeLine += 'R__LOAD_LIBRARY(libHist.so)\n'
     IncludeLine += 'R__LOAD_LIBRARY({0}libDataFormats.so)\n'.format(libdir)
     IncludeLine += 'R__LOAD_LIBRARY({0}libAnalyzers.so)\n'.format(libdir)
+    IncludeLine += 'R__LOAD_LIBRARY({0}libLHAPDF.so)\n'.format(libdir)
     #IncludeLine = 'R__LOAD_LIBRARY({1}/{0}_C.so)'.format(args.Analyzer, libdir)
 
     out = open(runCfileFullPath, 'w')
@@ -660,10 +661,12 @@ try:
             ErrorLog = this_status
             break
 
+          #if "Eur.Phys.J" not in this_status:
           if "FINISHED" not in this_status:
             ThisSampleFinished = False
-
+            
           outlog = ""
+          #if "Eur.Phys.J" in this_status:
           if "FINISHED" in this_status:
             finished.append("Finished")
 

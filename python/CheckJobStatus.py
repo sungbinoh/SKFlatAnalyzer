@@ -29,7 +29,8 @@ def GetJobID(logfiledir, cycle, jobnumber, hostname):
 
 
 def CheckJobStatus(logfiledir, cycle, jobnumber, hostname):
-  FinishString = "JOB FINISHED"
+  #FinishString = "JOB FINISHED"
+  FinishString = "Eur.Phys.J"
 
   path_log_e = ""
   path_log_o = ""
@@ -107,18 +108,22 @@ def CheckJobStatus(logfiledir, cycle, jobnumber, hostname):
   if FinishString in LASTLINE:
 
     for i in range(0,len(log_o)):
-      l = log_o[len(log_o)-1-1-i]
+      l = log_o[len(log_o)-1-1-1-1-i]
+      if "PDF" in l or "arxiv" in l:
+        continue
       if "[SKFlatNtuple::Loop]" in l:
         ForTimeEst = l
         break
-
+      
     EventDone = GetEventDone(ForTimeEst)
     return "FINISHED"+"\tEVDONE:"+EventDone+"\t"+line_JobStart
 
   ## 4) [SKFlatNtuple::Loop] Event Loop Started 2018-06-04 18:37:57
   elif "Event Loop Started" in LASTLINE:
     return "RUNNING\t"+str(0)+"\tEVDONE:"+str(0)+"\t"+line_JobStart
-
+  ## 5) Logging LHAPDF
+  elif "LHAPDF" in LASTLINE:
+    return "LHAPDF is logging"
   ## 3) Running
   elif "SKFlatNtuple::Loop" in LASTLINE:
     # [SKFlatNtuple::Loop] 2011000/38777460 (5.186 %)

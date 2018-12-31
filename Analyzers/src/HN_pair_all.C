@@ -4,6 +4,7 @@ void HN_pair_all::initializeAnalyzer(){
 
   RunFake = HasFlag("RunFake");
   RunCF = HasFlag("RunCF");
+
   
   //cout << "[HNPairAnalyzer::initializeAnalyzer] RunFake = " << RunFake << endl;
   //cout << "[HNPairAnalyzer::initializeAnalyzer] RunCF = " << RunCF << endl;
@@ -50,7 +51,7 @@ void HN_pair_all::executeEvent(){
   cout << "nnpdf_nnlo_pdf : " << nnpdf_nnlo_pdf << endl;
   cout << "ct14_nlo_pdf : " << ct14_nlo_pdf << endl;
   */
-  //Select_syst_objects(param);
+  Select_syst_objects(param);
   //executeEventFromParameter(param);
   
 }
@@ -290,6 +291,38 @@ void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector
     if(syst_flag.Contains("PUReweight_Down")) pileup_reweight = mcCorr.GetPileUpWeightAsSampleName(-1, nPileUp);
   }
   
+  //cout << "MCSample : " << MCSample << endl;
+  TString current_MC = "";
+  if(!IsDATA) current_MC = MCSample;
+  bool is_TTLL = current_MC.Contains("TTLL");
+  //cout << "is_TTLL : " << is_TTLL << endl;
+  double top_pt_reweight = 1.;
+  if(is_TTLL){// -- Calculate top pt reweight value
+    std::vector<Gen> gens = GetGens();
+    double top_pt = 9999.;
+    double atop_pt = 9999.;
+    bool top_found = false;
+    bool atop_found = false;
+    for(unsigned int i_gen = 0; i_gen < gens.size(); i_gen++){
+      if(gens.at(i_gen).PID() == 6 && gens.at(i_gen).Status() == 22) {
+	top_found = true;
+	top_pt = gens.at(i_gen).Pt();
+      }
+      if(gens.at(i_gen).PID() == -6 && gens.at(i_gen).Status() == 22) {
+	atop_found = true;
+	atop_pt = gens.at(i_gen).Pt();
+      }
+    }
+  
+    if(top_found && atop_found){
+      if(top_pt < 800. && atop_pt < 800.){
+	double top_weight = exp(0.0615 - 0.0005 * top_pt);
+	double atop_weight = exp(0.0615 - 0.0005 * atop_pt);
+	//cout << "top_weight : " << top_weight << ", atop_weight : " << atop_weight << endl;
+	top_pt_reweight = top_weight * top_weight;
+      }
+    }
+  }
   
   //cout << "pileup_reweight : " << pileup_reweight << endl;
   weight_trig_diele = weight_trig_diele * weight_1pb * pileup_reweight;
@@ -390,7 +423,7 @@ void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector
   
   double current_weight = weight_trig_mu50 * prefire_weight;
   if(!IsDATA){
-    current_weight *= PDF_weight;
+    current_weight = current_weight * PDF_weight * top_pt_reweight;
     
     mcCorr.IgnoreNoHist = param.MCCorrrectionIgnoreNoHist;
 
