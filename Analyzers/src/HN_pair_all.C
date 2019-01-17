@@ -591,7 +591,7 @@ void HN_pair_all::CR_Z_mass(AnalyzerParameter param, TString channel, bool trig_
 void HN_pair_all::CR_ttbar_dom(AnalyzerParameter param, TString channel, bool trig_pass, double weight, std::vector<Jet> jets, std::vector<FatJet> fatjets, std::vector<Electron> electrons, std::vector<Electron> electrons_veto, std::vector<Muon> muons, std::vector<Muon> muons_veto,
                             int N_electron, int N_veto_ele, int N_muon, int N_veto_muon){
   //CR of ttbar dominant region. Njet > 1, Nbjett > 0, MET > 40 GeV
-
+  //CR of ttbar dominant region. Z mass veto (20 GeV window), m(ll) < 150 GeV, Njet > 1, Nbjett > 0, MET > 40 GeV 
 
   //cout << "[CR_ttbar_dom] Start" << endl;
 
@@ -644,8 +644,9 @@ void HN_pair_all::CR_ttbar_dom(AnalyzerParameter param, TString channel, bool tr
   
   Particle ll = *(Leptons_veto.at(0)) + *(Leptons_veto.at(1));
   double M_ll = ll.M();
-  if(M_ll < 150) return;
-
+  if(fabs(M_Z - M_ll) < 20 ) return;
+  if(M_ll > 150) return;
+  
   //if(N_jet < 2 || NBJets < 1) return;
   JSFillHist("CR_ttbar_" + channel, "Nbjet_CR_ttbar_" + channel, NBJets, weight, 10, 0., 10.);
   JSFillHist("CR_ttbar_" + channel, "Njet_CR_ttbar_" + channel, N_jet, weight, 10, 0., 10.);
