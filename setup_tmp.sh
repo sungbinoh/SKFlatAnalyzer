@@ -2,11 +2,15 @@ export SKFlat_WD=`pwd`
 export SKFlat_LIB_PATH=$SKFlat_WD/lib/
 mkdir -p $SKFlat_LIB_PATH
 
-export SKFlatV="v949cand2_2"
+export SKFlatV="Run2Legacy_v1"
 mkdir -p $SKFlat_WD/data/$SKFlatV
 
 export SKFlatSEDir="/xrootd/store/user/$USER/SKFlatOutput/"
+
+#### USER INFO ####
 export SKFlatLogEmail='sungbin.oh@cern.ch'
+export SKFlatLogWeb=''
+export SKFlatLogWebDir=''
 
 if [[ $HOSTNAME == *"ui10.sdfarm.kr"* ]]; then
   echo "Working on KISTI"

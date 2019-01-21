@@ -45,6 +45,8 @@ string_ThisTime = ""
 
 USER = os.environ['USER']
 SKFlatLogEmail = os.environ['SKFlatLogEmail']
+SKFlatLogWeb = os.environ['SKFlatLogWeb']
+SKFlatLogWebDir = os.environ['SKFlatLogWebDir']
 SKFlat_WD = os.environ['SKFlat_WD']
 SKFlatV = os.environ['SKFlatV']
 SAMPLE_DATA_DIR = SKFlat_WD+'/data/'+SKFlatV+'/'+args.Year+'/Sample/'
@@ -53,6 +55,13 @@ SKFlatOutputDir = os.environ['SKFlatOutputDir']
 SKFlatSEDir = os.environ['SKFlatSEDir']
 SKFlat_LIB_PATH = os.environ['SKFlat_LIB_PATH']
 UID = str(os.getuid())
+
+if SKFlatLogEmail=='':
+  print '[SKFlat.py] Put your email address in setup.sh'
+  exit()
+SendLogToWeb = True
+if SKFlatLogWeb=='' or SKFlatLogWebDir=='':
+  SendLogToWeb = False
 
 HOSTNAME = os.environ['HOSTNAME']
 IsKISTI = ("sdfarm.kr" in HOSTNAME)
@@ -191,8 +200,6 @@ for InputSample in InputSamples:
 
   this_webdir = webdirpathbase+'/'+base_rundir.replace(SKFlatRunlogDir,'')
   os.system('mkdir -p '+this_webdir)
-  #os.system('scp -r '+this_webdir+' jskim@147.47.242.71:/var/www/html/SKFlatAnalyzerJobLogs/')
-  #os.system('ssh -Y jskim@147.47.242.71 chmod -R 777 /var/www/html/SKFlatAnalyzerJobLogs/'+base_rundir.replace(SKFlatRunlogDir,''))
 
   ## If KNU, copy grid cert
   if IsKNU:
@@ -678,9 +685,14 @@ try:
             EventDone += this_EventDone
             EventTotal += this_EventTotal
 
+            #### start
             line_EventRunTime = this_status.split()[2]+' '+this_status.split()[3]
             this_jobstarttime = GetDatetimeFromMyFormat(line_EventRunTime)
-            this_diff = datetime.datetime.now()-this_jobstarttime
+            #### end
+            line_EventEndTime = this_status.split()[4]+' '+this_status.split()[5]
+            this_jobendtime   = GetDatetimeFromMyFormat(line_EventEndTime)
+
+            this_diff = this_jobendtime-this_jobstarttime
             this_EventRunTime = 86400*this_diff.days+this_diff.seconds
 
             this_TimePerEvent = float(this_EventRunTime)/float(this_EventDone)
@@ -771,8 +783,6 @@ try:
 
         ## copy statuslog to webdir
         os.system('cp '+base_rundir+'/JobStatus.log '+this_webdir)
-        #os.system('scp -r '+webdir+' jskim@147.47.242.71:/var/www/html/SKFlatAnalyzerJobLogs/')
-        #os.system('ssh -Y jskim@147.47.242.71 chmod -R 777 /var/www/html/SKFlatAnalyzerJobLogs/'+base_rundir.replace(SKFlatRunlogDir,''))
 
         ## This time, it is found to be finished
         ## Change the flag
@@ -818,9 +828,10 @@ try:
 
           PostJobFinishedForEachSample[it_sample] = True
 
-    if USER=="jskim":
-      os.system('scp -r '+webdirpathbase+'/* jskim@147.47.242.71:/var/www/html/SKFlatAnalyzerJobLogs/')
-      os.system('ssh -Y jskim@147.47.242.71 chmod -R 777 /var/www/html/SKFlatAnalyzerJobLogs/'+args.Analyzer+"*")
+    if SendLogToWeb:
+
+      os.system('scp -r '+webdirpathbase+'/* '+SKFlatLogWeb+':'+SKFlatLogWebDir)
+      os.system('ssh -Y '+SKFlatLogWeb+' chmod -R 777 '+SKFlatLogWebDir+'/'+args.Analyzer+"*")
 
     time.sleep(20)
 

@@ -106,14 +106,18 @@ std::vector<Muon> AnalyzerCore::GetMuons(TString id, double ptmin, double fetama
 std::vector<Electron> AnalyzerCore::GetAllElectrons(){
 
   std::vector<Electron> out;
-  for(unsigned int i=0; i<electron_pt->size(); i++){
+  for(unsigned int i=0; i<electron_Energy->size(); i++){
 
     Electron el;
 
     el.SetEnShift(  electron_Energy_Scale_Up->at(i)/electron_Energy->at(i), electron_Energy_Scale_Down->at(i)/electron_Energy->at(i) );
     el.SetResShift( electron_Energy_Smear_Up->at(i)/electron_Energy->at(i), electron_Energy_Smear_Down->at(i)/electron_Energy->at(i) );
 
-    el.SetPtEtaPhiE(electron_pt->at(i), electron_eta->at(i), electron_phi->at(i), electron_Energy->at(i));
+    el.SetPtEtaPhiE(1., electron_eta->at(i), electron_phi->at(i), electron_Energy->at(i));
+    double el_theta = el.Theta();
+    double el_pt = electron_Energy->at(i) * TMath::Sin( el_theta );
+    el.SetPtEtaPhiE( el_pt, electron_eta->at(i), electron_phi->at(i), electron_Energy->at(i));
+
     el.SetUncorrE(electron_EnergyUnCorr->at(i));
     el.SetSC(electron_scEta->at(i), electron_scPhi->at(i), electron_scEnergy->at(i));
     el.SetCharge(electron_charge->at(i));
@@ -232,10 +236,15 @@ std::vector<Lepton *> AnalyzerCore::MakeLeptonPointerVector(std::vector<Electron
 std::vector<Photon> AnalyzerCore::GetAllPhotons(){
 
   std::vector<Photon> out;
-  for(unsigned int i=0; i<photon_pt->size(); i++){
+  for(unsigned int i=0; i<photon_Energy->size(); i++){
     
     Photon pho;
-    pho.SetPtEtaPhiM(photon_pt->at(i), photon_eta->at(i), photon_phi->at(i), 0.);
+
+    pho.SetPtEtaPhiE(1., photon_eta->at(i), photon_phi->at(i), photon_Energy->at(i));
+    double pho_theta = pho.Theta();
+    double pho_pt = photon_Energy->at(i) * TMath::Sin( pho_theta );
+    pho.SetPtEtaPhiE( pho_pt, photon_eta->at(i), photon_phi->at(i), photon_Energy->at(i));
+
     pho.SetSC(photon_scEta->at(i), photon_scPhi->at(i));
     pho.SetRho(Rho);
 
@@ -386,6 +395,7 @@ std::vector<FatJet> AnalyzerCore::GetAllFatJets(){
     jet.SetTaggerResults(tvs);
     jet.SetEnergyFractions(fatjet_chargedHadronEnergyFraction->at(i), fatjet_neutralHadronEnergyFraction->at(i), fatjet_neutralEmEnergyFraction->at(i), fatjet_chargedEmEnergyFraction->at(i), fatjet_muonEnergyFraction->at(i));
     jet.SetMultiplicities(fatjet_chargedMultiplicity->at(i), fatjet_neutralMultiplicity->at(i));
+    jet.SetLSF(fatjet_LSF->at(i), fatjet_LSFlep_PID->at(i));
     jet.SetTightJetID(fatjet_tightJetID->at(i));
     jet.SetTightLepVetoJetID(fatjet_tightLepVetoJetID->at(i));
     jet.SetPuppiTaus(fatjet_puppi_tau1->at(i), fatjet_puppi_tau2->at(i), fatjet_puppi_tau3->at(i), fatjet_puppi_tau4->at(i));
@@ -433,6 +443,7 @@ std::vector<Gen> AnalyzerCore::GetGens(){
 
     gen.SetIsEmpty(false);
     gen.SetPtEtaPhiM(gen_pt->at(i), gen_eta->at(i), gen_phi->at(i), gen_mass->at(i));
+    gen.SetCharge(gen_charge->at(i));
     gen.SetIndexPIDStatus(i, gen_PID->at(i), gen_status->at(i));
     gen.SetMother(gen_mother_index->at(i));
     gen.SetGenStatusFlag_isPrompt( gen_isPrompt->at(i) );
@@ -851,8 +862,8 @@ bool AnalyzerCore::PassMETFilter(){
   if(IsDATA && !Flag_eeBadScFilter) return false;
 
   //TODO Check this
-  if(DataYear==2017){
-    if(!Flag_ecalBadCalibFilter) return false;
+  if(DataYear>=2017){
+    if(!Flag_ecalBadCalibReducedMINIAODFilter) return false;
   }
 
   return true;
@@ -891,17 +902,14 @@ double AnalyzerCore::GetPrefireWeight(int sys){
   if(IsDATA) return 1.;
   else{
 
-    if(DataYear==2016){
-      //==== TODO Add 2016 : https://github.com/nsmith-/PrefireAnalysis/#jet-prefire-efficiencies
-      return 1.;
-    }
-    else if(DataYear==2017){
+    if(DataYear>2017) return 1.;
+    else{
 
-      vector<Photon> photons = GetPhotons("passMediumID", 20., 3.0);
-      vector<Jet> jets = GetJets("tight", 40., 3.5);
-      jets = JetsAwayFromPhoton(jets, photons, 0.4);
+      if(sys==0) return L1PrefireReweight_Central;
+      else if(sys>0) return L1PrefireReweight_Up;
+      else return L1PrefireReweight_Down;
 
-      return mcCorr.GetPrefireWeight(photons, jets, sys);
+      //return mcCorr.GetPrefireWeight(photons, jets, sys);
 
     }
 
@@ -1849,10 +1857,26 @@ void AnalyzerCore::WriteHist(){
 
   outfile->cd();
   for(std::map< TString, TH1D* >::iterator mapit = maphist_TH1D.begin(); mapit!=maphist_TH1D.end(); mapit++){
-    mapit->second->Write();
+    TString this_fullname=mapit->second->GetName();
+    TString this_name=this_fullname(this_fullname.Last('/')+1,this_fullname.Length());
+    TString this_suffix=this_fullname(0,this_fullname.Last('/'));
+    TDirectory *dir = outfile->GetDirectory(this_suffix);
+    if(!dir){
+      outfile->mkdir(this_suffix);
+    }
+    outfile->cd(this_suffix);
+    mapit->second->Write(this_name);
   }
   for(std::map< TString, TH2D* >::iterator mapit = maphist_TH2D.begin(); mapit!=maphist_TH2D.end(); mapit++){
-    mapit->second->Write();
+    TString this_fullname=mapit->second->GetName();
+    TString this_name=this_fullname(this_fullname.Last('/')+1,this_fullname.Length());
+    TString this_suffix=this_fullname(0,this_fullname.Last('/'));
+    TDirectory *dir = outfile->GetDirectory(this_suffix);
+    if(!dir){
+      outfile->mkdir(this_suffix);
+    }
+    outfile->cd(this_suffix);
+    mapit->second->Write(this_name);
   }
 
   outfile->cd();
@@ -1954,6 +1978,7 @@ void AnalyzerCore::FillJetPlots(std::vector<Jet> jets, std::vector<FatJet> fatje
     JSFillHist(this_region, "FatJet_"+this_itoa+"_Eta_"+this_region, fatjets.at(i).Eta(), weight, 60, -3., 3.);
     JSFillHist(this_region, "FatJet_"+this_itoa+"_Mass_"+this_region, fatjets.at(i).M(), weight, 3000, 0., 3000.);
     JSFillHist(this_region, "FatJet_"+this_itoa+"_SDMass_"+this_region, fatjets.at(i).SDMass(), weight, 3000, 0., 3000.);
+    JSFillHist(this_region, "FatJet_"+this_itoa+"_LSF_"+this_region, fatjets.at(i).LSF(), weight, 100, 0., 1.);
     JSFillHist(this_region, "FatJet_"+this_itoa+"_PuppiTau21_"+this_region, fatjets.at(i).PuppiTau2()/fatjets.at(i).PuppiTau1(), weight, 100, 0., 1.);
     JSFillHist(this_region, "FatJet_"+this_itoa+"_PuppiTau31_"+this_region, fatjets.at(i).PuppiTau3()/fatjets.at(i).PuppiTau1(), weight, 100, 0., 1.);
     JSFillHist(this_region, "FatJet_"+this_itoa+"_PuppiTau32_"+this_region, fatjets.at(i).PuppiTau3()/fatjets.at(i).PuppiTau2(), weight, 100, 0., 1.);

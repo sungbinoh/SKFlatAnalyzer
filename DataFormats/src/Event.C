@@ -73,17 +73,47 @@ double Event::GetTriggerLumi(TString trig){
     else if(trig=="HLT_Mu3_PFJet40_v"){
       return 7.408;
     }
-    else if(trig=="HLT_IsoMu18_v"){
-      return 2399.779;
-    }
-    else if(trig=="HLT_IsoMu20_v"){
-      return 9537.847;
-    }
-    else if(trig=="HLT_IsoMu22_v"){
-      return 28564.373;
-    }
     else if(trig=="HLT_IsoMu24_v"){
       return 35918.219;
+    }
+    else if(trig=="HLT_Ele8_CaloIdL_TrackIdL_IsoVL_PFJet30_v"){
+      return 6.988;
+    }
+    else if(trig=="HLT_Ele12_CaloIdL_TrackIdL_IsoVL_PFJet30_v"){
+      return 14.851;
+    }
+    else if(trig=="HLT_Ele23_CaloIdL_TrackIdL_IsoVL_PFJet30_v"){
+      return 62.808;
+    }
+    else if(trig=="HLT_DoublePhoton60_v"){
+      return 35918.219;
+    }
+    else if(trig=="HLT_Photon25_v"){
+      return 0.000;
+    }
+    else if(trig=="HLT_Photon33_v"){
+      return 0.000;
+    }
+    else if(trig=="HLT_Photon50_v"){
+      return 31.037;
+    }
+    else if(trig=="HLT_Photon75_v"){
+      return 134.568;
+    }
+    else if(trig=="HLT_Photon90_v"){
+      return 264.074;
+    }
+    else if(trig=="HLT_Photon120_v"){
+      return 537.005;
+    }
+    else if(trig=="HLT_Photon150_v"){
+      return 0.000;
+    }
+    else if(trig=="HLT_Photon175_v"){
+      return 35918.219;
+    }
+    else if(trig=="HLT_Photon200_v"){
+      return 0.000;
     }
   }
   else if(j_DataYear==2017){
@@ -96,8 +126,9 @@ double Event::GetTriggerLumi(TString trig){
     }
     else if(trig=="HLT_Mu8_v"){
       //==== 180829 Norm Checked : sf = 1.41036
-      //return 2.605*1.41036;
-      return 2.605*1.41036;
+      //==== 181206 Norm Checked : sf = 1.33461
+      //return 2.605;;
+      return 2.605*1.33461;
     }
     else if(trig=="HLT_Mu17_v"){
       return 70.039;

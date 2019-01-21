@@ -3,7 +3,7 @@ import os
 #commands.sh  job_0_GetEffLumi.e6409440  job_0_GetEffLumi.o6409440  run.C  submitlog.log
 
 def GetEventDone(l):
-  # [SKFlatNtuple::Loop] 1185000/1207307 (98.1523 %) @ 2018-5-16 11:0:9
+  # [SKFlatNtuple::Loop RUNNING] 1185000/1207307 (98.1523 %) @ 2018-5-16 11:0:9
   w = l.split()[2]
   nums = w.split('/')
 
@@ -71,7 +71,6 @@ def CheckJobStatus(logfiledir, cycle, jobnumber, hostname):
       is_not_mounting_err = True
     else:
       length_log_e += 1
-  
   if length_log_e > 0:
     out = 'ERROR\n'
     out += '--------------------------------------\n'
@@ -98,7 +97,6 @@ def CheckJobStatus(logfiledir, cycle, jobnumber, hostname):
   ## "Processing run.C" not yet done
   if not IsCycleRan:
     return "ANALYZER NOT STARTED"
-  
   LASTLINE = GetLogLastLine( log_o )
   if "Processing run.C" in LASTLINE:
     return "EVENT NOT STARTED"
@@ -122,7 +120,6 @@ def CheckJobStatus(logfiledir, cycle, jobnumber, hostname):
       if "[SKFlatNtuple::Loop RUNNING]" in l:
         ForTimeEst = l
         break
-      
     # [SKFlatNtuple::Loop] JOB FINISHED 2018-12-06 04:10:37
     line_JobFinished = LASTLINE.replace("[SKFlatNtuple::Loop] JOB FINISHED ","")
     EventDone = GetEventDone(ForTimeEst)
@@ -148,3 +145,4 @@ def CheckJobStatus(logfiledir, cycle, jobnumber, hostname):
         return "RUNNING\t"+perct+"\tEVDONE:"+EventDone+"\t"+line_JobStart
 
       return LASTLINE
+

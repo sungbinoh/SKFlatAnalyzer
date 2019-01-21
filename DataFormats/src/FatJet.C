@@ -25,6 +25,8 @@ FatJet::FatJet() : Particle() {
   j_muonEnergyFraction=-999.;
   j_chargedMultiplicity=-999;
   j_neutralMultiplicity=-999;
+  j_lsf=-999.;
+  j_lsf_pid=-999;
   j_En_up=1.;
   j_En_down=1.;;
   j_Res_up = 1.;
@@ -73,6 +75,17 @@ void FatJet::SetEnergyFractions(double cH, double nH, double nEM, double cEM, do
 void FatJet::SetMultiplicities(double cM, double nM){
   j_chargedMultiplicity = cM;
   j_neutralMultiplicity = nM;
+}
+
+void FatJet::SetLSF(double lsf, int lsf_PID){
+  j_lsf = lsf;
+  j_lsf_pid = lsf_PID;
+}
+double FatJet::LSF(){
+  return j_lsf;
+}
+double FatJet::LSF_PID(){
+  return j_lsf_pid;
 }
 
 void FatJet::SetEnShift(double en_up, double en_down){
