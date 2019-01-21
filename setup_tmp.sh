@@ -3,6 +3,7 @@ export SKFlat_LIB_PATH=$SKFlat_WD/lib/
 mkdir -p $SKFlat_LIB_PATH
 
 export SKFlatV="Run2Legacy_v1"
+#export SKFlatV="v949cand2_2"
 mkdir -p $SKFlat_WD/data/$SKFlatV
 
 export SKFlatSEDir="/xrootd/store/user/$USER/SKFlatOutput/"

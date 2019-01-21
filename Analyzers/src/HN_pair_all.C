@@ -604,7 +604,7 @@ void HN_pair_all::CR_ttbar_dom(AnalyzerParameter param, TString channel, bool tr
   std::vector<Lepton *> Leptons_veto;
   for(unsigned int i=0;i<leps_electron_veto.size(); i++) Leptons_veto.push_back( leps_electron_veto.at(i) );
   for(unsigned int i=0;i<leps_muon_veto.size(); i++) Leptons_veto.push_back( leps_muon_veto.at(i) );
-
+  
   std::vector<Lepton *> leps_electron = MakeLeptonPointerVector(electrons);
   std::vector<Lepton *> leps_muon     = MakeLeptonPointerVector(muons);
   std::vector<Lepton *> Leptons;
@@ -614,7 +614,6 @@ void HN_pair_all::CR_ttbar_dom(AnalyzerParameter param, TString channel, bool tr
   
   if(Leptons.size() > 2) return;
   
-
   // -- Pt of Leptons > 75 GeV
   double Lep_1st_Pt, Lep_2nd_Pt;
   Lep_1st_Pt = Leptons_veto.at(0)->Pt();
@@ -622,7 +621,7 @@ void HN_pair_all::CR_ttbar_dom(AnalyzerParameter param, TString channel, bool tr
   
   //if(Leptons_veto.at(0)->Charge() == Leptons_veto.at(1)->Charge()) return; // OS
   if(channel.Contains("DiEle")){
-    if(Lep_1st_Pt < 210 || Lep_2nd_Pt < 40) return;
+    if(Lep_1st_Pt < 75 || Lep_2nd_Pt < 75) return;
   }
   else if(channel.Contains("DiMu")){
     if(Lep_1st_Pt < 55 || Lep_2nd_Pt < 20) return;
@@ -646,6 +645,8 @@ void HN_pair_all::CR_ttbar_dom(AnalyzerParameter param, TString channel, bool tr
   double M_ll = ll.M();
   if(fabs(M_Z - M_ll) < 20 ) return;
   if(M_ll > 150) return;
+  if(M_ll < 55) return;
+
   
   //if(N_jet < 2 || NBJets < 1) return;
   JSFillHist("CR_ttbar_" + channel, "Nbjet_CR_ttbar_" + channel, NBJets, weight, 10, 0., 10.);
