@@ -1,5 +1,5 @@
 #MC big samples
-WWTo2L2Nu_powheg
+WW_pythia
 WZTo2L2Q
 WZTo3LNu
 ZZTo2L2Q
