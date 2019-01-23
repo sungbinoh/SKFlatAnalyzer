@@ -1,6 +1,4 @@
 #MC big samples
 WW_pythia
-WZTo2L2Q
-WZTo3LNu
-ZZTo2L2Q
-ZZTo4L_powheg
+WZ_pythia
+ZZ_pythia

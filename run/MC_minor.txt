@@ -3,11 +3,11 @@ ZZZ
 WZZ
 WWZ
 WWW
-SingleTop_tch_top
-SingleTop_tch_antitop
-SingleTop_tW_top
-SingleTop_tW_antitop
-SingleTop_sch
+#SingleTop_tch_top
+#SingleTop_tch_antitop
+#SingleTop_tW_top
+#SingleTop_tW_antitop
+#SingleTop_sch
 TTG
 ttW
 ttZ
