@@ -8,6 +8,9 @@
 #python python/SKFlat.py -a NvtxProfile -i SingleMuon -n 200 &
 #python python/SKFlat.py -a NvtxProfile -i DoubleEG -n 200 &
 
-python python/SKFlat.py -a NvtxProfile -i WW_pythia -n 100 &
-python python/SKFlat.py -a NvtxProfile -i WZ_pythia -n 100 &
-python python/SKFlat.py -a NvtxProfile -i ZZ_pythia -n 100 &
+#python python/SKFlat.py -a NvtxProfile -i WW_pythia -n 100 &
+#python python/SKFlat.py -a NvtxProfile -i WZ_pythia -n 100 &
+#python python/SKFlat.py -a NvtxProfile -i ZZ_pythia -n 100 &
+
+python python/SKFlat.py -a NvtxProfile -i TTLJ_powheg -n 100 &
+python python/SKFlat.py -a NvtxProfile -i TTJJ_powheg -n 100 &

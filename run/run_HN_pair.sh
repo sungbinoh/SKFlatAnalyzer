@@ -30,9 +30,9 @@
 ###############
 ## No Skim ####
 ###############
-#python python/SKFlat.py -a HN_pair_all -l ./run/MC_big.txt -q fastq -n 200 &
+python python/SKFlat.py -a HN_pair_all -l ./run/MC_big.txt -q fastq -n 200 &
 python python/SKFlat.py -a HN_pair_all -l ./run/MC_small.txt -q fastq -n 200 &
-#python python/SKFlat.py -a HN_pair_all -l ./run/MC_minor.txt -q fastq -n 200 &
+python python/SKFlat.py -a HN_pair_all -l ./run/MC_minor.txt -q fastq -n 200 &
 
-#python python/SKFlat.py -a HN_pair_all -i SingleMuon -q fastq -n 200 &
-#python python/SKFlat.py -a HN_pair_all -i DoubleEG -q fastq -n 200 &
+python python/SKFlat.py -a HN_pair_all -i SingleMuon -q fastq -n 200 &
+python python/SKFlat.py -a HN_pair_all -i DoubleEG -q fastq -n 200 &

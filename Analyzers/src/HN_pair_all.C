@@ -449,6 +449,7 @@ void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector
   // ==== Run Charge Blind 
   CR_Z_mass(param, current_channel  + syst_flag, trig_pass_for_channel,  current_weight, jets, fatjets, electrons_Tight_all, electrons_Veto, muons_Tight_all, muons_Veto, N_electrons_Tight_all, N_electrons_Veto, N_muons_Tight_all, N_muons_Veto);
   CR_ttbar_dom(param, current_channel  + syst_flag, trig_pass_for_channel,  current_weight, jets, fatjets, electrons_Tight_all, electrons_Veto, muons_Tight_all, muons_Veto, N_electrons_Tight_all, N_electrons_Veto, N_muons_Tight_all, N_muons_Veto);
+  CR_EMu90(param, current_channel  + syst_flag, trig_pass_for_channel,  current_weight, jets, fatjets, electrons_Tight_all, electrons_Veto, muons_Tight_all, muons_Veto, N_electrons_Tight_all, N_electrons_Veto, N_muons_Tight_all, N_muons_Veto);
   SR(param, current_channel + syst_flag, trig_pass_for_channel,  current_weight, jets, fatjets, electrons_Tight_all, electrons_Veto, muons_Tight_all, muons_Veto, N_electrons_Tight_all, N_electrons_Veto, N_muons_Tight_all, N_muons_Veto);
   
   // ==== Run Charge Awared
@@ -716,6 +717,73 @@ void HN_pair_all::CR_ttbar_dom(AnalyzerParameter param, TString channel, bool tr
 
 }
 
+void HN_pair_all::CR_EMu90(AnalyzerParameter param, TString channel, bool trig_pass, double weight, std::vector<Jet> jets, std::vector<FatJet> fatjets, std::vector<Electron> electrons, std::vector<Electron> electrons_veto, std::vector<Muon> muons, std::vector<Muon> muons_veto,
+			 int N_electron, int N_veto_ele, int N_muon, int N_veto_muon){
+  
+  if(!trig_pass) return;
+  
+  std::vector<Lepton *> leps_electron_veto = MakeLeptonPointerVector(electrons_veto);
+  std::vector<Lepton *> leps_muon_veto     = MakeLeptonPointerVector(muons_veto);
+  std::vector<Lepton *> Leptons_veto;
+  for(unsigned int i=0;i<leps_electron_veto.size(); i++) Leptons_veto.push_back( leps_electron_veto.at(i) );
+  for(unsigned int i=0;i<leps_muon_veto.size(); i++) Leptons_veto.push_back( leps_muon_veto.at(i) );
+
+  std::vector<Lepton *> leps_electron = MakeLeptonPointerVector(electrons);
+  std::vector<Lepton *> leps_muon     = MakeLeptonPointerVector(muons);
+  std::vector<Lepton *> Leptons;
+  for(unsigned int i=0;i<leps_electron.size(); i++) Leptons.push_back( leps_electron.at(i) );
+  for(unsigned int i=0;i<leps_muon.size(); i++) Leptons.push_back( leps_muon.at(i) );
+
+
+  if(Leptons.size() > 2) return;
+  double Lep_1st_Pt, Lep_2nd_Pt;
+  Lep_1st_Pt = Leptons_veto.at(0)->Pt();
+  Lep_2nd_Pt = Leptons_veto.at(1)->Pt();
+  if(Lep_1st_Pt < 75 || Lep_2nd_Pt < 75) return;
+  else if(channel.Contains("DiMu")){
+    if(Lep_1st_Pt < 55 || Lep_2nd_Pt < 20) return;
+  }
+  else if(channel.Contains("EMu")){
+   if(Lep_1st_Pt < 55 || Lep_2nd_Pt < 55) return;
+  }
+  else return;
+  
+  std::vector<Jet>      alljets_sub         = JetsVetoLeptonInside(GetJets(param.Jet_ID, 40., 2.7), electrons_veto, muons_veto); //no fatjet veto
+  int N_jet = alljets_sub.size();
+  
+  int NBJets=0;
+  for(unsigned int i=0; i<alljets_sub.size(); i++){
+    if(alljets_sub.at(i).IsTagged(Jet::CSVv2, Jet::Medium)) NBJets++;
+  }
+  
+  Particle ll = *(Leptons_veto.at(0)) + *(Leptons_veto.at(1));
+  double M_ll = ll.M();
+  if(M_ll < 90) return;
+  
+  TString Region_str = "CR_EMu90_";
+
+  JSFillHist(Region_str + channel, "Nvtx_69p2_" + Region_str + channel, nPV, weight, 1000, 0., 1000.);
+
+  JSFillHist(Region_str + channel, "mll_" + Region_str + channel, M_ll, weight, 1000, 0., 1000.);
+  if(Leptons.size() == 2){
+    Particle ll_tight = *(Leptons.at(0)) + *(Leptons.at(1));
+    double M_ll_tight = ll_tight.M();
+    JSFillHist(Region_str + channel, "mll_tight_" + Region_str + channel, M_ll_tight, weight, 1000, 0., 1000.);
+  }
+
+  FillLeptonPlots(Leptons_veto, Region_str + channel, weight);
+  FillLeptonPlots(Leptons, "tight_" + Region_str + channel, weight);
+
+  vector<Particle> Ns = RecoPairN(Leptons, fatjets, jets);
+  if(Ns.size() != 2) return;
+  TString jetbin_str = Get_N_jet_bin(Leptons, fatjets, jets);
+
+  //cout << "fill Region_str Zp" << endl;
+  Particle Zp = Ns.at(0) + Ns.at(1);
+  JSFillHist(Region_str + channel, "mZp_" + Region_str + channel, Zp.M(), weight, 6000, 0., 6000.);
+  FillHNPairPlots(Ns, Region_str + channel, jetbin_str, weight);
+  
+}
 
 void HN_pair_all::SR(AnalyzerParameter param, TString channel, bool trig_pass, double weight, std::vector<Jet> jets, std::vector<FatJet> fatjets, std::vector<Electron> electrons, std::vector<Electron> electrons_veto, std::vector<Muon> muons, std::vector<Muon> muons_veto,
 		     int N_electron, int N_veto_ele, int N_muon, int N_veto_muon){

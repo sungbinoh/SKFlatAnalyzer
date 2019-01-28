@@ -923,7 +923,9 @@ double AnalyzerCore::GetPrefireWeight(int sys){
 
 double AnalyzerCore::GetPDFWeight(TString PDF_name, int syst){
   double out = 1.;
-
+  
+  if(IsDATA) return out;
+  
   double pdf_1 = 1.;
   double pdf_2 = 1.;
   pdf_1 = map_PDF[PDF_name]->xfxQ(genWeight_id1, genWeight_X1, genWeight_Q);
@@ -936,10 +938,14 @@ double AnalyzerCore::GetPDFWeight(TString PDF_name, int syst){
 
 double AnalyzerCore::GetPDFError_alphaS(TString PDF_name, int syst){
   
+  
+  
   // -1 : central - sigma(alphaS), 1 : central + sigma(alphaS)
   if(syst == 1 || syst == -1){
   
     double out = 1.;
+    if(IsDATA) return out;
+
     TString PDF_name_up = PDF_name + "_as_0116";
     TString PDF_name_down = PDF_name + "_as_0120";
     
