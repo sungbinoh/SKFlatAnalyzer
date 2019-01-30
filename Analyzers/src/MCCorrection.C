@@ -35,7 +35,10 @@ void MCCorrection::ReadHistograms(){
       map_hist_Electron[a+"_"+b+"_"+c] = (TH2F *)file->Get(e);
     }
     else if(f=="TGraphAsymmErrors"){
-      map_graph_Electron[a+"_"+b+"_"+c] = (TGraphAsymmErrors *)file->Get(e);
+      if(a=="Trigger"){
+	map_graph_Electron[a+"_"+b+"_"+c +"_"+e] = (TGraphAsymmErrors *)file->Get(e);
+      }
+      else map_graph_Electron[a+"_"+b+"_"+c] = (TGraphAsymmErrors *)file->Get(e);
     }
     else{
       cout << "[MCCorrection::MCCorrection] Wrong class type : " << elline << endl;
@@ -482,6 +485,77 @@ double MCCorrection::ElectronReco_SF(double sceta, double pt, int sys){
 
 }
 
+
+double MCCorrection::ElectronTrigger_SF(double sceta, double pt, int sys){
+
+  if(ID=="Default") return 1.;
+
+  double value = 1.;
+  double error = 0.;
+
+  if(pt<10.) pt = 10.;
+  if(pt>=500.) pt = 499.;
+  if(sceta>=2.5) sceta = 2.49;
+  if(sceta<-2.5) sceta = -2.49;
+  
+  if( ID.Contains("HEEP") ){
+
+    TString this_key = "Trigger_SF_"+ID + "_ 94X_Trig";
+    TString eta_region;
+    if(fabs(sceta) < 1.479) eta_region = "barrel";
+    else                    eta_region = "endcap";
+    
+    TGraphAsymmErrors *this_graph_filter1 = map_graph_Electron[this_key + "1_" + eta_region];
+    TGraphAsymmErrors *this_graph_filter2 = map_graph_Electron[this_key + "2_" + eta_region];
+    
+    if(!this_graph_filter1){
+      if(IgnoreNoHist) return 1.;
+      else{
+        cout << "[MCCorrection::ElectronID_SF] (Graph) No "<<this_key + "1_" + eta_region<<endl;
+        exit(EXIT_FAILURE);
+      }
+    }
+    if(!this_graph_filter2){
+      if(IgnoreNoHist) return 1.;
+      else{
+        cout << "[MCCorrection::ElectronID_SF] (Graph) No "<<this_key + "1_" + eta_region<<endl;
+        exit(EXIT_FAILURE);
+      }
+    }
+
+    int NX = this_graph->GetN();
+    double x_filter1, x_low_filter1, x_high_filter1;
+    double y_filter1, y_low_filter1, y_high_filter1;
+    double x_filter2, x_low_filter2, x_high_filter2;
+    double y_filter2, y_low_filter2, y_high_filter2;
+    for(int j=0; j<NX; j++){
+      
+      this_graph_filter1->GetPoint(j, x_filter1, y_filter1);
+      this_graph_filter2->GetPoint(j, x_filter2, y_filter2);
+      
+      x_low = this_graph->GetErrorXlow(j);
+      x_high = this_graph->GetErrorXhigh(j);
+      
+      if(j==0 && pt < x_filter1-x_low ) pt = x-x_low;
+      if(j==NX-1 && x+x_high <= pt ) pt = x-x_low;
+      
+      if( x-x_low <= pt && pt < x+x_high){
+        y_low = this_graph->GetErrorYlow(j);
+        y_high = this_graph->GetErrorYhigh(j);
+
+        if(sys==0) return y;
+        else if(sys>0) return y+y_high;
+        else return y-y_low;
+
+      }
+
+    }
+    cout << "[MCCorrection::ElectronID_SF] (Graph) pt range strange.. "<<"ID_SF_"+ID<<", with pt = " << pt << endl;
+    exit(EXIT_FAILURE);
+    return 1.;
+  }
+  
+}
 
 double MCCorrection::GetPrefireWeight(std::vector<Photon> photons, std::vector<Jet> jets, int sys){
 

@@ -6,3 +6,7 @@ ID	SF	passHEEPID_Barrel	HEEP_SF.root	SF_Et_Barrel	TGraphAsymmErrors
 ID	SF	passHEEPID_Endcap	HEEP_SF.root	SF_Et_Endcap	TGraphAsymmErrors
 RECO	SF	ptgt20	egammaEffi.txt_EGM2D_runBCDEF_passingRECO.root	EGamma_SF2D	TH2F
 RECO	SF	ptlt20	egammaEffi.txt_EGM2D_runBCDEF_passingRECO_lowEt.root	EGamma_SF2	TH2F
+Trigger	SF	HEEP_OR_LooseNoIso						electronTrigSF.root	94X_Trig1_barrel TGraphAsymmErrors
+Trigger	SF	HEEP_OR_LooseNoIso                                              electronTrigSF.root     94X_Trig2_barrel TGraphAsymmErrors
+Trigger	SF	HEEP_OR_LooseNoIso                                              electronTrigSF.root     94X_Trig1_endcap TGraphAsymmErrors
+Trigger SF      HEEP_OR_LooseNoIso                                              electronTrigSF.root     94X_Trig2_endcap TGraphAsymmErrors

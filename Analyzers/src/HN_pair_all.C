@@ -267,14 +267,18 @@ void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector
   // -- Save HLT String and Boolean. Return if the event does not fire any on these triggers
   //TString trig_diele = "HLT_Photon200_v";
   TString trig_diele = "HLT_DoublePhoton70_v";
+  if(DataYear == 2016) trig_diele = "HLT_DoublePhoton60_v";
   TString trig_mu50 = "HLT_Mu50_v";
   //TString trig_oldmu100 = "HLT_oldMu100_v";
   //TString trig_tkmu100 = "HLT_TkMu100_v";
-    
+  
   bool Pass_diele = ev.PassTrigger(trig_diele);
   bool Pass_mu50 = ev.PassTrigger(trig_mu50);
-
-    
+  if(DataYear == 2016){
+    bool Pass_Tkmu50 = ev.PassTrigger("HLT_TkMu50_v");
+    Pass_mu50 = Pass_mu50 || Pass_Tkmu50;
+  }
+  
   // -- Set weight for Normalization 
   double weight_1pb = 1.;
   double weight_trig_diele = 1.;
@@ -285,10 +289,16 @@ void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector
     weight_1pb = weight_norm_1invpb * ev.MCweight();
     weight_trig_diele = ev.GetTriggerLumi(trig_diele);
     weight_trig_mu50 = ev.GetTriggerLumi(trig_mu50);
-    
-    pileup_reweight = mcCorr.GetPileUpWeightAsSampleName(0, nPileUp);
-    if(syst_flag.Contains("PUReweight_Up")) pileup_reweight = mcCorr.GetPileUpWeightAsSampleName(1, nPileUp);
-    if(syst_flag.Contains("PUReweight_Down")) pileup_reweight = mcCorr.GetPileUpWeightAsSampleName(-1, nPileUp);
+    if(DataYear == 2017){
+      pileup_reweight = mcCorr.GetPileUpWeightAsSampleName(0, nPileUp);
+      if(syst_flag.Contains("PUReweight_Up")) pileup_reweight = mcCorr.GetPileUpWeightAsSampleName(1, nPileUp);
+      if(syst_flag.Contains("PUReweight_Down")) pileup_reweight = mcCorr.GetPileUpWeightAsSampleName(-1, nPileUp);
+    }
+    else if(DataYear == 2016){
+      pileup_reweight = mcCorr.GetPileUpWeight(0, nPileUp);
+      if(syst_flag.Contains("PUReweight_Up")) pileup_reweight = mcCorr.GetPileUpWeight(1, nPileUp);
+      if(syst_flag.Contains("PUReweight_Down")) pileup_reweight = mcCorr.GetPileUpWeight(-1, nPileUp);
+    }
   }
   
   //cout << "MCSample : " << MCSample << endl;
@@ -393,11 +403,12 @@ void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector
   
     
   // -- Get Prefire weight
-  std::vector<Photon> photons            = GetPhotons("passMediumID", 20., 3.0);
-  std::vector<Jet>    jets_prefire       = JetsAwayFromPhoton(GetJets("tight", 40., 3.5), photons, 0.4);
+  //std::vector<Photon> photons            = GetPhotons("passMediumID", 20., 3.0);
+  //std::vector<Jet>    jets_prefire       = JetsAwayFromPhoton(GetJets("tight", 40., 3.5), photons, 0.4);
   double prefire_weight = 1.;
-  if(!IsDATA) prefire_weight =  mcCorr.GetPrefireWeight(photons, jets_prefire, 0.);
-  
+  if(!IsDATA) prefire_weight = L1PrefireReweight_Central;
+    //prefire_weight =  mcCorr.GetPrefireWeight(photons, jets_prefire, 0.);
+
   //cout << "prefire_weight : " << prefire_weight << endl;
   
   
