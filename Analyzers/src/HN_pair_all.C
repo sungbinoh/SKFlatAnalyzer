@@ -289,16 +289,9 @@ void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector
     weight_1pb = weight_norm_1invpb * ev.MCweight();
     weight_trig_diele = ev.GetTriggerLumi(trig_diele);
     weight_trig_mu50 = ev.GetTriggerLumi(trig_mu50);
-    if(DataYear == 2017){
-      pileup_reweight = mcCorr.GetPileUpWeightAsSampleName(0, nPileUp);
-      if(syst_flag.Contains("PUReweight_Up")) pileup_reweight = mcCorr.GetPileUpWeightAsSampleName(1, nPileUp);
-      if(syst_flag.Contains("PUReweight_Down")) pileup_reweight = mcCorr.GetPileUpWeightAsSampleName(-1, nPileUp);
-    }
-    else if(DataYear == 2016){
-      pileup_reweight = mcCorr.GetPileUpWeight(0, nPileUp);
-      if(syst_flag.Contains("PUReweight_Up")) pileup_reweight = mcCorr.GetPileUpWeight(1, nPileUp);
-      if(syst_flag.Contains("PUReweight_Down")) pileup_reweight = mcCorr.GetPileUpWeight(-1, nPileUp);
-    }
+    pileup_reweight = mcCorr.GetPileUpWeightAsSampleName(nPileUp, 0);
+    if(syst_flag.Contains("PUReweight_Up")) pileup_reweight = GetPileUpWeight(nPileUp, 1);
+    if(syst_flag.Contains("PUReweight_Down")) pileup_reweight = GetPileUpWeight(nPileUp, -1);
   }
   
   //cout << "MCSample : " << MCSample << endl;
