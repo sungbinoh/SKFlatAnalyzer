@@ -984,6 +984,8 @@ double AnalyzerCore::GetPDFError_alphaS(TString PDF_name, int syst){
   else{
     cout << "[AnalyzerCore::GetPDFError_alphaS(TString PDF_name, int syst)] Wront syst option.." << endl;
     exit(EXIT_FAILURE);
+  }
+}
 
 double AnalyzerCore::GetPileUpWeight(int N_vtx, int syst){
 
