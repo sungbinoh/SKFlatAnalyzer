@@ -114,10 +114,15 @@ public:
   MCCorrection mcCorr;
   FakeBackgroundEstimator fakeEst;
   CFBackgroundEstimator cfEst;
+  std::map< TString, LHAPDF::PDF* > map_PDF;
   void initializeAnalyzerTools();
 
   //==== Prefire
   double GetPrefireWeight(int sys);
+
+  //==== PDF functions
+  double GetPDFWeight(TString PDF_name, int syst);
+  double GetPDFError_alphaS(TString PDF_name, int syst);
 
   //==== PU Reweight
   double GetPileUpWeight(int N_vtx, int syst);
