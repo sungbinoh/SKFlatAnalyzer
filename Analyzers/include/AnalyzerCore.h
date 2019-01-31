@@ -129,6 +129,9 @@ public:
   double GetPDFWeight(TString PDF_name, int syst);
   double GetPDFError_alphaS(TString PDF_name, int syst);
   
+  //==== PU Reweight
+  double GetPileUpWeight(int N_vtx, int syst);
+
   //==== Functions
   bool IsOnZ(double m, double width);
   double MT(TLorentzVector a, TLorentzVector b);

@@ -984,6 +984,28 @@ double AnalyzerCore::GetPDFError_alphaS(TString PDF_name, int syst){
   else{
     cout << "[AnalyzerCore::GetPDFError_alphaS(TString PDF_name, int syst)] Wront syst option.." << endl;
     exit(EXIT_FAILURE);
+
+double AnalyzerCore::GetPileUpWeight(int N_vtx, int syst){
+
+  if(IsDATA) return 1.;
+  else{
+
+    if(DataYear==2016){
+      return mcCorr.GetPileUpWeight(N_vtx, syst);
+    }
+    else if(DataYear==2017){
+      return mcCorr.GetPileUpWeightBySampleName(N_vtx, syst);
+    }
+    else if(DataYear==2018){
+      //==== TODO 2018 not yet added
+      return 1.;
+    }
+    else{
+      cout << "[AnalyzerCore::GetPileUpWeight] Wrong year : " << DataYear << endl;
+      exit(EXIT_FAILURE);
+      return 1.;
+    }
+
   }
 
 }
