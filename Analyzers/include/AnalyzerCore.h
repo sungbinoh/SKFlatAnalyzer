@@ -136,7 +136,7 @@ public:
   double GetPDFError_alphaS(TString PDF_name, int syst);
 
   //==== PU Reweight
-  double GetPileUpWeight(int N_vtx, int syst);
+  double GetPileUpWeight(int N_pileup, int syst);
 
 
   //==== Btag setup
