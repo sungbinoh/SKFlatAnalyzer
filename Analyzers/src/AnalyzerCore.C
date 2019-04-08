@@ -809,14 +809,6 @@ void AnalyzerCore::initializeAnalyzerTools(){
   cfEst->SetDataYear(DataYear);
   cfEst->ReadHistograms();
 
-  TString current_pdf_name = "NNPDF31_nnlo_hessian_pdfas";
-  const char *pdf_name_char = current_pdf_name.Data();
-  map_PDF[current_pdf_name] = LHAPDF::mkPDF(pdf_name_char, 0);
-
-  current_pdf_name = "CT14nlo";
-  const char *pdf_name_char_1 = current_pdf_name.Data();
-  map_PDF[current_pdf_name] = LHAPDF::mkPDF(pdf_name_char_1, 0);
-
 }
 
 double AnalyzerCore::GetPrefireWeight(int sys){

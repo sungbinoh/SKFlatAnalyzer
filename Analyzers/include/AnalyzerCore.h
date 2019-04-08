@@ -131,10 +131,6 @@ public:
   //==== Prefire
   double GetPrefireWeight(int sys);
 
-  //==== PDF functions
-  double GetPDFWeight(TString PDF_name, int syst);
-  double GetPDFError_alphaS(TString PDF_name, int syst);
-
   //==== PU Reweight
   double GetPileUpWeight(int N_pileup, int syst);
 
