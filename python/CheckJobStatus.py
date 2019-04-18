@@ -44,7 +44,7 @@ def GetLogLastLine(lines):
 
 def CheckJobStatus(logfiledir, cycle, jobnumber, hostname):
   FinishString = "JOB FINISHED"
-
+  
   path_log_e = ""
   path_log_o = ""
 
@@ -71,7 +71,6 @@ def CheckJobStatus(logfiledir, cycle, jobnumber, hostname):
       is_not_mounting_err = True
     else:
       length_log_e += 1
-    
   if length_log_e > 0:
     out = 'ERROR\n'
     out += '--------------------------------------\n'
@@ -98,7 +97,6 @@ def CheckJobStatus(logfiledir, cycle, jobnumber, hostname):
   ## "Processing run.C" not yet done
   if not IsCycleRan:
     return "ANALYZER NOT STARTED"
-
   LASTLINE = GetLogLastLine( log_o )
   if "Processing run.C" in LASTLINE:
     return "EVENT NOT STARTED"
@@ -122,7 +120,6 @@ def CheckJobStatus(logfiledir, cycle, jobnumber, hostname):
       if "[SKFlatNtuple::Loop RUNNING]" in l:
         ForTimeEst = l
         break
-
     # [SKFlatNtuple::Loop] JOB FINISHED 2018-12-06 04:10:37
     line_JobFinished = LASTLINE.replace("[SKFlatNtuple::~SKFlatNtuple] JOB FINISHED ","")
     EventDone = GetEventDone(ForTimeEst)
@@ -131,7 +128,7 @@ def CheckJobStatus(logfiledir, cycle, jobnumber, hostname):
   ## 4) [SKFlatNtuple::Loop] Event Loop Started 2018-06-04 18:37:57
   elif "Event Loop Started" in LASTLINE:
     return "RUNNING\t"+str(0)+"\tEVDONE:"+str(0)+"\t"+line_JobStart
-
+  
   ## 3) Running
   elif "[SKFlatNtuple::Loop RUNNING]" in LASTLINE:
     # [SKFlatNtuple::Loop RUNNING] 2011000/38777460 (5.186 %)
@@ -139,7 +136,7 @@ def CheckJobStatus(logfiledir, cycle, jobnumber, hostname):
     EventDone = GetEventDone(ForTimeEst)
     return "RUNNING\t"+perct+"\tEVDONE:"+EventDone+"\t"+line_JobStart
   else:
-
+    
     for it_l in range(0,len(log_o)):
       l = log_o[len(log_o)-1-it_l]
       if ("[SKFlatNtuple::Loop RUNNING]" in l) and ("@" in l):

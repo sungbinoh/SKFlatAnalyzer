@@ -8,9 +8,9 @@ mkdir -p $SKFlat_WD/data/$SKFlatV
 export DATA_DIR=$SKFlat_WD/data/$SKFlatV
 
 #### USER INFO ####
-export SKFlatLogEmail=''
-export SKFlatLogWeb='' # leave if blank if you don't have webpage
-export SKFlatLogWebDir='' # leave if blank if you don't have webpage
+export SKFlatLogEmail='sungbin.oh@cern.ch'
+export SKFlatLogWeb=''
+export SKFlatLogWebDir=''
 
 #### use cvmfs for root ####
 export CMS_PATH=/cvmfs/cms.cern.ch

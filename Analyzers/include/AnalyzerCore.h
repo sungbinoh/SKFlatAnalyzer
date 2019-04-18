@@ -1,10 +1,12 @@
 #ifndef AnalyzerCore_h
 #define AnalyzerCore_h
 
+#include "LHAPDF/LHAPDF.h"
 #include "TLorentzVector.h"
 #include "TString.h"
 #include "TMath.h"
 #include <sstream>      
+#include "TRandom.h"
 
 #include "SKFlatNtuple.h"
 #include "Event.h"
@@ -90,7 +92,9 @@ public:
 
   std::vector<Muon> UseTunePMuon(std::vector<Muon> muons);
   std::vector<Muon> SelectMuons(std::vector<Muon> muons, TString id, double ptmin, double fetamax);
-
+  std::vector<Muon> ScaleTunePMuons(std::vector<Muon> muons, int sys);
+  std::vector<Muon> SmearTunePMuons(std::vector<Muon> muons, int sys);
+  
   std::vector<Jet> SelectJets(std::vector<Jet> jets, TString id, double ptmin, double fetamax);
 
   std::vector<FatJet> SelectFatJets(std::vector<FatJet> jets, TString id, double ptmin, double fetamax);
@@ -124,14 +128,26 @@ public:
 
   //===== Estimators
 
+<<<<<<< HEAD
   MCCorrection *mcCorr;
   FakeBackgroundEstimator *fakeEst;
   CFBackgroundEstimator *cfEst;
+=======
+  MCCorrection mcCorr;
+  //void Set_MCSample_for_mcCorr();
+  FakeBackgroundEstimator fakeEst;
+  CFBackgroundEstimator cfEst;
+  std::map< TString, LHAPDF::PDF* > map_PDF;
+>>>>>>> f25c368fccff27088d1b625581ad1b0c5c127f3f
   void initializeAnalyzerTools();
-
+  
   //==== Prefire
   double GetPrefireWeight(int sys);
 
+  //==== PDF functions
+  double GetPDFWeight(TString PDF_name, int syst);
+  double GetPDFError_alphaS(TString PDF_name, int syst);
+  
   //==== PU Reweight
   double GetPileUpWeight(int N_pileup, int syst);
 
@@ -155,8 +171,11 @@ public:
 
   //================
   //==== Functions
+<<<<<<< HEAD
   //================
 
+=======
+>>>>>>> f25c368fccff27088d1b625581ad1b0c5c127f3f
   bool IsOnZ(double m, double width);
   double MT(TLorentzVector a, TLorentzVector b);
   double MT2(TLorentzVector a, TLorentzVector b, Particle METv, double METgap);
@@ -232,6 +251,7 @@ public:
   //==== Quick Plotters
   void FillLeptonPlots(std::vector<Lepton *> leps, TString this_region, double weight);
   void FillJetPlots(std::vector<Jet> jets, std::vector<FatJet> fatjets, TString this_region, double weight);
+  void FillHNPairPlots(vector<Particle> Ns, TString this_region, TString jetbin_str, double weight);
 
   //==== Output rootfile
   void SwitchToTempDir();
