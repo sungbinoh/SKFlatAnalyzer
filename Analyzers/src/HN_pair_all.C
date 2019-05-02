@@ -29,6 +29,7 @@ void HN_pair_all::executeEvent(){
   param.Electron_Tight_ID = "HEEP_dZ";
   param.Electron_Loose_ID = "HEEP_OR_LooseNoIso";
   param.Electron_Veto_ID = "HEEP_OR_LooseNoIso";
+  param.Electron_ID_SF_Key = "HEEP_OR_LooseNoIso";
   param.Electron_MinPt = 75.; // HLT_DoublePhoton70_v
   
   param.Muon_Tight_ID = "POGHighPtWithLooseTrkIso";
@@ -223,7 +224,7 @@ void HN_pair_all::Select_syst_objects(AnalyzerParameter param){
   //cout << "[Select_syst_objects] Let's run" << endl;
 
   // ==== Define Systematic flag strings and order
-  const int N_systs = 23;
+  const int N_systs = 25;
   TString syst_flags[N_systs] = {"central", 
 				 "ElectronScaleUp", "ElectronScaleDown", "ElectronSmearUp", "ElectronSmearDown", 
 				 "MuonScaleUp", "MuonScaleDown", "MuonSmearUp", "MuonSmearDown",
@@ -231,17 +232,19 @@ void HN_pair_all::Select_syst_objects(AnalyzerParameter param){
 				 "SD_JMS_Up", "SD_JMS_Down", "SD_JMR_Up", "SD_JMR_Down", 
 				 "PDFNormUp", "PDFNormDown", "PDFScaleUp", "PDFScaleDown", 
 				 "PUReweight_Up", "PUReweight_Down",
+				 "Prefire_Up", "Prefire_Down",
   };
   
-  int electron_index[N_systs] = {0, 1, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-  int muon_index[N_systs]     = {0, 0, 0, 0, 0, 1, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-  int jet_index[N_systs]      = {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-  int fatjet_index[N_systs]   = {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 0, 0, 0, 0, 0, 0};
-  int PDF_index[N_systs]      = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 0, 0};
+  int electron_index[N_systs] = {0, 1, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  int muon_index[N_systs]     = {0, 0, 0, 0, 0, 1, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  int jet_index[N_systs]      = {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  int fatjet_index[N_systs]   = {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 0, 0, 0, 0, 0, 0, 0, 0};
+  int PDF_index[N_systs]      = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 0, 0, 0, 0};
   
-  double nnpdf_nnlo_pdf = GetPDFWeight("NNPDF31_nnlo_hessian_pdfas", 0);
-  double ct14_nlo_pdf = GetPDFWeight("CT14nlo", 0);
-  double pdf_ratio = ct14_nlo_pdf / nnpdf_nnlo_pdf;
+  //double nnpdf_nnlo_pdf = GetPDFWeight("NNPDF31_nnlo_hessian_pdfas", 0);
+  //double ct14_nlo_pdf = GetPDFWeight("CT14nlo", 0);
+  //double pdf_ratio = ct14_nlo_pdf / nnpdf_nnlo_pdf;
+  double pdf_ratio = 1.;
   
   for(int i_syst = 0; i_syst < N_systs; i_syst++){
     //executeEventFromParameter(  param, electrons_all_syst.at(electron_index[i_syst]), muons_all_syst.at(muon_index[i_syst]), Jets_all_syst.at(jet_index[i_syst]), FatJets_all_syst.at(fatjet_index[i_syst]), syst_flags[i_syst], PDF_weight_syst.at(PDF_index[i_syst])  ); 
@@ -289,7 +292,7 @@ void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector
     weight_1pb = weight_norm_1invpb * ev.MCweight();
     weight_trig_diele = ev.GetTriggerLumi(trig_diele);
     weight_trig_mu50 = ev.GetTriggerLumi(trig_mu50);
-    pileup_reweight = mcCorr.GetPileUpWeightAsSampleName(nPileUp, 0);
+    pileup_reweight = GetPileUpWeight(nPileUp, 0);
     if(syst_flag.Contains("PUReweight_Up")) pileup_reweight = GetPileUpWeight(nPileUp, 1);
     if(syst_flag.Contains("PUReweight_Down")) pileup_reweight = GetPileUpWeight(nPileUp, -1);
   }
@@ -391,7 +394,8 @@ void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector
   
   int NBJets=0;
   for(unsigned int i=0; i<alljets.size(); i++){
-    if(alljets.at(i).IsTagged(Jet::CSVv2, Jet::Medium)) NBJets++;
+    if( IsBTagged(alljets.at(i), Jet::CSVv2, Jet::Medium, false, 0) ) NBJets++;
+    //if(alljets.at(i).IsTagged(Jet::CSVv2, Jet::Medium)) NBJets++;
   }
   
     
@@ -399,11 +403,12 @@ void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector
   //std::vector<Photon> photons            = GetPhotons("passMediumID", 20., 3.0);
   //std::vector<Jet>    jets_prefire       = JetsAwayFromPhoton(GetJets("tight", 40., 3.5), photons, 0.4);
   double prefire_weight = 1.;
-  if(!IsDATA) prefire_weight = L1PrefireReweight_Central;
-    //prefire_weight =  mcCorr.GetPrefireWeight(photons, jets_prefire, 0.);
-
+  if(!IsDATA) {
+    prefire_weight = L1PrefireReweight_Central;
+    if(syst_flag.Contains("Prefire_Up")) prefire_weight = L1PrefireReweight_Up;
+    if(syst_flag.Contains("Prefire_Down")) prefire_weight= L1PrefireReweight_Down;
+  }
   //cout << "prefire_weight : " << prefire_weight << endl;
-  
   
   if(N_electrons_Loose != N_electrons_Veto) return;
   if(N_muons_Loose != N_muons_Veto) return;
@@ -429,22 +434,24 @@ void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector
   if(!IsDATA){
     current_weight = current_weight * PDF_weight * top_pt_reweight;
     
-    mcCorr.IgnoreNoHist = param.MCCorrrectionIgnoreNoHist;
+    mcCorr->IgnoreNoHist = param.MCCorrrectionIgnoreNoHist;
 
     for(unsigned int i = 0; i < electrons_Veto.size(); i++){
-      double this_recosf = mcCorr.ElectronReco_SF(electrons_Veto.at(i).scEta(), electrons_Veto.at(i).Pt());
-      double this_idsf = mcCorr.ElectronID_SF(param.Electron_ID_SF_Key, electrons_Veto.at(i).scEta(), electrons_Veto.at(i).Pt());
+      double this_trig_sf = mcCorr->ElectronTrigger_SF(param.Electron_ID_SF_Key, electrons_Veto.at(i).scEta(), electrons_Veto.at(i).Pt(), 0);
+      double this_recosf = mcCorr->ElectronReco_SF(electrons_Veto.at(i).scEta(), electrons_Veto.at(i).Pt());
+      double this_idsf = mcCorr->ElectronID_SF(param.Electron_ID_SF_Key, electrons_Veto.at(i).scEta(), electrons_Veto.at(i).Pt());
+      
       current_weight *= this_recosf*this_idsf;
     }
     
     for(unsigned int i = 0; i < muons_Veto.size(); i++){
       
-      double this_idsf  = mcCorr.MuonID_SF (param.Muon_ID_SF_Key,  muons_Veto.at(i).Eta(), muons_Veto.at(i).MiniAODPt());
-      double this_trigsf = mcCorr.MuonTrigger_SF(param.Muon_Trigger_SF_Key, "Default", muons_Veto);
+      double this_idsf  = mcCorr->MuonID_SF (param.Muon_ID_SF_Key,  muons_Veto.at(i).Eta(), muons_Veto.at(i).MiniAODPt());
+      double this_trigsf = mcCorr->MuonTrigger_SF(param.Muon_Trigger_SF_Key, "Default", muons_Veto);
       current_weight *= this_idsf*this_trigsf;
     }
     for(unsigned  int i = 0; i < muons_Tight.size(); i++){
-      double this_isosf = mcCorr.MuonISO_SF(param.Muon_ISO_SF_Key, muons_Tight.at(i).Eta(), muons_Tight.at(i).MiniAODPt());
+      double this_isosf = mcCorr->MuonISO_SF(param.Muon_ISO_SF_Key, muons_Tight.at(i).Eta(), muons_Tight.at(i).MiniAODPt());
       current_weight *= this_isosf;
     }
     
@@ -452,6 +459,7 @@ void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector
 
   // ==== Run Charge Blind 
   CR_Z_mass(param, current_channel  + syst_flag, trig_pass_for_channel,  current_weight, jets, fatjets, electrons_Tight_all, electrons_Veto, muons_Tight_all, muons_Veto, N_electrons_Tight_all, N_electrons_Veto, N_muons_Tight_all, N_muons_Veto);
+  CR_ll_150(param, current_channel  + syst_flag, trig_pass_for_channel,  current_weight, jets, fatjets, electrons_Tight_all, electrons_Veto, muons_Tight_all, muons_Veto, N_electrons_Tight_all, N_electrons_Veto, N_muons_Tight_all, N_muons_Veto);
   CR_ttbar_dom(param, current_channel  + syst_flag, trig_pass_for_channel,  current_weight, jets, fatjets, electrons_Tight_all, electrons_Veto, muons_Tight_all, muons_Veto, N_electrons_Tight_all, N_electrons_Veto, N_muons_Tight_all, N_muons_Veto);
   CR_EMu90(param, current_channel  + syst_flag, trig_pass_for_channel,  current_weight, jets, fatjets, electrons_Tight_all, electrons_Veto, muons_Tight_all, muons_Veto, N_electrons_Tight_all, N_electrons_Veto, N_muons_Tight_all, N_muons_Veto);
   SR(param, current_channel + syst_flag, trig_pass_for_channel,  current_weight, jets, fatjets, electrons_Tight_all, electrons_Veto, muons_Tight_all, muons_Veto, N_electrons_Tight_all, N_electrons_Veto, N_muons_Tight_all, N_muons_Veto);
@@ -502,7 +510,7 @@ void HN_pair_all::CR_Z_mass(AnalyzerParameter param, TString channel, bool trig_
     if(Lep_1st_Pt < 75 || Lep_2nd_Pt < 75) return;
   }
   else if(channel.Contains("DiMu")){
-    if(Lep_1st_Pt < 55 || Lep_2nd_Pt < 20) return;
+    if(Lep_1st_Pt < 55 || Lep_2nd_Pt < 55) return;
   }
   else if(channel.Contains("EMu")){
     if(Lep_1st_Pt < 75 || Lep_2nd_Pt < 55) return;
@@ -528,7 +536,8 @@ void HN_pair_all::CR_Z_mass(AnalyzerParameter param, TString channel, bool trig_
 
   int NBJets=0;
   for(unsigned int i=0; i<alljets_sub.size(); i++){
-    if(alljets_sub.at(i).IsTagged(Jet::CSVv2, Jet::Medium)) NBJets++;
+    if( IsBTagged(alljets_sub.at(i), Jet::CSVv2, Jet::Medium, false, 0) ) NBJets++;
+    //if(alljets_sub.at(i).IsTagged(Jet::CSVv2, Jet::Medium)) NBJets++;
   }
   JSFillHist("CR_Zmass_" + channel, "Nbjet_CR_Zmass_" + channel, NBJets, weight, 10, 0., 10.);
   JSFillHist("CR_Zmass_" + channel, "Njet_CR_Zmass_" + channel, N_jet, weight, 10, 0., 10.);
@@ -569,17 +578,17 @@ void HN_pair_all::CR_Z_mass(AnalyzerParameter param, TString channel, bool trig_
   */
   JSFillHist(Region_str + channel, "Nvtx_69p2_" + Region_str + channel, nPV, weight, 1000, 0., 1000.);
   
-  
+  /*
   JSFillHist(Region_str + channel, "mll_" + Region_str + channel, M_ll, weight, 1000, 0., 1000.);
   if(Leptons.size() == 2){
     Particle ll_tight = *(Leptons.at(0)) + *(Leptons.at(1));
     double M_ll_tight = ll_tight.M();
-    JSFillHist(Region_str + channel, "mll_tight_" + Region_str + channel, M_ll_tight, weight, 1000, 0., 1000.);
+    JSFillHist("tight_" + Region_str + channel, "mll_tight_" + Region_str + channel, M_ll_tight, weight, 1000, 0., 1000.);
   }
-  
+  */
   FillLeptonPlots(Leptons_veto, Region_str + channel, weight);
   FillLeptonPlots(Leptons, "tight_" + Region_str + channel, weight);
-
+  
   vector<Particle> Ns = RecoPairN(Leptons, fatjets, jets);
   if(Ns.size() != 2) return;
   TString jetbin_str = Get_N_jet_bin(Leptons, fatjets, jets);
@@ -591,6 +600,84 @@ void HN_pair_all::CR_Z_mass(AnalyzerParameter param, TString channel, bool trig_
   
 }
 
+void HN_pair_all::CR_ll_150(AnalyzerParameter param, TString channel, bool trig_pass, double weight, std::vector<Jet> jets, std::vector<FatJet> fatjets, std::vector<Electron> electrons, std::vector<Electron> electrons_veto, std::vector<Muon> muons, std::vector<Muon> muons_veto,
+                            int N_electron, int N_veto_ele, int N_muon, int N_veto_muon){
+  
+  if(!trig_pass) return;
+  std::vector<Lepton *> leps_electron_veto = MakeLeptonPointerVector(electrons_veto);
+  std::vector<Lepton *> leps_muon_veto     = MakeLeptonPointerVector(muons_veto);
+  std::vector<Lepton *> Leptons_veto;
+  for(unsigned int i=0;i<leps_electron_veto.size(); i++) Leptons_veto.push_back( leps_electron_veto.at(i) );
+  for(unsigned int i=0;i<leps_muon_veto.size(); i++) Leptons_veto.push_back( leps_muon_veto.at(i) );
+
+
+  std::vector<Lepton *> leps_electron = MakeLeptonPointerVector(electrons);
+  std::vector<Lepton *> leps_muon     = MakeLeptonPointerVector(muons);
+  std::vector<Lepton *> Leptons;
+  for(unsigned int i=0;i<leps_electron.size(); i++) Leptons.push_back( leps_electron.at(i) );
+  for(unsigned int i=0;i<leps_muon.size(); i++) Leptons.push_back( leps_muon.at(i) );
+
+
+  if(Leptons.size() > 2) return;
+
+  double Lep_1st_Pt, Lep_2nd_Pt;
+  Lep_1st_Pt = Leptons_veto.at(0)->Pt();
+  Lep_2nd_Pt = Leptons_veto.at(1)->Pt();
+
+  if(channel.Contains("DiEle")){
+    if(Lep_1st_Pt < 75 || Lep_2nd_Pt < 75) return;
+  }
+  else if(channel.Contains("DiMu")){
+    if(Lep_1st_Pt < 55 || Lep_2nd_Pt < 55) return;
+  }
+  else if(channel.Contains("EMu")){
+    if(Lep_1st_Pt < 75 || Lep_2nd_Pt < 55) return;
+  }
+  else return;
+  
+  if(channel.Contains("SS")){
+    if(Leptons_veto.at(0)->Charge() != Leptons_veto.at(1)->Charge()) return; // SS
+  }
+
+  Particle ll = *(Leptons_veto.at(0)) + *(Leptons_veto.at(1));
+  double M_ll = ll.M();
+
+  if(M_ll > 150.  || M_ll < 55.) return;
+
+  std::vector<Jet>      alljets_sub         = JetsVetoLeptonInside(GetJets(param.Jet_ID, 40., 2.7), electrons_veto, muons_veto); //no fatjet veto
+  int N_jet = alljets_sub.size();
+
+  int NBJets=0;
+  for(unsigned int i=0; i<alljets_sub.size(); i++){
+    if( IsBTagged(alljets_sub.at(i), Jet::CSVv2, Jet::Medium, false, 0) ) NBJets++;
+    //if(alljets_sub.at(i).IsTagged(Jet::CSVv2, Jet::Medium)) NBJets++;
+  }
+  TString Region_str = "CR_ll_150_";
+  JSFillHist(Region_str + channel, "Nbjet_" + Region_str + channel, NBJets, weight, 10, 0., 10.);
+  JSFillHist(Region_str + channel, "Njet_" + Region_str + channel, N_jet, weight, 10, 0., 10.);
+  JSFillHist(Region_str + channel, "Nfatjet_" + Region_str + channel, fatjets.size(), weight, 10, 0., 10.);
+  
+  Event ev_CR_ttbar = GetEvent();
+  Particle METv_CR_ttbar = ev_CR_ttbar.GetMETVector();
+  JSFillHist(Region_str + channel, "MET_" + Region_str + channel, METv_CR_ttbar.Pt(), weight, 1000, 0., 1000.);
+  
+  Event ev = GetEvent();
+  int nPV = ev.nPV();
+  
+  JSFillHist(Region_str + channel, "Nvtx_69p2_" + Region_str + channel, nPV, weight, 1000, 0., 1000.);
+  
+  FillLeptonPlots(Leptons_veto, Region_str + channel, weight);
+  FillLeptonPlots(Leptons, "tight_" + Region_str + channel, weight);
+
+  vector<Particle> Ns = RecoPairN(Leptons, fatjets, jets);
+  if(Ns.size() != 2) return;
+  TString jetbin_str = Get_N_jet_bin(Leptons, fatjets, jets);
+
+  Particle Zp = Ns.at(0) + Ns.at(1);
+  JSFillHist(Region_str + channel, "mZp_" + Region_str + channel, Zp.M(), weight, 6000, 0., 6000.);
+  FillHNPairPlots(Ns, Region_str + channel, jetbin_str, weight);
+  
+}
 
 
 void HN_pair_all::CR_ttbar_dom(AnalyzerParameter param, TString channel, bool trig_pass, double weight, std::vector<Jet> jets, std::vector<FatJet> fatjets, std::vector<Electron> electrons, std::vector<Electron> electrons_veto, std::vector<Muon> muons, std::vector<Muon> muons_veto,
@@ -629,7 +716,7 @@ void HN_pair_all::CR_ttbar_dom(AnalyzerParameter param, TString channel, bool tr
     if(Lep_1st_Pt < 75 || Lep_2nd_Pt < 75) return;
   }
   else if(channel.Contains("DiMu")){
-    if(Lep_1st_Pt < 55 || Lep_2nd_Pt < 20) return;
+    if(Lep_1st_Pt < 55 || Lep_2nd_Pt < 55) return;
   }
   else if(channel.Contains("EMu")){
     if(Lep_1st_Pt < 55 || Lep_2nd_Pt < 55) return;
@@ -643,7 +730,8 @@ void HN_pair_all::CR_ttbar_dom(AnalyzerParameter param, TString channel, bool tr
   
   int NBJets=0;
   for(unsigned int i=0; i<alljets_sub.size(); i++){
-    if(alljets_sub.at(i).IsTagged(Jet::CSVv2, Jet::Medium)) NBJets++;
+    if( IsBTagged(alljets_sub.at(i), Jet::CSVv2, Jet::Medium, false, 0) ) NBJets++;
+    //if(alljets_sub.at(i).IsTagged(Jet::CSVv2, Jet::Medium)) NBJets++;
   }
   
   Particle ll = *(Leptons_veto.at(0)) + *(Leptons_veto.at(1));
@@ -699,13 +787,15 @@ void HN_pair_all::CR_ttbar_dom(AnalyzerParameter param, TString channel, bool tr
   */
   JSFillHist(Region_str + channel, "Nvtx_69p2_" + Region_str + channel, nPV, weight, 1000, 0., 1000.);
 
+  /*
   JSFillHist(Region_str + channel, "mll_" + Region_str + channel, M_ll, weight, 1000, 0., 1000.);
   if(Leptons.size() == 2){
     Particle ll_tight = *(Leptons.at(0)) + *(Leptons.at(1));
     double M_ll_tight = ll_tight.M();
     JSFillHist(Region_str + channel, "mll_tight_" + Region_str + channel, M_ll_tight, weight, 1000, 0., 1000.);
   }
-  
+  */
+
   FillLeptonPlots(Leptons_veto, Region_str + channel, weight);
   FillLeptonPlots(Leptons, "tight_" + Region_str + channel, weight);
 
@@ -745,7 +835,7 @@ void HN_pair_all::CR_EMu90(AnalyzerParameter param, TString channel, bool trig_p
   Lep_2nd_Pt = Leptons_veto.at(1)->Pt();
   if(Lep_1st_Pt < 75 || Lep_2nd_Pt < 75) return;
   else if(channel.Contains("DiMu")){
-    if(Lep_1st_Pt < 55 || Lep_2nd_Pt < 20) return;
+    if(Lep_1st_Pt < 55 || Lep_2nd_Pt < 55) return;
   }
   else if(channel.Contains("EMu")){
    if(Lep_1st_Pt < 55 || Lep_2nd_Pt < 55) return;
@@ -757,24 +847,27 @@ void HN_pair_all::CR_EMu90(AnalyzerParameter param, TString channel, bool trig_p
   
   int NBJets=0;
   for(unsigned int i=0; i<alljets_sub.size(); i++){
-    if(alljets_sub.at(i).IsTagged(Jet::CSVv2, Jet::Medium)) NBJets++;
+    if( IsBTagged(alljets_sub.at(i), Jet::CSVv2, Jet::Medium, false, 0) ) NBJets++;
+    //if(alljets_sub.at(i).IsTagged(Jet::CSVv2, Jet::Medium)) NBJets++;
   }
   
   Particle ll = *(Leptons_veto.at(0)) + *(Leptons_veto.at(1));
   double M_ll = ll.M();
   if(M_ll < 90) return;
+  if(NBJets< 2) return;
+  TString Region_str = "CR_emu_tt_";
   
-  TString Region_str = "CR_EMu90_";
-
   JSFillHist(Region_str + channel, "Nvtx_69p2_" + Region_str + channel, nPV, weight, 1000, 0., 1000.);
 
+  /*
   JSFillHist(Region_str + channel, "mll_" + Region_str + channel, M_ll, weight, 1000, 0., 1000.);
   if(Leptons.size() == 2){
     Particle ll_tight = *(Leptons.at(0)) + *(Leptons.at(1));
     double M_ll_tight = ll_tight.M();
     JSFillHist(Region_str + channel, "mll_tight_" + Region_str + channel, M_ll_tight, weight, 1000, 0., 1000.);
   }
-
+  */
+  
   FillLeptonPlots(Leptons_veto, Region_str + channel, weight);
   FillLeptonPlots(Leptons, "tight_" + Region_str + channel, weight);
 
@@ -854,10 +947,10 @@ void HN_pair_all::SR(AnalyzerParameter param, TString channel, bool trig_pass, d
   else return;
   
   if(channel.Contains("DiEle")){
-    if(Lep_1st_Pt < 210 || Lep_2nd_Pt < 40) return;
+    if(Lep_1st_Pt < 75 || Lep_2nd_Pt < 75) return;
   }
   else if(channel.Contains("DiMu")){
-    if(Lep_1st_Pt < 55 || Lep_2nd_Pt < 20) return;
+    if(Lep_1st_Pt < 55 || Lep_2nd_Pt < 55) return;
   }
   else if(channel.Contains("EMu")){
     if(Lep_1st_Pt < 55 || Lep_2nd_Pt < 55) return;
@@ -883,7 +976,8 @@ void HN_pair_all::SR(AnalyzerParameter param, TString channel, bool trig_pass, d
   std::vector<Jet>      alljets_sub         = JetsVetoLeptonInside(GetJets(param.Jet_ID, 40., 2.7), electrons_veto, muons_veto); //no fatjet veto
   int NBJets=0;
   for(unsigned int i=0; i<alljets_sub.size(); i++){
-    if(alljets_sub.at(i).IsTagged(Jet::CSVv2, Jet::Medium)) NBJets++;
+    if( IsBTagged(alljets_sub.at(i), Jet::CSVv2, Jet::Medium, false, 0) ) NBJets++;
+    //if(alljets_sub.at(i).IsTagged(Jet::CSVv2, Jet::Medium)) NBJets++;
   }
   int N_jet = alljets_sub.size();
   //if(NBJets > 0) return;
@@ -908,6 +1002,8 @@ void HN_pair_all::SR(AnalyzerParameter param, TString channel, bool trig_pass, d
   else if(channel.Contains("DiMu")){
     FillHist("signal_eff", 25.5, weight, 40, 0., 40.); // cutflow - DiMu mll mass
   }
+  else if(channel.Contains("EMu")){
+  }  
   else return;
 
   JSFillHist("SR_" + channel, "Nbjet_SR_" + channel, NBJets, weight, 10, 0., 10.);
@@ -925,6 +1021,8 @@ void HN_pair_all::SR(AnalyzerParameter param, TString channel, bool trig_pass, d
   else if(channel.Contains("DiMu")){
     FillHist("signal_eff", 27.5, weight, 40, 0., 40.); // cutflow - DiMu Njet
   }
+  else if(channel.Contains("EMu")){
+  }
   else return;
   
   
@@ -938,6 +1036,8 @@ void HN_pair_all::SR(AnalyzerParameter param, TString channel, bool trig_pass, d
   else if(channel.Contains("DiMu")){
     FillHist("signal_eff", 29.5, weight, 40, 0., 40.); // cutflow - DiMu N mass 
   }
+  else if(channel.Contains("EMu")){
+  }  
   else return;
 
   if(Zp.M() < 300) return;
@@ -1017,7 +1117,8 @@ void HN_pair_all::CR_inv_mll(AnalyzerParameter param, TString channel, bool trig
   std::vector<Jet>      alljets_sub         = JetsVetoLeptonInside(GetJets(param.Jet_ID, 40., 2.7), electrons_veto, muons_veto); //no fatjet veto
   int NBJets=0;
   for(unsigned int i=0; i<alljets_sub.size(); i++){
-    if(alljets_sub.at(i).IsTagged(Jet::CSVv2, Jet::Medium)) NBJets++;
+    if( IsBTagged(alljets_sub.at(i), Jet::CSVv2, Jet::Medium, false, 0) ) NBJets++;
+    //if(alljets_sub.at(i).IsTagged(Jet::CSVv2, Jet::Medium)) NBJets++;
   }
   
   
@@ -1049,7 +1150,7 @@ void HN_pair_all::CR_inv_mll(AnalyzerParameter param, TString channel, bool trig
   TString jetbin_str = Get_N_jet_bin(Leptons, fatjets, jets);
   
   TString Region_str = "CR_inv_mll_";
-  JSFillHist(Region_str + channel, "mll_" + Region_str + channel, M_ll, weight, 1000, 0., 1000.);
+  //JSFillHist(Region_str + channel, "mll_" + Region_str + channel, M_ll, weight, 1000, 0., 1000.);
   FillLeptonPlots(Leptons_veto, Region_str + channel, weight);
 
   JSFillHist(Region_str + channel, "mZp_" + Region_str + channel, Zp.M(), weight, 6000, 0., 6000.);

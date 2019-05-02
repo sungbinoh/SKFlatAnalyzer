@@ -270,9 +270,9 @@ void SR_prompt::executeEventFromParameter(AnalyzerParameter param, std::vector<E
     weight_trig_diele = ev.GetTriggerLumi(trig_diele);
     weight_trig_mu50 = ev.GetTriggerLumi(trig_mu50);
     
-    pileup_reweight = mcCorr.GetPileUpWeightAsSampleName(0, nPileUp);
-    if(syst_flag.Contains("PUReweight_Up")) pileup_reweight = mcCorr.GetPileUpWeightAsSampleName(1, nPileUp);
-    if(syst_flag.Contains("PUReweight_Down")) pileup_reweight = mcCorr.GetPileUpWeightAsSampleName(-1, nPileUp);
+    pileup_reweight = GetPileUpWeight(nPileUp, 0);
+    if(syst_flag.Contains("PUReweight_Up")) pileup_reweight = GetPileUpWeight(nPileUp, 1);
+    if(syst_flag.Contains("PUReweight_Down")) pileup_reweight = GetPileUpWeight(nPileUp, -1);
   }
   
   
@@ -338,15 +338,13 @@ void SR_prompt::executeEventFromParameter(AnalyzerParameter param, std::vector<E
   
   int NBJets=0;
   for(unsigned int i=0; i<alljets.size(); i++){
-    if(alljets.at(i).IsTagged(Jet::CSVv2, Jet::Medium)) NBJets++;
+    if(IsBTagged(alljets.at(i), Jet::CSVv2, Jet::Medium, true, 0)) NBJets++;
   }
   
     
   // -- Get Prefire weight
-  std::vector<Photon> photons            = GetPhotons("passMediumID", 20., 3.0);
-  std::vector<Jet>    jets_prefire       = JetsAwayFromPhoton(GetJets("tight", 40., 3.5), photons, 0.4);
   double prefire_weight = 1.;
-  if(!IsDATA) prefire_weight =  mcCorr.GetPrefireWeight(photons, jets_prefire, 0.);
+  if(!IsDATA) prefire_weight =  L1PrefireReweight_Central;
   
   //cout << "prefire_weight : " << prefire_weight << endl;
   
@@ -375,22 +373,22 @@ void SR_prompt::executeEventFromParameter(AnalyzerParameter param, std::vector<E
   if(!IsDATA){
     current_weight *= PDF_weight;
     
-    mcCorr.IgnoreNoHist = param.MCCorrrectionIgnoreNoHist;
+    mcCorr->IgnoreNoHist = param.MCCorrrectionIgnoreNoHist;
 
     for(unsigned int i = 0; i < electrons_Veto.size(); i++){
-      double this_recosf = mcCorr.ElectronReco_SF(electrons_Veto.at(i).scEta(), electrons_Veto.at(i).Pt());
-      double this_idsf = mcCorr.ElectronID_SF(param.Electron_ID_SF_Key, electrons_Veto.at(i).scEta(), electrons_Veto.at(i).Pt());
+      double this_recosf = mcCorr->ElectronReco_SF(electrons_Veto.at(i).scEta(), electrons_Veto.at(i).Pt());
+      double this_idsf = mcCorr->ElectronID_SF(param.Electron_ID_SF_Key, electrons_Veto.at(i).scEta(), electrons_Veto.at(i).Pt());
       current_weight *= this_recosf*this_idsf;
     }
     
     for(unsigned int i = 0; i < muons_Veto.size(); i++){
       
-      double this_idsf  = mcCorr.MuonID_SF (param.Muon_ID_SF_Key,  muons_Veto.at(i).Eta(), muons_Veto.at(i).MiniAODPt());
-      double this_trigsf = mcCorr.MuonTrigger_SF(param.Muon_Trigger_SF_Key, "Default", muons_Veto);
+      double this_idsf  = mcCorr->MuonID_SF (param.Muon_ID_SF_Key,  muons_Veto.at(i).Eta(), muons_Veto.at(i).MiniAODPt());
+      double this_trigsf = mcCorr->MuonTrigger_SF(param.Muon_Trigger_SF_Key, "Default", muons_Veto);
       current_weight *= this_idsf*this_trigsf;
     }
     for(unsigned  int i = 0; i < muons_Tight.size(); i++){
-      double this_isosf = mcCorr.MuonISO_SF(param.Muon_ISO_SF_Key, muons_Tight.at(i).Eta(), muons_Tight.at(i).MiniAODPt());
+      double this_isosf = mcCorr->MuonISO_SF(param.Muon_ISO_SF_Key, muons_Tight.at(i).Eta(), muons_Tight.at(i).MiniAODPt());
       current_weight *= this_isosf;
     }
     
@@ -503,7 +501,7 @@ void SR_prompt::SR(AnalyzerParameter param, TString channel, bool trig_pass, dou
   std::vector<Jet>      alljets_sub         = JetsVetoLeptonInside(GetJets(param.Jet_ID, 40., 2.7), electrons_veto, muons_veto); //no fatjet veto
   int NBJets=0;
   for(unsigned int i=0; i<alljets_sub.size(); i++){
-    if(alljets_sub.at(i).IsTagged(Jet::CSVv2, Jet::Medium)) NBJets++;
+    if(IsBTagged(alljets_sub.at(i), Jet::CSVv2, Jet::Medium, true, 0)) NBJets++;
   }
   int N_jet = alljets_sub.size();
   //if(NBJets > 0) return;
@@ -637,11 +635,9 @@ void SR_prompt::CR_inv_mll(AnalyzerParameter param, TString channel, bool trig_p
   std::vector<Jet>      alljets_sub         = JetsVetoLeptonInside(GetJets(param.Jet_ID, 40., 2.7), electrons_veto, muons_veto); //no fatjet veto
   int NBJets=0;
   for(unsigned int i=0; i<alljets_sub.size(); i++){
-    if(alljets_sub.at(i).IsTagged(Jet::CSVv2, Jet::Medium)) NBJets++;
+    if(IsBTagged(alljets_sub.at(i), Jet::CSVv2, Jet::Medium, true, 0)) NBJets++;
   }
   
-  
-
   //m(ll) < 150 GeV
   Particle ll = *(Leptons_veto.at(0)) + *(Leptons_veto.at(1));
   double M_ll = ll.M();

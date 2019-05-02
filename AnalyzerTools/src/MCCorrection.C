@@ -540,12 +540,10 @@ double MCCorrection::ElectronReco_SF(double sceta, double pt, int sys){
 }
 
 
-double MCCorrection::ElectronTrigger_SF(double sceta, double pt, int sys){
+double MCCorrection::ElectronTrigger_SF(TString ID, double sceta, double pt, int sys){
 
   if(ID=="Default") return 1.;
 
-  double value = 1.;
-  double error = 0.;
 
   if(pt<10.) pt = 10.;
   if(pt>=500.) pt = 499.;
@@ -577,37 +575,42 @@ double MCCorrection::ElectronTrigger_SF(double sceta, double pt, int sys){
       }
     }
 
-    int NX = this_graph->GetN();
+    int NX = this_graph_filter1->GetN();
     double x_filter1, x_low_filter1, x_high_filter1;
+    double x_filter2;
     double y_filter1, y_low_filter1, y_high_filter1;
-    double x_filter2, x_low_filter2, x_high_filter2;
     double y_filter2, y_low_filter2, y_high_filter2;
+    
     for(int j=0; j<NX; j++){
       
       this_graph_filter1->GetPoint(j, x_filter1, y_filter1);
       this_graph_filter2->GetPoint(j, x_filter2, y_filter2);
       
-      x_low = this_graph->GetErrorXlow(j);
-      x_high = this_graph->GetErrorXhigh(j);
-      
-      if(j==0 && pt < x_filter1-x_low ) pt = x-x_low;
-      if(j==NX-1 && x+x_high <= pt ) pt = x-x_low;
-      
-      if( x-x_low <= pt && pt < x+x_high){
-        y_low = this_graph->GetErrorYlow(j);
-        y_high = this_graph->GetErrorYhigh(j);
+      x_low_filter1 = this_graph_filter1->GetErrorXlow(j);
+      x_high_filter1 = this_graph_filter1->GetErrorXhigh(j);
 
-        if(sys==0) return y;
-        else if(sys>0) return y+y_high;
-        else return y-y_low;
+      if(j==0 && pt < x_filter1 - x_low_filter1 ) pt = x_filter1 - x_low_filter1;
+      if(j==NX-1 && x_filter1 + x_high_filter1 <= pt ) pt = x_filter1 - x_low_filter1;
+      
+      if( x_filter1 - x_low_filter1 <= pt && pt < x_filter1 + x_high_filter1){
+        y_low_filter1 = this_graph_filter1->GetErrorYlow(j);
+        y_high_filter1 = this_graph_filter1->GetErrorYhigh(j);
+	y_low_filter2 = this_graph_filter2->GetErrorYlow(j);
+        y_high_filter2 = this_graph_filter2->GetErrorYhigh(j);
+
+        if(sys==0) return y_filter1 * y_filter2;
+        else if(sys>0) return (y_filter1 + y_high_filter1) * (y_filter2 + y_high_filter2);
+        else return (y_filter1 + y_low_filter1) * (y_filter2 + y_low_filter2);
 
       }
-
+      
     }
     cout << "[MCCorrection::ElectronID_SF] (Graph) pt range strange.. "<<"ID_SF_"+ID<<", with pt = " << pt << endl;
     exit(EXIT_FAILURE);
     return 1.;
   }
+ 
+  return 1;
   
 }
 

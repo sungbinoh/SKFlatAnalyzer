@@ -128,17 +128,9 @@ public:
 
   //===== Estimators
 
-<<<<<<< HEAD
   MCCorrection *mcCorr;
   FakeBackgroundEstimator *fakeEst;
   CFBackgroundEstimator *cfEst;
-=======
-  MCCorrection mcCorr;
-  //void Set_MCSample_for_mcCorr();
-  FakeBackgroundEstimator fakeEst;
-  CFBackgroundEstimator cfEst;
-  std::map< TString, LHAPDF::PDF* > map_PDF;
->>>>>>> f25c368fccff27088d1b625581ad1b0c5c127f3f
   void initializeAnalyzerTools();
   
   //==== Prefire
@@ -171,11 +163,7 @@ public:
 
   //================
   //==== Functions
-<<<<<<< HEAD
   //================
-
-=======
->>>>>>> f25c368fccff27088d1b625581ad1b0c5c127f3f
   bool IsOnZ(double m, double width);
   double MT(TLorentzVector a, TLorentzVector b);
   double MT2(TLorentzVector a, TLorentzVector b, Particle METv, double METgap);
