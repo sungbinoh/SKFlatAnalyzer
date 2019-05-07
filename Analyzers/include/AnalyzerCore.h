@@ -21,6 +21,7 @@
 
 #include "AnalyzerParameter.h"
 #include "MCCorrection.h"
+#include "PuppiSoftdropMassCorr.h"
 #include "FakeBackgroundEstimator.h"
 #include "CFBackgroundEstimator.h"
 #include "BTagSFUtil.h"
@@ -129,6 +130,7 @@ public:
   //===== Estimators
 
   MCCorrection *mcCorr;
+  PuppiSoftdropMassCorr *puppiCorr;
   FakeBackgroundEstimator *fakeEst;
   CFBackgroundEstimator *cfEst;
   void initializeAnalyzerTools();
