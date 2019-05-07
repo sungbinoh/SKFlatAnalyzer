@@ -437,7 +437,7 @@ void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector
     mcCorr->IgnoreNoHist = param.MCCorrrectionIgnoreNoHist;
 
     for(unsigned int i = 0; i < electrons_Veto.size(); i++){
-      double this_trig_sf = mcCorr->ElectronTrigger_SF(param.Electron_ID_SF_Key, electrons_Veto.at(i).scEta(), electrons_Veto.at(i).Pt(), 0);
+      double this_trig_sf = mcCorr->ElectronTrigger_SF(param.Electron_ID_SF_Key, trig_diele, electrons_Veto, 0);
       double this_recosf = mcCorr->ElectronReco_SF(electrons_Veto.at(i).scEta(), electrons_Veto.at(i).Pt());
       double this_idsf = mcCorr->ElectronID_SF(param.Electron_ID_SF_Key, electrons_Veto.at(i).scEta(), electrons_Veto.at(i).Pt());
       
