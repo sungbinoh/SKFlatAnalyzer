@@ -6,6 +6,7 @@ import datetime
 from CheckJobStatus import *
 from TimeTools import *
 import random
+import subprocess
 
 ## Arguments
 
@@ -331,7 +332,7 @@ while [ "$SumNoAuth" -ne 0 ]; do
 
   echo "#### running ####"
   echo "root -l -b -q {1}/run_${{SECTION}}.C"
-  root -l -b -q {1}/run_${{SECTION}}.C 2> err.log
+  root -l -b -q {1}/run_${{SECTION}}.C 2> err.log || echo "EXIT_FAILURE" >> err.log
   NoAuthError_Open=`grep "Error in <TNetXNGFile::Open>" err.log -R | wc -l`
   NoAuthError_Close=`grep "Error in <TNetXNGFile::Close>" err.log -R | wc -l`
 
@@ -385,6 +386,9 @@ queue {0}
 '''.format(str(NJobs), commandsfilename)
       submit_command.close()
     elif IsTAMSA:
+      requirements=''
+      if IsSkimTree:
+        requirements='Requirements = Machine=="{}"'.format(subprocess.check_output('condor_status -avail -constraint "TotalCpus<50" -af Machine -sort Cpus|tail -n1',shell=True).strip())
       print>>submit_command,'''executable = {1}.sh
 universe   = vanilla
 arguments  = $(Process)
@@ -396,8 +400,9 @@ output = job_$(Process).log
 error = job_$(Process).err
 accounting_group=group_cms
 transfer_output_remaps = "hists.root = output/hists_$(Process).root"
+{2}
 queue {0}
-'''.format(str(NJobs), commandsfilename)
+'''.format(str(NJobs), commandsfilename,requirements)
       submit_command.close()
 
   CheckTotalNFile=0
@@ -471,7 +476,7 @@ void {2}(){{
       tmp_filename = lines_files[ FileRanges[it_job][0] ].strip('\n')
       ## /data7/DATA/SKFlat/v949cand2_2/2017/DATA/SingleMuon/periodB/181107_231447/0000/SKFlatNtuple_2017_DATA_100.root
       ## /data7/DATA/SKFlat/v949cand2_2/2017/MC/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8/181108_152345/0000/SKFlatNtuple_2017_MC_100.root
-      skimoutdir = '/data8/DATA/SKFlat/'+SKFlatV+'/'+args.Year+'/'
+      skimoutdir = '/data9/DATA/SKFlat/'+SKFlatV+'/'+args.Year+'/'
       skimoutfilename = ""
       if IsDATA:
         skimoutdir += "DATA_"+args.Analyzer+"/"+InputSample+"/period"+DataPeriod+"/"
@@ -562,7 +567,7 @@ if args.Outputdir=="":
   if IsDATA:
     FinalOutputPath += '/DATA/'
 if IsSkimTree:
-  FinalOutputPath = '/data8/DATA/SKFlat/'+SKFlatV+'/'+args.Year+'/'
+  FinalOutputPath = '/data9/DATA/SKFlat/'+SKFlatV+'/'+args.Year+'/'
 
 os.system('mkdir -p '+FinalOutputPath)
 
