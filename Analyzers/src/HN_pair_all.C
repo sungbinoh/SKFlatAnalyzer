@@ -5,6 +5,15 @@ void HN_pair_all::initializeAnalyzer(){
   RunFake = HasFlag("RunFake");
   RunCF = HasFlag("RunCF");
 
+
+  // == SetUp Btagging taggers and WP
+  std::vector<Jet::Tagger> vtaggers;
+  vtaggers.push_back(Jet::CSVv2);
+
+  std::vector<Jet::WP> v_wps;
+  v_wps.push_back(Jet::Medium);
+
+  SetupBTagger(vtaggers,v_wps, true, true);
   
   //cout << "[HNPairAnalyzer::initializeAnalyzer] RunFake = " << RunFake << endl;
   //cout << "[HNPairAnalyzer::initializeAnalyzer] RunCF = " << RunCF << endl;
@@ -271,6 +280,7 @@ void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector
   //TString trig_diele = "HLT_Photon200_v";
   TString trig_diele = "HLT_DoublePhoton70_v";
   if(DataYear == 2016) trig_diele = "HLT_DoublePhoton60_v";
+  if(DataYear == 2018) trig_diele = "";
   TString trig_mu50 = "HLT_Mu50_v";
   //TString trig_oldmu100 = "HLT_oldMu100_v";
   //TString trig_tkmu100 = "HLT_TkMu100_v";

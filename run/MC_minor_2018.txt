@@ -1,0 +1,13 @@
+#MC big samples
+ZZZ
+WZZ
+WWZ
+WWW
+SingleTop_tch_top_Incl
+SingleTop_tch_antitop_Incl
+SingleTop_tW_top_Incl
+SingleTop_tW_antitop_Incl
+SingleTop_sch_Lep
+TTG
+ttW
+ttZ
