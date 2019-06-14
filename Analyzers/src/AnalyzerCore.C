@@ -2149,6 +2149,24 @@ void AnalyzerCore::FillLeptonPlots(std::vector<Lepton *> leps, TString this_regi
     JSFillHist(this_region, "Lepton_"+this_itoa+"_IP3D_"+this_region, fabs(lep->IP3D()), weight, 500, 0., 0.5);
     JSFillHist(this_region, "Lepton_"+this_itoa+"_IP3DSig_"+this_region, fabs(lep->IP3D()/lep->IP3Derr()), weight, 100, 0., 10);
 
+    // -- plots for HEM issue
+    JSFillHist(this_region, "Lepton_"+this_itoa+"phi_VS_eta_"+this_region, lep->Phi(), lep->Eta(), weight, 2, -5., 5., 2, -5., 5.);
+    if(lep->Phi() > 0. && lep->Eta() > 0.){// -- 1st Quadrant
+      JSFillHist(this_region, "Lepton_"+this_itoa+"_Pt_1st_Quadrant_"+this_region, lep->Pt(), weight, 1000, 0., 1000.);
+    }
+    else if(lep->Phi() < 0. && lep->Eta() > 0.){
+      JSFillHist(this_region, "Lepton_"+this_itoa+"_Pt_2nd_Quadrant_"+this_region, lep->Pt(), weight, 1000, 0., 1000.);
+    }
+    else if(lep->Phi() < 0. && lep->Eta() < 0.){
+      JSFillHist(this_region, "Lepton_"+this_itoa+"_Pt_3rd_Quadrant_"+this_region, lep->Pt(), weight, 1000, 0., 1000.);
+    }
+    else{
+      JSFillHist(this_region, "Lepton_"+this_itoa+"_Pt_4th_Quadrant_"+this_region, lep->Pt(), weight, 1000, 0., 1000.);
+    }
+    
+
+
+    // -- Specific plots for each flavor
     if(lep->LeptonFlavour()==Lepton::ELECTRON){
       Electron *el = (Electron *)lep;
       JSFillHist(this_region, "Lepton_"+this_itoa+"_MVANoIso_"+this_region, el->MVANoIso(), weight, 200, -1., 1.);
@@ -2166,6 +2184,13 @@ void AnalyzerCore::FillLeptonPlots(std::vector<Lepton *> leps, TString this_regi
 
   }
 
+  if(leps.size() > 1){
+    Particle ll = *(leps[0]) + *(leps[1]);
+    double M_ll = ll.M();  
+    JSFillHist(this_region, "mll_"+this_region, M_ll, weight, 1000, 0., 1000.);
+  }
+  
+  
 }
 
 void AnalyzerCore::FillJetPlots(std::vector<Jet> jets, std::vector<FatJet> fatjets, TString this_region, double weight){
@@ -2175,7 +2200,21 @@ void AnalyzerCore::FillJetPlots(std::vector<Jet> jets, std::vector<FatJet> fatje
     TString this_itoa = TString::Itoa(i,10);
     JSFillHist(this_region, "Jet_"+this_itoa+"_Pt_"+this_region, jets.at(i).Pt(), weight, 1000, 0., 1000.);
     JSFillHist(this_region, "Jet_"+this_itoa+"_Eta_"+this_region, jets.at(i).Eta(), weight, 60, -3., 3.);
-
+    
+    // -- plots for HEM issue 
+    JSFillHist(this_region, "Jet_"+this_itoa+"phi_VS_eta_"+this_region,  jets.at(i).Phi(),  jets.at(i).Eta(), weight, 2, -5., 5., 2, -5., 5.);
+    if(jets.at(i).Phi() > 0. && jets.at(i).Eta() > 0.){// -- 1st Quadrant
+      JSFillHist(this_region, "Jet_"+this_itoa+"_Pt_1st_Quadrant_"+this_region, jets.at(i).Pt(), weight, 1000, 0., 1000.);
+    }
+    else if(jets.at(i).Phi() < 0. && jets.at(i).Eta() > 0.){
+      JSFillHist(this_region, "Jet_"+this_itoa+"_Pt_2nd_Quadrant_"+this_region, jets.at(i).Pt(), weight, 1000, 0., 1000.);
+    }
+    else if(jets.at(i).Phi() < 0. && jets.at(i).Eta() < 0.){
+      JSFillHist(this_region, "Jet_"+this_itoa+"_Pt_3rd_Quadrant_"+this_region, jets.at(i).Pt(), weight, 1000, 0., 1000.);
+    }
+    else{
+      JSFillHist(this_region, "Jet_"+this_itoa+"_Pt_4th_Quadrant_"+this_region, jets.at(i).Pt(), weight, 1000, 0., 1000.);
+    }
   }
 
   for(unsigned int i=0; i<fatjets.size(); i++){
@@ -2189,6 +2228,21 @@ void AnalyzerCore::FillJetPlots(std::vector<Jet> jets, std::vector<FatJet> fatje
     JSFillHist(this_region, "FatJet_"+this_itoa+"_PuppiTau21_"+this_region, fatjets.at(i).PuppiTau2()/fatjets.at(i).PuppiTau1(), weight, 100, 0., 1.);
     JSFillHist(this_region, "FatJet_"+this_itoa+"_PuppiTau31_"+this_region, fatjets.at(i).PuppiTau3()/fatjets.at(i).PuppiTau1(), weight, 100, 0., 1.);
     JSFillHist(this_region, "FatJet_"+this_itoa+"_PuppiTau32_"+this_region, fatjets.at(i).PuppiTau3()/fatjets.at(i).PuppiTau2(), weight, 100, 0., 1.);
+  
+    // -- plots for HEM issue 
+    JSFillHist(this_region, "FatJet_"+this_itoa+"phi_VS_eta_"+this_region,  fatjets.at(i).Phi(),  fatjets.at(i).Eta(), weight, 2, -5., 5., 2, -5., 5.);
+    if(fatjets.at(i).Phi() > 0. && fatjets.at(i).Eta() > 0.){// -- 1st Quadrant
+      JSFillHist(this_region, "FatJet_"+this_itoa+"_Pt_1st_Quadrant_"+this_region, fatjets.at(i).Pt(), weight, 1000, 0., 1000.);
+    }
+    else if(fatjets.at(i).Phi() < 0. && fatjets.at(i).Eta() > 0.){
+      JSFillHist(this_region, "FatJet_"+this_itoa+"_Pt_2nd_Quadrant_"+this_region, fatjets.at(i).Pt(), weight, 1000, 0., 1000.);
+    }
+    else if(fatjets.at(i).Phi() < 0. && fatjets.at(i).Eta() < 0.){
+      JSFillHist(this_region, "FatJet_"+this_itoa+"_Pt_3rd_Quadrant_"+this_region, fatjets.at(i).Pt(), weight, 1000, 0., 1000.);
+    }
+    else{
+      JSFillHist(this_region, "FatJet_"+this_itoa+"_Pt_4th_Quadrant_"+this_region, fatjets.at(i).Pt(), weight, 1000, 0., 1000.);
+    }
   }
 
 }
@@ -2197,7 +2251,7 @@ void AnalyzerCore::FillHNPairPlots(vector<Particle> Ns, TString this_region, TSt
   if(Ns.size() != 2) return;
 
   Particle Zp = Ns.at(0) + Ns.at(1);
-
+  
   JSFillHist(this_region, "mZp_" + jetbin_str + "_" + this_region, Zp.M(), weight, 6000, 0., 6000.);
   JSFillHist(this_region, "mN_" + jetbin_str + "_" + this_region, Ns.at(0).M(), weight, 5000, 0., 5000.);
   JSFillHist(this_region, "mN_" + jetbin_str + "_" + this_region, Ns.at(1).M(), weight, 5000, 0., 5000.);

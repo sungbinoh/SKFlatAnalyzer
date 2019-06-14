@@ -22,7 +22,7 @@ void HN_pair_all::initializeAnalyzer(){
 
 void HN_pair_all::executeEvent(){
 
-  //cout << "[executeEvent] start" << endl;
+  //cout << "------------------------[executeEvent] start" << endl;
   
   Event ev_dem = GetEvent();
 
@@ -265,8 +265,8 @@ void HN_pair_all::Select_syst_objects(AnalyzerParameter param){
 
 void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector<Electron> electron_all, std::vector<Muon> muons_all, std::vector<Jet> jets_all, std::vector<FatJet> fatjets_all, TString syst_flag, double PDF_weight){
   
-  //cout << "----------------------" << endl;
-
+  //cout << "[executeEventFromParameter] syst_flag : " << syst_flag << endl;
+  
   //if(!PassMETFilter()) return;
   
   Event ev = GetEvent();
@@ -280,16 +280,20 @@ void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector
   //TString trig_diele = "HLT_Photon200_v";
   TString trig_diele = "HLT_DoublePhoton70_v";
   if(DataYear == 2016) trig_diele = "HLT_DoublePhoton60_v";
-  if(DataYear == 2018) trig_diele = "";
   TString trig_mu50 = "HLT_Mu50_v";
-  //TString trig_oldmu100 = "HLT_oldMu100_v";
-  //TString trig_tkmu100 = "HLT_TkMu100_v";
+  TString trig_oldmu100 = "HLT_oldMu100_v";
+  TString trig_tkmu100 = "HLT_TkMu100_v";
   
   bool Pass_diele = ev.PassTrigger(trig_diele);
   bool Pass_mu50 = ev.PassTrigger(trig_mu50);
   if(DataYear == 2016){
     bool Pass_Tkmu50 = ev.PassTrigger("HLT_TkMu50_v");
     Pass_mu50 = Pass_mu50 || Pass_Tkmu50;
+  }
+  if(DataYear == 2018){
+    bool Pass_oldmu100 = ev.PassTrigger(trig_oldmu100);
+    bool Pass_tkmu100 = ev.PassTrigger(trig_tkmu100);
+    Pass_mu50 = Pass_mu50 || Pass_oldmu100 || Pass_tkmu100;
   }
   
   // -- Set weight for Normalization 
@@ -300,14 +304,14 @@ void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector
   
   if(!IsData){
     weight_1pb = weight_norm_1invpb * ev.MCweight();
-    weight_trig_diele = ev.GetTriggerLumi(trig_diele);
-    weight_trig_mu50 = ev.GetTriggerLumi(trig_mu50);
+    weight_trig_diele = ev.GetTriggerLumi("Full");
+    weight_trig_mu50 = ev.GetTriggerLumi("Full");
     pileup_reweight = GetPileUpWeight(nPileUp, 0);
     if(syst_flag.Contains("PUReweight_Up")) pileup_reweight = GetPileUpWeight(nPileUp, 1);
     if(syst_flag.Contains("PUReweight_Down")) pileup_reweight = GetPileUpWeight(nPileUp, -1);
   }
   
-  //cout << "MCSample : " << MCSample << endl;
+  //cout << "[executeEventFromParameter] MCSample : " << MCSample << endl;
   TString current_MC = "";
   if(!IsDATA) current_MC = MCSample;
   bool is_TTLL = current_MC.Contains("TTLL");
@@ -340,7 +344,7 @@ void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector
     }
   }
   
-  //cout << "pileup_reweight : " << pileup_reweight << endl;
+  //cout << "[executeEventFromParameter pileup_reweight : " << pileup_reweight << endl;
   weight_trig_diele = weight_trig_diele * weight_1pb * pileup_reweight;
   weight_trig_mu50 = weight_trig_mu50 * weight_1pb * pileup_reweight;
   
@@ -348,8 +352,10 @@ void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector
   FillHist("signal_eff", 0.5, weight_trig_diele, 40, 0., 40.); // cutflow - before trigger
   
   if(!PassMETFilter()) return;
+  //cout << "[executeEventFromParameter] Before trigger" << endl;
   if(!Pass_diele && !Pass_mu50) return;
-  
+  //cout << "[executeEventFromParameter] After trigger" << endl;
+
   if(Pass_diele) FillHist("signal_eff", 1.5, weight_trig_diele, 40, 0., 40.); // cutflow - DoublePhoton HLT
   if(Pass_mu50) FillHist("signal_eff", 2.5, weight_trig_mu50, 40, 0., 40.); // cutflow - SingleMuon HLT
   
@@ -413,15 +419,22 @@ void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector
   //std::vector<Photon> photons            = GetPhotons("passMediumID", 20., 3.0);
   //std::vector<Jet>    jets_prefire       = JetsAwayFromPhoton(GetJets("tight", 40., 3.5), photons, 0.4);
   double prefire_weight = 1.;
-  if(!IsDATA) {
+  if(!IsDATA && DataYear != 2018) {
     prefire_weight = L1PrefireReweight_Central;
     if(syst_flag.Contains("Prefire_Up")) prefire_weight = L1PrefireReweight_Up;
     if(syst_flag.Contains("Prefire_Down")) prefire_weight= L1PrefireReweight_Down;
   }
-  //cout << "prefire_weight : " << prefire_weight << endl;
+  //cout << "[executeEventFromParameter] prefire_weight : " << prefire_weight << endl;
+  //cout << "------------------------" << endl;
+  //cout << "[executeEventFromParameter] N_electrons_Loose = " << N_electrons_Loose << ", N_electrons_Veto = " << N_electrons_Veto << endl;
+  //cout << "[executeEventFromParameter] N_muons_Loose = " <<N_muons_Loose << ", N_muons_Veto = " <<N_muons_Veto << endl;
+
   
   if(N_electrons_Loose != N_electrons_Veto) return;
   if(N_muons_Loose != N_muons_Veto) return;
+  
+  //cout << "[executeEventFromParameter] Passed N loose = N veto cut " << endl;
+
   
   // ==== Check Number of veto letpons and assign channel string
   bool trig_pass_for_channel = false;
@@ -440,6 +453,9 @@ void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector
   }
   else return;
   
+  //cout << "[executeEventFromParameter] current_channel : " << current_channel << endl;
+  
+
   double current_weight = weight_trig_mu50 * prefire_weight;
   if(!IsDATA){
     current_weight = current_weight * PDF_weight * top_pt_reweight;
@@ -467,6 +483,8 @@ void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector
     
   }
 
+  //cout << "current_weight : " << current_weight << endl;
+  
   // ==== Run Charge Blind 
   CR_Z_mass(param, current_channel  + syst_flag, trig_pass_for_channel,  current_weight, jets, fatjets, electrons_Tight_all, electrons_Veto, muons_Tight_all, muons_Veto, N_electrons_Tight_all, N_electrons_Veto, N_muons_Tight_all, N_muons_Veto);
   CR_ll_150(param, current_channel  + syst_flag, trig_pass_for_channel,  current_weight, jets, fatjets, electrons_Tight_all, electrons_Veto, muons_Tight_all, muons_Veto, N_electrons_Tight_all, N_electrons_Veto, N_muons_Tight_all, N_muons_Veto);
@@ -605,6 +623,7 @@ void HN_pair_all::CR_Z_mass(AnalyzerParameter param, TString channel, bool trig_
       
   Particle Zp = Ns.at(0) + Ns.at(1);
   JSFillHist(Region_str + channel, "mZp_" + Region_str + channel, Zp.M(), weight, 6000, 0., 6000.);
+  FillJetPlots(jets, fatjets, Region_str + channel, weight);
   FillHNPairPlots(Ns, Region_str + channel, jetbin_str, weight);
   
   
@@ -684,6 +703,7 @@ void HN_pair_all::CR_ll_150(AnalyzerParameter param, TString channel, bool trig_
   TString jetbin_str = Get_N_jet_bin(Leptons, fatjets, jets);
 
   Particle Zp = Ns.at(0) + Ns.at(1);
+  FillJetPlots(jets, fatjets, Region_str + channel, weight);
   JSFillHist(Region_str + channel, "mZp_" + Region_str + channel, Zp.M(), weight, 6000, 0., 6000.);
   FillHNPairPlots(Ns, Region_str + channel, jetbin_str, weight);
   
@@ -816,7 +836,7 @@ void HN_pair_all::CR_ttbar_dom(AnalyzerParameter param, TString channel, bool tr
   //cout << "fill Region_str Zp" << endl;
   Particle Zp = Ns.at(0) + Ns.at(1);
   JSFillHist(Region_str + channel, "mZp_" + Region_str + channel, Zp.M(), weight, 6000, 0., 6000.);
-  
+  FillJetPlots(jets, fatjets, Region_str + channel, weight);
   FillHNPairPlots(Ns, Region_str + channel, jetbin_str, weight);
 
 }
@@ -888,6 +908,7 @@ void HN_pair_all::CR_EMu90(AnalyzerParameter param, TString channel, bool trig_p
   //cout << "fill Region_str Zp" << endl;
   Particle Zp = Ns.at(0) + Ns.at(1);
   JSFillHist(Region_str + channel, "mZp_" + Region_str + channel, Zp.M(), weight, 6000, 0., 6000.);
+  FillJetPlots(jets, fatjets, Region_str + channel, weight);
   FillHNPairPlots(Ns, Region_str + channel, jetbin_str, weight);
   
 }
@@ -1077,11 +1098,12 @@ void HN_pair_all::SR(AnalyzerParameter param, TString channel, bool trig_pass, d
   
   //TString Region_str = "SR_";
   FillLeptonPlots(Leptons, Region_str + channel, weight);
+  FillJetPlots(jets, fatjets, Region_str + channel, weight);
   JSFillHist(Region_str + channel, "mZp_" + Region_str + channel, Zp.M(), weight, 6000, 0., 6000.);
   JSFillHist(Region_str + channel, "mN_" + Region_str + channel, Ns.at(0).M(), weight, 5000, 0., 5000.);
   JSFillHist(Region_str + channel, "mN_" + Region_str + channel, Ns.at(1).M(), weight, 5000, 0., 5000.);
   FillHNPairPlots(Ns, Region_str + channel, jetbin_str, weight);
-
+  
   
 }
 
@@ -1162,7 +1184,8 @@ void HN_pair_all::CR_inv_mll(AnalyzerParameter param, TString channel, bool trig
   TString Region_str = "CR_inv_mll_";
   //JSFillHist(Region_str + channel, "mll_" + Region_str + channel, M_ll, weight, 1000, 0., 1000.);
   FillLeptonPlots(Leptons_veto, Region_str + channel, weight);
-
+  FillJetPlots(jets, fatjets, Region_str + channel, weight);
+  
   JSFillHist(Region_str + channel, "mZp_" + Region_str + channel, Zp.M(), weight, 6000, 0., 6000.);
   JSFillHist(Region_str + channel, "mN_" + Region_str + channel, Ns.at(0).M(), weight, 5000, 0., 5000.);
   JSFillHist(Region_str + channel, "mN_" + Region_str + channel, Ns.at(1).M(), weight, 5000, 0., 5000.);
