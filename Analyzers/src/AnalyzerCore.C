@@ -2187,7 +2187,9 @@ void AnalyzerCore::FillLeptonPlots(std::vector<Lepton *> leps, TString this_regi
   if(leps.size() > 1){
     Particle ll = *(leps[0]) + *(leps[1]);
     double M_ll = ll.M();  
+    double ptll = ll.Pt();
     JSFillHist(this_region, "mll_"+this_region, M_ll, weight, 1000, 0., 1000.);
+    JSFillHist(this_region, "ptll_"+this_region, M_ll, weight, 1000, 0., 1000.);
   }
   
   

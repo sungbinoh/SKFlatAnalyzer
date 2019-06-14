@@ -11,7 +11,7 @@ public:
   void executeEvent();
   void Select_syst_objects(AnalyzerParameter param);
   void executeEventFromParameter(AnalyzerParameter param, std::vector<Electron> electron_all, std::vector<Muon> muons_all, std::vector<Jet> jets_all, std::vector<FatJet> fatjets_all, TString syst_flag, double PDF_weight);
-
+  TH1D *hist_DYPtReweight;
   
   void CR_Z_mass(AnalyzerParameter param, TString channel, bool trig_pass, double weight, std::vector<Jet> jets, std::vector<FatJet> fatjets, std::vector<Electron> electrons, std::vector<Electron> electrons_veto, std::vector<Muon> muons, std::vector<Muon> muons_veto, int N_electron, int N_veto_ele, int N_muon, int N_veto_muon);
   void CR_ll_150(AnalyzerParameter param, TString channel, bool trig_pass, double weight, std::vector<Jet> jets, std::vector<FatJet> fatjets, std::vector<Electron> electrons, std::vector<Electron> electrons_veto, std::vector<Muon> muons, std::vector<Muon> muons_veto,
@@ -31,7 +31,7 @@ public:
   ~HN_pair_all();
 
   bool RunFake, RunCF;
-  
+  double top_pt_reweight(1.), DYPtReweight(1.);
 
 };
 
