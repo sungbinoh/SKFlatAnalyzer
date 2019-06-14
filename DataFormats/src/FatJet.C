@@ -109,11 +109,20 @@ bool FatJet::PassID(TString ID){
 
   if(ID=="tight") return Pass_tightJetID();
   if(ID=="tightLepVeto") return Pass_tightLepVetoJetID();
+  if(ID=="HN") return Pass_HN();
+
 
   cout << "[FatJet::PassID] No id : " << ID << endl;
   exit(EXIT_FAILURE);
 
-  return false;
+}
+
+bool FatJet::Pass_HN(){
+
+  if(! Pass_tightJetID() ) return false;
+  if(! (SDMass()>60.) ) return false;
+
+  return true;
 
 }
 

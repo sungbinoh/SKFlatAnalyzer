@@ -590,14 +590,14 @@ double MCCorrection::ElectronTrigger_SF(TString ID, TString trig, std::vector<El
 
     value = eff_DATA/eff_MC;
 
-/*
+    /*
     if(eff_DATA==0||eff_MC==0){
-      cout << "==== Zero Trigger Eff ====" << endl;
+    cout << "==== Zero Trigger Eff ====" << endl;
       for(unsigned int i=0;i<electrons.size();i++){
-        cout << electrons.at(i).Pt() << "\t" << electrons.at(i).Pt() << endl;
+      cout << electrons.at(i).Pt() << "\t" << electrons.at(i).Pt() << endl;
       }
     }
-*/
+    */
 
   }
 
@@ -665,6 +665,7 @@ double MCCorrection::GetPileUpWeightBySampleName(int N_pileup, int syst){
   if(N_pileup >= 100) this_bin=100;
 
   TString this_histname = MCSample;
+
   if(syst == 0){
     this_histname += "_central_pileup";
   }
@@ -680,6 +681,8 @@ double MCCorrection::GetPileUpWeightBySampleName(int N_pileup, int syst){
   }
 
   TH1D *this_hist = map_hist_pileup[this_histname];
+  if(this_histname.Contains("HNPair")) return 1.;
+  
   if(!this_hist){
     cout << "[MCCorrection::GetPileUpWeightBySampleName] No " << this_histname << endl;
     exit(EXIT_FAILURE);

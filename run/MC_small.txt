@@ -1,0 +1,4 @@
+#MC big samples
+WW_pythia
+WZ_pythia
+ZZ_pythia

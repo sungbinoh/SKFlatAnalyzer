@@ -7,6 +7,11 @@ export SKFlatV="Run2Legacy_v3"
 mkdir -p $SKFlat_WD/data/$SKFlatV
 export DATA_DIR=$SKFlat_WD/data/$SKFlatV
 
+#### USER INFO ####
+export SKFlatLogEmail='sungbin.oh@cern.ch'
+export SKFlatLogWeb=''
+export SKFlatLogWebDir=''
+
 #### use cvmfs for root ####
 export CMS_PATH=/cvmfs/cms.cern.ch
 source $CMS_PATH/cmsset_default.sh

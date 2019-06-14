@@ -47,7 +47,7 @@ public:
   double MuonTrigger_SF(TString ID, TString trig, std::vector<Muon *> muons, int sys=0);
 
   std::map< TString, TH2F* > map_hist_Muon;
-
+  
   double ElectronReco_SF(double sceta, double pt, int sys=0);
   double ElectronID_SF(TString ID, double sceta, double pt, int sys=0);
   double ElectronTrigger_Eff(TString ID, TString trig, int DataOrMC, double eta, double pt, int sys=0);

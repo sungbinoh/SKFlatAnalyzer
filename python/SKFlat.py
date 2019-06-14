@@ -682,7 +682,7 @@ try:
 
           if "FINISHED" not in this_status:
             ThisSampleFinished = False
-
+            
           outlog = ""
           if "FINISHED" in this_status:
             finished.append("Finished")

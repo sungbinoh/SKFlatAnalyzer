@@ -71,6 +71,7 @@ void AnalyzerCore::SetOutfilePath(TString outname){
   outfile = new TFile(outname,"RECREATE");
 };
 
+
 Event AnalyzerCore::GetEvent(){
 
   Event ev;
@@ -113,7 +114,7 @@ std::vector<Muon> AnalyzerCore::GetAllMuons(){
     mu.SetisPOGHighPt(muon_ishighpt->at(i));
     mu.SetChi2(muon_normchi->at(i));
     mu.SetIso(muon_PfChargedHadronIsoR04->at(i),muon_PfNeutralHadronIsoR04->at(i),muon_PfGammaIsoR04->at(i),muon_PFSumPUIsoR04->at(i),muon_trkiso->at(i));
-
+    
     //==== Should be set after Eta is set
     mu.SetMiniIso(
       muon_PfChargedHadronMiniIso->at(i), 
@@ -488,7 +489,7 @@ std::vector<Gen> AnalyzerCore::GetGens(){
 
   std::vector<Gen> out;
   if(IsDATA) return out;
-
+  
   for(unsigned int i=0; i<gen_pt->size(); i++){
 
     Gen gen;
@@ -685,7 +686,7 @@ std::vector<FatJet> AnalyzerCore::SelectFatJets(std::vector<FatJet> jets, TStrin
     out.push_back(this_jet);
   }
   return out;
-
+  
 }
 
 std::vector<Electron> AnalyzerCore::ScaleElectrons(std::vector<Electron> electrons, int sys){
@@ -737,6 +738,133 @@ std::vector<Muon> AnalyzerCore::ScaleMuons(std::vector<Muon> muons, int sys){
   return out;
 
 }
+
+std::vector<Muon> AnalyzerCore::ScaleTunePMuons(std::vector<Muon> muons, int sys){
+  // -- Follwed
+  // -- https://twiki.cern.ch/twiki/bin/viewauth/CMS/MuonReferenceSelectionAndCalibrationsRun2
+  // -- https://github.com/cms-analysis/SUSYBSMAnalysis-Zprime2muAnalysis/blob/mini-AOD/src/GeneralizedEndpoint.cc
+  
+  // Values for scale correction q/pt -> q/pt + k, while k is coming from random choise of Gauss(_Correction, _CorrectionError)
+  // For systemtacis, the randomly chosen k values are shifted by +- _CorrectionError as up/down systematics
+  double _Correction[6][3];
+  double _CorrectionError[6][3];
+  _Correction[0][0] = -0.388122; _CorrectionError[0][0] = 0.045881; //-180,-60
+  _Correction[0][1] =  0.376061; _CorrectionError[0][1] = 0.090062; //-60,60
+  _Correction[0][2] =  -0.153950; _CorrectionError[0][2] = 0.063053; //60,180
+  //[-2.1, -1.2]                                                                                           
+  _Correction[1][0] =  -0.039346; _CorrectionError[1][0] = 0.031655;
+  _Correction[1][1] =  0.041069;  _CorrectionError[1][1] = 0.030070;
+  _Correction[1][2] =  -0.113320; _CorrectionError[1][2] = 0.028683;
+  //[-1.2, 0.]
+  _Correction[2][0] =  0.0;      _CorrectionError[2][0] = 0.025;
+  _Correction[2][1] =  0.0;      _CorrectionError[2][1] = 0.025;
+  _Correction[2][2] =  0.0;      _CorrectionError[2][2] = 0.025;
+  //[-0., 1.2]
+  _Correction[3][0] =  0.0;      _CorrectionError[3][0] = 0.025;
+  _Correction[3][1] =  0.0;      _CorrectionError[3][1] = 0.025;
+  _Correction[3][2] =  0.0;      _CorrectionError[3][2] = 0.025;
+  //[1.2, 2.1]
+  _Correction[4][0] =  0.005114; _CorrectionError[4][0] = 0.033115;
+  _Correction[4][1] =  0.035573; _CorrectionError[4][1] = 0.038574;
+  _Correction[4][2] =  0.070002; _CorrectionError[4][2] = 0.035002;
+  //[2.1, 2.4]
+  _Correction[5][0] =  -0.235470; _CorrectionError[5][0] = 0.077534;
+  _Correction[5][1] =  -0.122719; _CorrectionError[5][1] = 0.061283;
+  _Correction[5][2] =  0.091502;  _CorrectionError[5][2] = 0.074502;
+  
+  // Eta Binning
+  unsigned int etaBINS = 6;
+  unsigned int kEtaBin = etaBINS;
+  double EtaBin[etaBINS+1];
+  EtaBin[0]=-2.4; EtaBin[1]=-2.1; EtaBin[2]=-1.2; EtaBin[3]=0.;
+  EtaBin[4]=1.2; EtaBin[5]=2.1; EtaBin[6]=2.4;  
+  
+  // Phi Binning.
+  unsigned int phiBINS =3;
+  unsigned int kPhiBin = phiBINS;
+  double PhiBin[phiBINS+1];
+  PhiBin[0]=-180.; PhiBin[1]=-60.; PhiBin[2]=60.; PhiBin[3]=180.;
+  
+  // -- Loop over muon vector
+  std::vector<Muon> out;
+  for(unsigned int i=0; i<muons.size(); i++){
+    Muon this_muon = muons.at(i);
+    double MuonEta = this_muon.Eta();
+    double MuonPhi = this_muon.Phi();
+    double MuonPt = this_muon.Pt();
+    int MuonCharge = this_muon.Charge();
+    // -- Get Eta Bin Number
+    
+    for (unsigned int kbin=0; kbin<=etaBINS; ++kbin) {
+      if (MuonEta<EtaBin[kbin+1]) {
+	kEtaBin = kbin;
+	break;
+      }
+    }
+    // -- Get Phi Bin Number
+    for (unsigned int kbin=0; kbin<=phiBINS; ++kbin) {
+      if (MuonPhi<PhiBin[kbin+1]) {
+	kPhiBin = kbin;
+	break;
+      }
+    }
+    float KappaBias=_Correction[kEtaBin][kPhiBin];
+    float KappaBiasError=_CorrectionError[kEtaBin][kPhiBin];
+    
+    float rnd = KappaBias+99*KappaBiasError;
+    while (abs(KappaBias-rnd) > KappaBiasError)
+      rnd = gRandom->Gaus(KappaBias,KappaBiasError);
+    
+    KappaBias = rnd;
+    
+    if (sys==-1) KappaBias = KappaBias+KappaBiasError; //Take bias + UpSystematic.
+    if (sys== 1) KappaBias = KappaBias-KappaBiasError; //Takes bias - DownSystematic.
+    
+    MuonPt = MuonPt/1000.; //GeV to TeV.
+    MuonPt = fabs(MuonPt) * double(MuonCharge); //Signed Pt.
+    MuonPt = 1/MuonPt; //Convert to Curvature.
+    MuonPt = MuonPt + KappaBias; //Apply the bias.
+    if (fabs(MuonPt) < 0.14) MuonPt = KappaBiasError; //To avoid a division by set the curvature to its error if after the correction the pt is larger than 7 TeV.
+    MuonPt = 1/MuonPt;//Return to Pt.
+    MuonPt = fabs(MuonPt);//returns unsigned Pt, any possible sign flip due to the curvature is absorbed here.
+    MuonPt = MuonPt*1000.;//Return to Pt in GeV.
+    
+    this_muon.SetPtEtaPhiM( MuonPt, this_muon.Eta(), this_muon.Phi(), this_muon.M() );
+    out.push_back(this_muon);
+    
+  }// -- Muon vector loop ends
+
+  return out;
+
+}
+
+std::vector<Muon> AnalyzerCore::SmearTunePMuons(std::vector<Muon> muons, int sys){
+  
+  std::vector<Muon> out;
+  // -- Loop over muon vector
+  for(unsigned int i=0; i<muons.size(); i++){
+    Muon this_muon = muons.at(i);
+    double eta = fabs(this_muon.Eta());
+    double smear = 1.;
+    if(eta < 1.6){
+      if(this_muon.Pt() < 200) smear = 1. + double(sys) *  0.003;
+      else if(this_muon.Pt() < 500) smear =  1. + double(sys) * 0.005; 
+      else smear = 1. + double(sys) * 0.01;
+    }
+    else if(eta < 2.4){
+      if(this_muon.Pt() < 200) smear = 1. + double(sys) *  0.006;
+      else if(this_muon.Pt() < 500) smear =  1. + double(sys) * 0.01;
+      else smear = 1. + double(sys) * 0.02;
+    }
+    else smear = 1.;
+    
+    this_muon *= smear;
+    out.push_back(this_muon);
+  }// -- Muon vector loop ends
+  
+  return out;
+}
+
 
 std::vector<Jet> AnalyzerCore::ScaleJets(std::vector<Jet> jets, int sys){
 
@@ -893,7 +1021,6 @@ double AnalyzerCore::GetPrefireWeight(int sys){
   return 1.;
 
 }
-
 
 void AnalyzerCore::SetupBTagger(std::vector<Jet::Tagger> taggers, std::vector<Jet::WP> wps, bool setup_systematics, bool period_dependant){
 
@@ -2022,6 +2149,24 @@ void AnalyzerCore::FillLeptonPlots(std::vector<Lepton *> leps, TString this_regi
     JSFillHist(this_region, "Lepton_"+this_itoa+"_IP3D_"+this_region, fabs(lep->IP3D()), weight, 500, 0., 0.5);
     JSFillHist(this_region, "Lepton_"+this_itoa+"_IP3DSig_"+this_region, fabs(lep->IP3D()/lep->IP3Derr()), weight, 100, 0., 10);
 
+    // -- plots for HEM issue
+    JSFillHist(this_region, "Lepton_"+this_itoa+"phi_VS_eta_"+this_region, lep->Phi(), lep->Eta(), weight, 2, -5., 5., 2, -5., 5.);
+    if(lep->Phi() > 0. && lep->Eta() > 0.){// -- 1st Quadrant
+      JSFillHist(this_region, "Lepton_"+this_itoa+"_Pt_1st_Quadrant_"+this_region, lep->Pt(), weight, 1000, 0., 1000.);
+    }
+    else if(lep->Phi() < 0. && lep->Eta() > 0.){
+      JSFillHist(this_region, "Lepton_"+this_itoa+"_Pt_2nd_Quadrant_"+this_region, lep->Pt(), weight, 1000, 0., 1000.);
+    }
+    else if(lep->Phi() < 0. && lep->Eta() < 0.){
+      JSFillHist(this_region, "Lepton_"+this_itoa+"_Pt_3rd_Quadrant_"+this_region, lep->Pt(), weight, 1000, 0., 1000.);
+    }
+    else{
+      JSFillHist(this_region, "Lepton_"+this_itoa+"_Pt_4th_Quadrant_"+this_region, lep->Pt(), weight, 1000, 0., 1000.);
+    }
+    
+
+
+    // -- Specific plots for each flavor
     if(lep->LeptonFlavour()==Lepton::ELECTRON){
       Electron *el = (Electron *)lep;
       JSFillHist(this_region, "Lepton_"+this_itoa+"_MVANoIso_"+this_region, el->MVANoIso(), weight, 200, -1., 1.);
@@ -2039,6 +2184,13 @@ void AnalyzerCore::FillLeptonPlots(std::vector<Lepton *> leps, TString this_regi
 
   }
 
+  if(leps.size() > 1){
+    Particle ll = *(leps[0]) + *(leps[1]);
+    double M_ll = ll.M();  
+    JSFillHist(this_region, "mll_"+this_region, M_ll, weight, 1000, 0., 1000.);
+  }
+  
+  
 }
 
 void AnalyzerCore::FillJetPlots(std::vector<Jet> jets, std::vector<FatJet> fatjets, TString this_region, double weight){
@@ -2048,7 +2200,21 @@ void AnalyzerCore::FillJetPlots(std::vector<Jet> jets, std::vector<FatJet> fatje
     TString this_itoa = TString::Itoa(i,10);
     JSFillHist(this_region, "Jet_"+this_itoa+"_Pt_"+this_region, jets.at(i).Pt(), weight, 1000, 0., 1000.);
     JSFillHist(this_region, "Jet_"+this_itoa+"_Eta_"+this_region, jets.at(i).Eta(), weight, 60, -3., 3.);
-
+    
+    // -- plots for HEM issue 
+    JSFillHist(this_region, "Jet_"+this_itoa+"phi_VS_eta_"+this_region,  jets.at(i).Phi(),  jets.at(i).Eta(), weight, 2, -5., 5., 2, -5., 5.);
+    if(jets.at(i).Phi() > 0. && jets.at(i).Eta() > 0.){// -- 1st Quadrant
+      JSFillHist(this_region, "Jet_"+this_itoa+"_Pt_1st_Quadrant_"+this_region, jets.at(i).Pt(), weight, 1000, 0., 1000.);
+    }
+    else if(jets.at(i).Phi() < 0. && jets.at(i).Eta() > 0.){
+      JSFillHist(this_region, "Jet_"+this_itoa+"_Pt_2nd_Quadrant_"+this_region, jets.at(i).Pt(), weight, 1000, 0., 1000.);
+    }
+    else if(jets.at(i).Phi() < 0. && jets.at(i).Eta() < 0.){
+      JSFillHist(this_region, "Jet_"+this_itoa+"_Pt_3rd_Quadrant_"+this_region, jets.at(i).Pt(), weight, 1000, 0., 1000.);
+    }
+    else{
+      JSFillHist(this_region, "Jet_"+this_itoa+"_Pt_4th_Quadrant_"+this_region, jets.at(i).Pt(), weight, 1000, 0., 1000.);
+    }
   }
 
   for(unsigned int i=0; i<fatjets.size(); i++){
@@ -2062,7 +2228,32 @@ void AnalyzerCore::FillJetPlots(std::vector<Jet> jets, std::vector<FatJet> fatje
     JSFillHist(this_region, "FatJet_"+this_itoa+"_PuppiTau21_"+this_region, fatjets.at(i).PuppiTau2()/fatjets.at(i).PuppiTau1(), weight, 100, 0., 1.);
     JSFillHist(this_region, "FatJet_"+this_itoa+"_PuppiTau31_"+this_region, fatjets.at(i).PuppiTau3()/fatjets.at(i).PuppiTau1(), weight, 100, 0., 1.);
     JSFillHist(this_region, "FatJet_"+this_itoa+"_PuppiTau32_"+this_region, fatjets.at(i).PuppiTau3()/fatjets.at(i).PuppiTau2(), weight, 100, 0., 1.);
+  
+    // -- plots for HEM issue 
+    JSFillHist(this_region, "FatJet_"+this_itoa+"phi_VS_eta_"+this_region,  fatjets.at(i).Phi(),  fatjets.at(i).Eta(), weight, 2, -5., 5., 2, -5., 5.);
+    if(fatjets.at(i).Phi() > 0. && fatjets.at(i).Eta() > 0.){// -- 1st Quadrant
+      JSFillHist(this_region, "FatJet_"+this_itoa+"_Pt_1st_Quadrant_"+this_region, fatjets.at(i).Pt(), weight, 1000, 0., 1000.);
+    }
+    else if(fatjets.at(i).Phi() < 0. && fatjets.at(i).Eta() > 0.){
+      JSFillHist(this_region, "FatJet_"+this_itoa+"_Pt_2nd_Quadrant_"+this_region, fatjets.at(i).Pt(), weight, 1000, 0., 1000.);
+    }
+    else if(fatjets.at(i).Phi() < 0. && fatjets.at(i).Eta() < 0.){
+      JSFillHist(this_region, "FatJet_"+this_itoa+"_Pt_3rd_Quadrant_"+this_region, fatjets.at(i).Pt(), weight, 1000, 0., 1000.);
+    }
+    else{
+      JSFillHist(this_region, "FatJet_"+this_itoa+"_Pt_4th_Quadrant_"+this_region, fatjets.at(i).Pt(), weight, 1000, 0., 1000.);
+    }
   }
 
 }
 
+void AnalyzerCore::FillHNPairPlots(vector<Particle> Ns, TString this_region, TString jetbin_str, double weight){
+  if(Ns.size() != 2) return;
+
+  Particle Zp = Ns.at(0) + Ns.at(1);
+  
+  JSFillHist(this_region, "mZp_" + jetbin_str + "_" + this_region, Zp.M(), weight, 6000, 0., 6000.);
+  JSFillHist(this_region, "mN_" + jetbin_str + "_" + this_region, Ns.at(0).M(), weight, 5000, 0., 5000.);
+  JSFillHist(this_region, "mN_" + jetbin_str + "_" + this_region, Ns.at(1).M(), weight, 5000, 0., 5000.);
+
+}

@@ -95,11 +95,10 @@ bool Jet::PassID(TString ID){
 
   if(ID=="tight") return Pass_tightJetID();
   if(ID=="tightLepVeto") return Pass_tightLepVetoJetID();
-
+  
+  
   cout << "[Jet::PassID] No id : " << ID << endl;
   exit(EXIT_FAILURE);
-
-  return false;
 
 }
 
