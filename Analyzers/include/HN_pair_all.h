@@ -31,8 +31,7 @@ public:
   ~HN_pair_all();
 
   bool RunFake, RunCF;
-  double top_pt_reweight(1.), DYPtReweight(1.);
-
+  
 };
 
 

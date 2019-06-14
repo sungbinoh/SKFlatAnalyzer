@@ -4,7 +4,6 @@ void HN_pair_all::initializeAnalyzer(){
 
   RunFake = HasFlag("RunFake");
   RunCF = HasFlag("RunCF");
-  ApplyDYPtReweight = HasFlag("ApplyDYPtReweight");
   
   // == SetUp Btagging taggers and WP
   std::vector<Jet::Tagger> vtaggers;
@@ -17,15 +16,6 @@ void HN_pair_all::initializeAnalyzer(){
   
   //cout << "[HNPairAnalyzer::initializeAnalyzer] RunFake = " << RunFake << endl;
   //cout << "[HNPairAnalyzer::initializeAnalyzer] RunCF = " << RunCF << endl;
-  
-
-  // -- Corrections related with Truth level Particles
-  if(ApplyDYPtReweight){
-    TString datapath = getenv("DATA_DIR");
-    TFile *file_DYPtReweight = new TFile(datapath+"/"+TString::Itoa(DataYear,10)+"/DYPtReweight/Zpt_weights_"+TString::Itoa(DataYear,10)+".root");
-    hist_DYPtReweight = (TH1D *)file_DYPtReweight->Get("zptmass_weights");
-  }
-    
   
 }
 
@@ -74,47 +64,17 @@ void HN_pair_all::executeEvent(){
   //executeEventFromParameter(param);
 
   // -- Corrections related with Truth Level Particles
-  top_pt_reweight = 1.;
-  DYPtReweight = 1.;
+  TString current_MC = "";
+  if(!IsDATA) current_MC = MCSample;
   bool is_TTLL = current_MC.Contains("TTLL");
-  boos is_DY = current_MC.Contains("DYJets_MG"); // -- https://github.com/IzaakWN/NanoTreeProducer/blob/master/corrections/RecoilCorrectionTool.py#L95-L109 : available only for LO level DY samples
+  bool is_DY = current_MC.Contains("DYJets_MG"); // -- https://github.com/IzaakWN/NanoTreeProducer/blob/master/corrections/RecoilCorrectionTool.py#L95-L109 : available only for LO level DY samples
   //cout << "is_TTLL : " << is_TTLL << endl;
-  double top_pt_reweight = 1.;
-  if(is_TTLL){// -- Calculate top pt reweight value 
-    std::vector<Gen> gens = GetGens();
-    double top_pt = 9999.;
-    double atop_pt = 9999.;
-    bool top_found = false;
-    bool atop_found = false;
-    for(unsigned int i_gen = 0; i_gen < gens.size(); i_gen++){
-      if(gens.at(i_gen).PID() == 6 && gens.at(i_gen).Status() == 22) {
-        top_found = true;
-        top_pt = gens.at(i_gen).Pt();
-      }
-      if(gens.at(i_gen).PID() == -6 && gens.at(i_gen).Status() == 22) {
-        atop_found = true;
-        atop_pt = gens.at(i_gen).Pt();
-      }
-    }
 
-    if(top_found && atop_found){
-      if(top_pt < 800. && atop_pt < 800.){
-        double top_weight = exp(0.0615 - 0.0005 * top_pt);
-        double atop_weight = exp(0.0615 - 0.0005 * atop_pt);
-        //cout << "top_weight : " << top_weight << ", atop_weight : " << atop_weight << endl;
-        top_pt_reweight = top_weight * top_weight;
-      }
-    }
-  }
   if(is_DY){
-    std::vector<Gen> gens = GetGens();
-    Particle tagged_Z;
-    
-    
-
+    vector<Gen> gens = GetGens();
+    double zpt_reweight = mcCorr->GetOfficialDYReweight(gens);
+    cout << "zpt_reweight : " << zpt_reweight << endl;
   }
-
-
   
 }
 
@@ -316,7 +276,7 @@ void HN_pair_all::Select_syst_objects(AnalyzerParameter param){
 }
 
 
-void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector<Electron> electron_all, std::vector<Muon> muons_all, std::vector<Jet> jets_all, std::vector<FatJet> fatjets_before_corr, TString syst_flag, double PDF_weight){
+void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector<Electron> electron_all, std::vector<Muon> muons_all, std::vector<Jet> jets_all, std::vector<FatJet> fatjets_all, TString syst_flag, double PDF_weight){
   //fatjets_all
   //cout << "[executeEventFromParameter] syst_flag : " << syst_flag << endl;
   
@@ -326,7 +286,7 @@ void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector
   Particle METv = ev.GetMETVector();
     
   // -- Get Gen level info
-  vector<Gen> gens = GetGens();
+  //vector<Gen> gens = GetGens();
     
   
   // -- Save HLT String and Boolean. Return if the event does not fire any on these triggers
@@ -369,7 +329,7 @@ void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector
   if(!IsDATA) current_MC = MCSample;
   // -- Corrections Based on Truth Level Particles
   bool is_TTLL = current_MC.Contains("TTLL");
-  boos is_DY = current_MC.Contains("DYJets_MG"); // -- https://github.com/IzaakWN/NanoTreeProducer/blob/master/corrections/RecoilCorrectionTool.py#L95-L109 : available only for LO level DY samples
+  bool is_DY = current_MC.Contains("DYJets_MG"); // -- https://github.com/IzaakWN/NanoTreeProducer/blob/master/corrections/RecoilCorrectionTool.py#L95-L109 : available only for LO level DY samples
   //cout << "is_TTLL : " << is_TTLL << endl;
   double top_pt_reweight = 1.;
   if(is_TTLL){// -- Calculate top pt reweight value
@@ -1426,11 +1386,6 @@ TString HN_pair_all::Get_N_jet_bin(vector<Lepton *> lepptrs, vector<FatJet> fatj
 
 }
 
-double HN_pair_all::GetDYPtReweight(std::vector<Gen> gens){
-  Particle tagged_Z;
-  
-
-}
 HN_pair_all::HN_pair_all(){
 
 }

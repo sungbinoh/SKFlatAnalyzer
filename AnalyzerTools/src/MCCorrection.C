@@ -767,8 +767,8 @@ double MCCorrection::GetTopPtReweight(std::vector<Gen> gens){
 double MCCorrection::GetOfficialDYReweight(vector<Gen>& gens){
   genFinderDY = new GenFinderForDY();
   Particle genZ = genFinderDY->Find(gens);
-  mZ = genZ.M();
-  ptZ = genZ.Pt();
+  double mZ = genZ.M();
+  double ptZ = genZ.Pt();
 
   int bin_mass = hist_DYPtReweight_2D->GetXaxis()->FindBin(mZ);
   int bin_pt   = hist_DYPtReweight_2D->GetYaxis()->FindBin(ptZ);
