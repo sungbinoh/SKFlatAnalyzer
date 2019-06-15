@@ -1040,7 +1040,7 @@ void HN_pair_all::SR(AnalyzerParameter param, TString channel, bool trig_pass, d
   JSFillHist(Region_str + channel, "N_jet_" + Region_str + channel, jets.size(), weight, 10, 0., 10.);
   JSFillHist(Region_str + channel, "N_lepton_VS_N_fatjet" + Region_str + channel, Leptons.size(), fatjets.size(), weight, 10, 0., 10., 10, 0., 10.);
   JSFillHist(Region_str + channel, "N_lepton_VS_N_jet" + Region_str + channel, Leptons.size(), jets.size(), weight, 10, 0., 10., 10, 0., 10.);
-  FillJetPlots(jets, fatjets, Region_str + channel, weight);
+  //FillJetPlots(jets, fatjets, Region_str + channel, weight);
   
   //m(ll) > 150 GeV
   Particle ll = *(Leptons_veto.at(0)) + *(Leptons_veto.at(1));
