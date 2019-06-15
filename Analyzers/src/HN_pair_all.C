@@ -60,21 +60,46 @@ void HN_pair_all::executeEvent(){
   cout << "nnpdf_nnlo_pdf : " << nnpdf_nnlo_pdf << endl;
   cout << "ct14_nlo_pdf : " << ct14_nlo_pdf << endl;
   */
-  Select_syst_objects(param);
-  //executeEventFromParameter(param);
-
+  
   // -- Corrections related with Truth Level Particles
   TString current_MC = "";
   if(!IsDATA) current_MC = MCSample;
   bool is_TTLL = current_MC.Contains("TTLL");
-  bool is_DY = current_MC.Contains("DYJets_MG"); // -- https://github.com/IzaakWN/NanoTreeProducer/blob/master/corrections/RecoilCorrectionTool.py#L95-L109 : available only for LO level DY samples
-  //cout << "is_TTLL : " << is_TTLL << endl;
-
+  bool is_DY = current_MC.Contains("DYJets_MG"); // -- https://github.com/IzaakWN/NanoTreeProducer/blob/master/corrections/RecoilCorrectionTool.py#L95-L109 : available only for LO level DY Samples
+  zpt_reweight = 1.;
+  top_pt_reweight = 1.;
   if(is_DY){
     vector<Gen> gens = GetGens();
-    double zpt_reweight = mcCorr->GetOfficialDYReweight(gens);
-    cout << "zpt_reweight : " << zpt_reweight << endl;
+    zpt_reweight = mcCorr->GetOfficialDYReweight(gens);
+    //cout << "zpt_reweight : " << zpt_reweight << endl; 
   }
+  if(is_TTLL){// -- Calculate top pt reweight value
+    std::vector<Gen> gens = GetGens();
+    double top_pt = 9999.;
+    double atop_pt = 9999.;
+    bool top_found = false;
+    bool atop_found = false;
+    for(unsigned int i_gen = 0; i_gen < gens.size(); i_gen++){
+      if(gens.at(i_gen).PID() == 6 && gens.at(i_gen).Status() == 22) {
+        top_found = true;
+	top_pt = gens.at(i_gen).Pt();
+      }
+      if(gens.at(i_gen).PID() == -6 && gens.at(i_gen).Status() == 22) {
+	atop_found = true;
+        atop_pt = gens.at(i_gen).Pt();
+      }
+    }
+
+    if(top_found && atop_found){
+      if(top_pt < 800. && atop_pt < 800.){
+        double top_weight = exp(0.0615 - 0.0005 * top_pt);
+        double atop_weight = exp(0.0615 - 0.0005 * atop_pt);
+        top_pt_reweight = top_weight * top_weight;
+      }
+    }
+  }
+  
+  Select_syst_objects(param);
   
 }
 
@@ -170,31 +195,31 @@ void HN_pair_all::Select_syst_objects(AnalyzerParameter param){
   //cout << "[Select_syst_objects] call fatjet vectors" << endl;
 
   // ==== Get FatJets selection with syst flags & Save in to a vector of vectors
-  std::vector<FatJet> FatJets_all = GetAllFatJets();
-  std::vector<FatJet> FatJets_all_Scale_Up   = ScaleFatJets(GetAllFatJets(),  1);
-  std::vector<FatJet> FatJets_all_Scale_Down = ScaleFatJets(GetAllFatJets(), -1);
+  std::vector<FatJet> FatJets_all = puppiCorr->Correct( GetAllFatJets() );
+  std::vector<FatJet> FatJets_all_Scale_Up   = ScaleFatJets(puppiCorr->Correct( GetAllFatJets() ),  1);
+  std::vector<FatJet> FatJets_all_Scale_Down = ScaleFatJets(puppiCorr->Correct( GetAllFatJets() ), -1);
   std::vector<FatJet> FatJets_all_Res_Up;
-  if(!IsData) FatJets_all_Res_Up = SmearFatJets(  GetAllFatJets(),  1);
-  else FatJets_all_Res_Up = GetAllFatJets();
+  if(!IsData) FatJets_all_Res_Up = SmearFatJets(  puppiCorr->Correct( GetAllFatJets() ),  1);
+  else FatJets_all_Res_Up = puppiCorr->Correct( GetAllFatJets() );
   std::vector<FatJet> FatJets_all_Res_Down;
-  if(!IsData) FatJets_all_Res_Down = SmearFatJets(  GetAllFatJets(), -1);
-  else FatJets_all_Res_Down = GetAllFatJets();
+  if(!IsData) FatJets_all_Res_Down = SmearFatJets(  puppiCorr->Correct( GetAllFatJets() ), -1);
+  else FatJets_all_Res_Down = puppiCorr->Correct( GetAllFatJets() );
   
   std::vector<FatJet> FatJets_all_SDMass_Scale_Up;
-  if(!IsData) FatJets_all_SDMass_Scale_Up = ScaleSDMassFatJets(  GetAllFatJets(),  1);
-  else FatJets_all_SDMass_Scale_Up = GetAllFatJets();
+  if(!IsData) FatJets_all_SDMass_Scale_Up = ScaleSDMassFatJets(  puppiCorr->Correct( GetAllFatJets() ),  1);
+  else FatJets_all_SDMass_Scale_Up = puppiCorr->Correct( GetAllFatJets() );
   
   std::vector<FatJet> FatJets_all_SDMass_Scale_Down;
-  if(!IsData) FatJets_all_SDMass_Scale_Down = ScaleSDMassFatJets(  GetAllFatJets(),  -1);
-  else FatJets_all_SDMass_Scale_Down = GetAllFatJets();
+  if(!IsData) FatJets_all_SDMass_Scale_Down = ScaleSDMassFatJets(  puppiCorr->Correct( GetAllFatJets() ),  -1);
+  else FatJets_all_SDMass_Scale_Down = puppiCorr->Correct( GetAllFatJets() );
   
   std::vector<FatJet> FatJets_all_SDMass_Res_Up;
-  if(!IsData) FatJets_all_SDMass_Res_Up = SmearSDMassFatJets(  GetAllFatJets(),  1);
-  else FatJets_all_SDMass_Res_Up = GetAllFatJets();
+  if(!IsData) FatJets_all_SDMass_Res_Up = SmearSDMassFatJets(  puppiCorr->Correct( GetAllFatJets() ),  1);
+  else FatJets_all_SDMass_Res_Up = puppiCorr->Correct( GetAllFatJets() );
   
   std::vector<FatJet> FatJets_all_SDMass_Res_Down;
-  if(!IsData) FatJets_all_SDMass_Res_Down = SmearSDMassFatJets(  GetAllFatJets(),  -1);
-  else FatJets_all_SDMass_Res_Down = GetAllFatJets();
+  if(!IsData) FatJets_all_SDMass_Res_Down = SmearSDMassFatJets(  puppiCorr->Correct( GetAllFatJets() ),  -1);
+  else FatJets_all_SDMass_Res_Down = puppiCorr->Correct( GetAllFatJets() );
 
   //puppiCorr;
   
@@ -330,41 +355,6 @@ void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector
   // -- Corrections Based on Truth Level Particles
   bool is_TTLL = current_MC.Contains("TTLL");
   bool is_DY = current_MC.Contains("DYJets_MG"); // -- https://github.com/IzaakWN/NanoTreeProducer/blob/master/corrections/RecoilCorrectionTool.py#L95-L109 : available only for LO level DY samples
-  //cout << "is_TTLL : " << is_TTLL << endl;
-  double top_pt_reweight = 1.;
-  if(is_TTLL){// -- Calculate top pt reweight value
-    std::vector<Gen> gens = GetGens();
-    double top_pt = 9999.;
-    double atop_pt = 9999.;
-    bool top_found = false;
-    bool atop_found = false;
-    for(unsigned int i_gen = 0; i_gen < gens.size(); i_gen++){
-      if(gens.at(i_gen).PID() == 6 && gens.at(i_gen).Status() == 22) {
-	top_found = true;
-	top_pt = gens.at(i_gen).Pt();
-      }
-      if(gens.at(i_gen).PID() == -6 && gens.at(i_gen).Status() == 22) {
-	atop_found = true;
-	atop_pt = gens.at(i_gen).Pt();
-      }
-    }
-  
-    if(top_found && atop_found){
-      if(top_pt < 800. && atop_pt < 800.){
-	double top_weight = exp(0.0615 - 0.0005 * top_pt);
-	double atop_weight = exp(0.0615 - 0.0005 * atop_pt);
-	//cout << "top_weight : " << top_weight << ", atop_weight : " << atop_weight << endl;
-	top_pt_reweight = top_weight * top_weight;
-      }
-    }
-  }
-  if(is_DY){
-    std::vector<Gen> gens = GetGens();
-    Particle tagged_Z;
-    
-
-  }
-
 
   //cout << "[executeEventFromParameter pileup_reweight : " << pileup_reweight << endl;
   weight_trig_diele = weight_trig_diele * weight_1pb * pileup_reweight;
@@ -505,7 +495,9 @@ void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector
     
   }
 
-  //cout << "current_weight : " << current_weight << endl;
+  current_weight *= top_pt_reweight;
+  cout << "===============" << endl;
+  cout << "current_weight : " << current_weight << endl;
   
   // ==== Run Charge Blind 
   CR_Z_mass(param, current_channel  + syst_flag, trig_pass_for_channel,  current_weight, jets, fatjets, electrons_Tight_all, electrons_Veto, muons_Tight_all, muons_Veto, N_electrons_Tight_all, N_electrons_Veto, N_muons_Tight_all, N_muons_Veto);
@@ -514,6 +506,12 @@ void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector
   CR_EMu90(param, current_channel  + syst_flag, trig_pass_for_channel,  current_weight, jets, fatjets, electrons_Tight_all, electrons_Veto, muons_Tight_all, muons_Veto, N_electrons_Tight_all, N_electrons_Veto, N_muons_Tight_all, N_muons_Veto);
   SR(param, current_channel + syst_flag, trig_pass_for_channel,  current_weight, jets, fatjets, electrons_Tight_all, electrons_Veto, muons_Tight_all, muons_Veto, N_electrons_Tight_all, N_electrons_Veto, N_muons_Tight_all, N_muons_Veto);
   
+  current_weight *= zpt_reweight;
+  cout << "current_weight * zpt_reweight : " << current_weight << endl;
+
+  CR_Z_mass(param, current_channel + "_DYreweight"  + syst_flag, trig_pass_for_channel,  current_weight, jets, fatjets, electrons_Tight_all, electrons_Veto, muons_Tight_all, muons_Veto, N_electrons_Tight_all, N_electrons_Veto, N_muons_Tight_all, N_muons_Veto);
+  CR_ttbar_dom(param, current_channel + "_DYreweight"+ syst_flag, trig_pass_for_channel,  current_weight , jets, fatjets, electrons_Tight_all, electrons_Veto, muons_Tight_all, muons_Veto, N_electrons_Tight_all, N_electrons_Veto, N_muons_Tight_all, N_muons_Veto);
+  SR(param, current_channel + "_DYreweight" + syst_flag, trig_pass_for_channel,  current_weight, jets, fatjets, electrons_Tight_all, electrons_Veto, muons_Tight_all, muons_Veto, N_electrons_Tight_all, N_electrons_Veto, N_muons_Tight_all, N_muons_Veto);
   // ==== Run Charge Awared
   /*
   CR_Z_mass(param, current_channel  + syst_flag, trig_pass_for_channel,  current_weight, jets, fatjets, electrons_Tight, electrons_Veto, muons_Tight, muons_Veto, N_electrons_Tight, N_electrons_Veto, N_muons_Tight, N_muons_Veto);

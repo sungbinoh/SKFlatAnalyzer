@@ -30,6 +30,9 @@ public:
   HN_pair_all();
   ~HN_pair_all();
 
+  double zpt_reweight = 1.;
+  double top_pt_reweight = 1.;
+
   bool RunFake, RunCF;
   
 };
