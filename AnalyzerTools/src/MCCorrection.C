@@ -129,7 +129,7 @@ void MCCorrection::ReadHistograms(){
     is >> b; // syst
     is >> c; // rootfile name
 
-    if(DataYear == 2017 && a!=MCSample) continue;
+    //if(DataYear == 2017 && a!=MCSample) continue;
     
     TFile *file = new TFile(PUReweightPath+c);
     if( (TH1D *)file->Get(a+"_"+b) ){

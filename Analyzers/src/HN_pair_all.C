@@ -496,8 +496,8 @@ void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector
   }
 
   current_weight *= top_pt_reweight;
-  cout << "===============" << endl;
-  cout << "current_weight : " << current_weight << endl;
+  //cout << "===============" << endl;
+  //cout << "current_weight : " << current_weight << endl;
   
   // ==== Run Charge Blind 
   CR_Z_mass(param, current_channel  + syst_flag, trig_pass_for_channel,  current_weight, jets, fatjets, electrons_Tight_all, electrons_Veto, muons_Tight_all, muons_Veto, N_electrons_Tight_all, N_electrons_Veto, N_muons_Tight_all, N_muons_Veto);
@@ -507,7 +507,7 @@ void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector
   SR(param, current_channel + syst_flag, trig_pass_for_channel,  current_weight, jets, fatjets, electrons_Tight_all, electrons_Veto, muons_Tight_all, muons_Veto, N_electrons_Tight_all, N_electrons_Veto, N_muons_Tight_all, N_muons_Veto);
   
   current_weight *= zpt_reweight;
-  cout << "current_weight * zpt_reweight : " << current_weight << endl;
+  //cout << "current_weight * zpt_reweight : " << current_weight << endl;
 
   CR_Z_mass(param, current_channel + "_DYreweight"  + syst_flag, trig_pass_for_channel,  current_weight, jets, fatjets, electrons_Tight_all, electrons_Veto, muons_Tight_all, muons_Veto, N_electrons_Tight_all, N_electrons_Veto, N_muons_Tight_all, N_muons_Veto);
   CR_ttbar_dom(param, current_channel + "_DYreweight"+ syst_flag, trig_pass_for_channel,  current_weight , jets, fatjets, electrons_Tight_all, electrons_Veto, muons_Tight_all, muons_Veto, N_electrons_Tight_all, N_electrons_Veto, N_muons_Tight_all, N_muons_Veto);
