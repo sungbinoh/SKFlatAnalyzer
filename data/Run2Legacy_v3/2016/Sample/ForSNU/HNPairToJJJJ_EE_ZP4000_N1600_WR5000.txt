@@ -14,7 +14,6 @@
 /data7/DATA/SKFlat/Run2Legacy_v3/2016/PrivateMC/ZpNN/ZprimetoNN_EEJJJJ_Zprime4000_N1600_WR5000_NLO/SKFlatNtuple_2016_MC_21.root
 /data7/DATA/SKFlat/Run2Legacy_v3/2016/PrivateMC/ZpNN/ZprimetoNN_EEJJJJ_Zprime4000_N1600_WR5000_NLO/SKFlatNtuple_2016_MC_22.root
 /data7/DATA/SKFlat/Run2Legacy_v3/2016/PrivateMC/ZpNN/ZprimetoNN_EEJJJJ_Zprime4000_N1600_WR5000_NLO/SKFlatNtuple_2016_MC_23.root
-/data7/DATA/SKFlat/Run2Legacy_v3/2016/PrivateMC/ZpNN/ZprimetoNN_EEJJJJ_Zprime4000_N1600_WR5000_NLO/SKFlatNtuple_2016_MC_24.root
 /data7/DATA/SKFlat/Run2Legacy_v3/2016/PrivateMC/ZpNN/ZprimetoNN_EEJJJJ_Zprime4000_N1600_WR5000_NLO/SKFlatNtuple_2016_MC_25.root
 /data7/DATA/SKFlat/Run2Legacy_v3/2016/PrivateMC/ZpNN/ZprimetoNN_EEJJJJ_Zprime4000_N1600_WR5000_NLO/SKFlatNtuple_2016_MC_26.root
 /data7/DATA/SKFlat/Run2Legacy_v3/2016/PrivateMC/ZpNN/ZprimetoNN_EEJJJJ_Zprime4000_N1600_WR5000_NLO/SKFlatNtuple_2016_MC_27.root
@@ -42,7 +41,6 @@
 /data7/DATA/SKFlat/Run2Legacy_v3/2016/PrivateMC/ZpNN/ZprimetoNN_EEJJJJ_Zprime4000_N1600_WR5000_NLO/SKFlatNtuple_2016_MC_47.root
 /data7/DATA/SKFlat/Run2Legacy_v3/2016/PrivateMC/ZpNN/ZprimetoNN_EEJJJJ_Zprime4000_N1600_WR5000_NLO/SKFlatNtuple_2016_MC_4.root
 /data7/DATA/SKFlat/Run2Legacy_v3/2016/PrivateMC/ZpNN/ZprimetoNN_EEJJJJ_Zprime4000_N1600_WR5000_NLO/SKFlatNtuple_2016_MC_5.root
-/data7/DATA/SKFlat/Run2Legacy_v3/2016/PrivateMC/ZpNN/ZprimetoNN_EEJJJJ_Zprime4000_N1600_WR5000_NLO/SKFlatNtuple_2016_MC_6.root
 /data7/DATA/SKFlat/Run2Legacy_v3/2016/PrivateMC/ZpNN/ZprimetoNN_EEJJJJ_Zprime4000_N1600_WR5000_NLO/SKFlatNtuple_2016_MC_7.root
 /data7/DATA/SKFlat/Run2Legacy_v3/2016/PrivateMC/ZpNN/ZprimetoNN_EEJJJJ_Zprime4000_N1600_WR5000_NLO/SKFlatNtuple_2016_MC_8.root
 /data7/DATA/SKFlat/Run2Legacy_v3/2016/PrivateMC/ZpNN/ZprimetoNN_EEJJJJ_Zprime4000_N1600_WR5000_NLO/SKFlatNtuple_2016_MC_9.root

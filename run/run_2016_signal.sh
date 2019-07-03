@@ -6,7 +6,7 @@
 #python python/SKFlat.py -a SR_signal -l ./run/HN_pair_EE.txt -q fastq -n 1 &
 
 #python python/SKFlat.py -a SR_signal -i HNPairToJJJJ_MuMu_ZP4800_N2300_WR5000 -n 10 &
-#python python/SKFlat.py -a SR_signal -i HNPairToJJJJ_EE_ZP4800_N2300_WR5000 -n 10 &
+python python/SKFlat.py -a HN_pair_all -i HNPairToJJJJ_EE_ZP4800_N2300_WR5000 -y 2016 -n 10 &
 #python python/SKFlat.py -a SR_signal -i HNPairToJJJJ_EE_ZP4800_N500_WR5000 -n 10 &
 #python python/SKFlat.py -a SR_signal -i HNPairToJJJJ_EE_ZP4800_N1200_WR5000 -n 10 &
 #python python/SKFlat.py -a SR_signal -i HNPairToJJJJ_MuMu_ZP4800_N1200_WR5000 -n 10 &
@@ -24,7 +24,7 @@
 #python python/SKFlat.py -a HN_pair_all -i EGamma --skim SkimTree_LRSMHighPt -y 2018 -q fastq -n 10 &
 
 #TEST
-python python/SKFlat.py -a HN_pair_all -i WWW --skim SkimTree_LRSMHighPt -y 2018 -q fastq -n 10 &
+#python python/SKFlat.py -a HN_pair_all -i WWW --skim SkimTree_LRSMHighPt -y 2018 -q fastq -n 10 &
 #python python/SKFlat.py -a HN_pair_all -i ZZ_pythia --skim SkimTree_LRSMHighPt -y 2018 -q fastq -n 10 &
 
 

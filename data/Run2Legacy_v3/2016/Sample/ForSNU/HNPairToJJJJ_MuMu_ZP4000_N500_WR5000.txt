@@ -1,4 +1,3 @@
-/data7/DATA/SKFlat/Run2Legacy_v3/2016/PrivateMC/ZpNN/ZprimetoNN_MuMuJJJJ_Zprime4000_N500_WR5000_NLO/SKFlatNtuple_2016_MC_0.root
 /data7/DATA/SKFlat/Run2Legacy_v3/2016/PrivateMC/ZpNN/ZprimetoNN_MuMuJJJJ_Zprime4000_N500_WR5000_NLO/SKFlatNtuple_2016_MC_10.root
 /data7/DATA/SKFlat/Run2Legacy_v3/2016/PrivateMC/ZpNN/ZprimetoNN_MuMuJJJJ_Zprime4000_N500_WR5000_NLO/SKFlatNtuple_2016_MC_11.root
 /data7/DATA/SKFlat/Run2Legacy_v3/2016/PrivateMC/ZpNN/ZprimetoNN_MuMuJJJJ_Zprime4000_N500_WR5000_NLO/SKFlatNtuple_2016_MC_12.root
