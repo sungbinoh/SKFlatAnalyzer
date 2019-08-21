@@ -736,6 +736,33 @@ std::vector<Muon> AnalyzerCore::ScaleMuons(const std::vector<Muon>& muons, int s
 
 }
 
+std::vector<Muon> AnalyzerCore::SmearTunePMuons(const std::vector<Muon>& muons, int sys){
+
+  std::vector<Muon> out;
+  // -- Loop over muon vector
+  for(unsigned int i=0; i<muons.size(); i++){
+    Muon this_muon = muons.at(i);
+    double eta = fabs(this_muon.Eta());
+    double smear = 1.;
+    if(eta < 1.6){
+      if(this_muon.Pt() < 200) smear = 1. + double(sys) *  0.003;
+      else if(this_muon.Pt() < 500) smear =  1. + double(sys) * 0.005;
+      else smear = 1. + double(sys) * 0.01;
+    }
+    else if(eta < 2.4){
+      if(this_muon.Pt() < 200) smear = 1. + double(sys) *  0.006;
+      else if(this_muon.Pt() < 500) smear =  1. + double(sys) * 0.01;
+      else smear = 1. + double(sys) * 0.02;
+    }
+    else smear = 1.;
+
+    this_muon *= smear;
+    out.push_back(this_muon);
+  }// -- Muon vector loop ends
+
+  return out;
+}
+
 std::vector<Jet> AnalyzerCore::ScaleJets(const std::vector<Jet>& jets, int sys){
 
   std::vector<Jet> out;
