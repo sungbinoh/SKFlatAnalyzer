@@ -244,6 +244,11 @@ for InputSample in InputSamples:
 
   SubmitOutput.write("<SKFlat> NTotalFiles = "+str(NTotalFiles)+'\n')
   SubmitOutput.write("<SKFlat> NJobs = "+str(NJobs)+'\n')
+  print "------------------------"
+  print "InputSample : " + InputSample
+  print "NTotalFiles : " + str(NTotalFiles)
+  print "NJobs : " + str(NJobs)
+
   nfilepjob = int(NTotalFiles/NJobs)
   SubmitOutput.write("<SKFlat> --> # of files per job = "+str(nfilepjob)+'\n')
   nfilepjob_remainder = NTotalFiles-(NJobs)*(nfilepjob)
