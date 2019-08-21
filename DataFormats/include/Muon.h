@@ -94,11 +94,13 @@ public:
   inline double TunePPtError() const {return j_TunePPtError;}
 
   //==== ID
-  bool PassID(TString ID);
-  bool Pass_POGTight();
-  bool Pass_POGTightWithTightIso();
-  bool Pass_POGHighPtWithLooseTrkIso();
-  bool Pass_TESTID();
+  bool PassID(TString ID) const;
+  bool Pass_POGTightWithTightIso() const;
+  bool Pass_POGHighPtWithLooseTrkIso() const;
+  bool Pass_TESTID() const;
+  
+  void SetTrackerLayers(int n);
+  inline int TrackerLayers() const { return j_trackerLayers; }
 
 private:
 
@@ -109,6 +111,7 @@ private:
   double j_MiniAODPt, j_MiniAODTunePPt, j_MomentumScaleUp, j_MomentumScaleDown;
   Particle j_TuneP4;
   double j_TunePPtError;
+  int j_trackerLayers;
 
   ClassDef(Muon,1);
 };

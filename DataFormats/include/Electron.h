@@ -44,7 +44,7 @@ public:
   enum EtaRegion{
     IB, OB, GAP, EC
   };
-  inline EtaRegion etaRegion(){
+  inline EtaRegion etaRegion() const {
     double sceta = fabs(scEta());
     if( sceta < 0.8 ) return IB;
     else if( sceta < 1.444 ) return OB;
@@ -104,33 +104,36 @@ public:
   inline bool passMVAID_iso_WP90() const {return PassSelector(POG_MVA_ISO_WP90); }
   inline bool passHEEPID() const {return PassSelector(POG_HEEP); }
 
-  bool Pass_SUSYMVAWP(TString wp);
-  bool Pass_SUSYTight();
-  bool Pass_SUSYLoose();
-  bool Pass_HEEP_OR_LooseNoIso();
-  bool Pass_HEEP_dZ();
-  bool Pass_HNPairTight();
-  bool Pass_HNPairLoose();
-  bool Pass_HNPairLooseNoIP();
-  bool Pass_HNPairVeto();
-  bool Pass_HNWRTight();
-  bool Pass_HNWRLoose();
-  bool Pass_HNWRVeto();
+  bool Pass_SUSYMVAWP(TString wp) const;
+  bool Pass_SUSYTight() const;
+  bool Pass_SUSYLoose() const;
+  bool Pass_HEEP_OR_LooseNoIso() const;
+  bool Pass_HEEP_dZ() const;
+  bool Pass_HNPairTight() const;
+  bool Pass_HNPairLoose() const;
+  bool Pass_HNPairLooseNoIP() const;
+  bool Pass_HNPairVeto() const;
+  bool Pass_HNWRTight() const;
+  bool Pass_HNWRLoose() const;
+  bool Pass_HNWRVeto() const;
 
   void SetRelPFIso_Rho(double r);
   double EA();
 
   //==== ID
-  bool PassID(TString ID);
-  bool Pass_TESTID();
+  bool PassID(TString ID) const;
+  bool Pass_TESTID() const;
 
-  bool Pass_CutBasedLooseNoIso();
-  bool Pass_CutBasedVetoNoIso();
-  bool Pass_CutBasedLoose();
-  bool Pass_CutBasedVeto();
+  bool Pass_CutBasedLooseNoIso() const;
+  bool Pass_CutBasedVetoNoIso() const;
+  bool Pass_CutBasedLoose() const;
+  bool Pass_CutBasedVeto() const;
   void SetRho(double r);
   inline double Rho() const { return j_Rho; }
 
+  void SetIsGsfCtfScPixChargeConsistent(bool b);
+  inline bool IsGsfCtfScPixChargeConsistent() const { return j_isGsfCtfScPixChargeConsistent; }
+    
 private:
 
   double j_En_up;
@@ -147,6 +150,7 @@ private:
   double j_RelPFIso_Rho;
 
   double j_Rho;
+  int j_isGsfCtfScPixChargeConsistent;
 
   ClassDef(Electron,1)
 
