@@ -104,7 +104,8 @@ public:
   std::vector<Electron> SmearElectrons(const std::vector<Electron>& electrons, int sys);
 
   std::vector<Muon> ScaleMuons(const std::vector<Muon>& muons, int sys);
-
+  std::vector<Muon> SmearTunePMuons(const std::vector<Muon>& muons, int sys);
+  
   std::vector<Jet> ScaleJets(const std::vector<Jet>& jets, int sys);
   std::vector<Jet> SmearJets(const std::vector<Jet>& jets, int sys);
 
