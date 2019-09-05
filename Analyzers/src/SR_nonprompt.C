@@ -76,11 +76,11 @@ void SR_nonprompt::Select_syst_objects(AnalyzerParameter param){
 
   // ==== Save Muons with TuneP
   std::vector<Muon> muons_all;
-  if(!IsData) muons_all = ScaleTunePMuons(UseTunePMuon( GetAllMuons() ), 0);   else muons_all = UseTunePMuon( GetAllMuons() );
+  if(!IsData) muons_all = UseTunePMuon( GetAllMuons() );   else muons_all = UseTunePMuon( GetAllMuons() );
   std::vector<Muon> muons_all_Scale_Up;
-  if(!IsData) muons_all_Scale_Up = ScaleTunePMuons(muons_all, 1);              else muons_all_Scale_Up = UseTunePMuon( GetAllMuons() );
+  if(!IsData) muons_all_Scale_Up = ScaleMuons(muons_all, 1);              else muons_all_Scale_Up = UseTunePMuon( GetAllMuons() );
   std::vector<Muon> muons_all_Scale_Down;
-  if(!IsData) muons_all_Scale_Down = ScaleTunePMuons(muons_all, -1);           else muons_all_Scale_Down = UseTunePMuon( GetAllMuons() );
+  if(!IsData) muons_all_Scale_Down = ScaleMuons(muons_all, -1);           else muons_all_Scale_Down = UseTunePMuon( GetAllMuons() );
   std::vector<Muon> muons_all_Smear_Up;   
   if(!IsData) muons_all_Smear_Up = SmearTunePMuons(muons_all, 1);              else muons_all_Smear_Up = UseTunePMuon( GetAllMuons() );
   std::vector<Muon> muons_all_Smear_Down; 
