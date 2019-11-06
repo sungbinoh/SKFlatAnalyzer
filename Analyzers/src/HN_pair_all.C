@@ -65,13 +65,13 @@ void HN_pair_all::executeEvent(){
   TString current_MC = "";
   if(!IsDATA) current_MC = MCSample;
   bool is_TTLL = current_MC.Contains("TTLL");
-  bool is_DY = current_MC.Contains("DYJets_MG"); // -- https://github.com/IzaakWN/NanoTreeProducer/blob/master/corrections/RecoilCorrectionTool.py#L95-L109 : available only for LO level DY Samples
+  bool is_DY = current_MC.Contains("DY") && current_MC.Contains("Jets_MG"); // -- https://github.com/IzaakWN/NanoTreeProducer/blob/master/corrections/RecoilCorrectionTool.py#L95-L109 : available only for LO level DY Samples
   zpt_reweight = 1.;
   top_pt_reweight = 1.;
   if(is_DY){
     vector<Gen> gens = GetGens();
     zpt_reweight = mcCorr->GetOfficialDYReweight(gens);
-    //cout << "zpt_reweight : " << zpt_reweight << endl; 
+    cout << "zpt_reweight : " << zpt_reweight << endl; 
   }
   if(is_TTLL){// -- Calculate top pt reweight value
     std::vector<Gen> gens = GetGens();
@@ -501,16 +501,16 @@ void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector
   
   // ==== Run Charge Blind 
   CR_Z_mass(param, current_channel  + syst_flag, trig_pass_for_channel,  current_weight, jets, fatjets, electrons_Tight_all, electrons_Veto, muons_Tight_all, muons_Veto, N_electrons_Tight_all, N_electrons_Veto, N_muons_Tight_all, N_muons_Veto);
-  CR_ll_150(param, current_channel  + syst_flag, trig_pass_for_channel,  current_weight, jets, fatjets, electrons_Tight_all, electrons_Veto, muons_Tight_all, muons_Veto, N_electrons_Tight_all, N_electrons_Veto, N_muons_Tight_all, N_muons_Veto);
-  CR_ttbar_dom(param, current_channel  + syst_flag, trig_pass_for_channel,  current_weight, jets, fatjets, electrons_Tight_all, electrons_Veto, muons_Tight_all, muons_Veto, N_electrons_Tight_all, N_electrons_Veto, N_muons_Tight_all, N_muons_Veto);
-  CR_EMu90(param, current_channel  + syst_flag, trig_pass_for_channel,  current_weight, jets, fatjets, electrons_Tight_all, electrons_Veto, muons_Tight_all, muons_Veto, N_electrons_Tight_all, N_electrons_Veto, N_muons_Tight_all, N_muons_Veto);
+  //CR_ll_150(param, current_channel  + syst_flag, trig_pass_for_channel,  current_weight, jets, fatjets, electrons_Tight_all, electrons_Veto, muons_Tight_all, muons_Veto, N_electrons_Tight_all, N_electrons_Veto, N_muons_Tight_all, N_muons_Veto);
+  //CR_ttbar_dom(param, current_channel  + syst_flag, trig_pass_for_channel,  current_weight, jets, fatjets, electrons_Tight_all, electrons_Veto, muons_Tight_all, muons_Veto, N_electrons_Tight_all, N_electrons_Veto, N_muons_Tight_all, N_muons_Veto);
+  //CR_EMu90(param, current_channel  + syst_flag, trig_pass_for_channel,  current_weight, jets, fatjets, electrons_Tight_all, electrons_Veto, muons_Tight_all, muons_Veto, N_electrons_Tight_all, N_electrons_Veto, N_muons_Tight_all, N_muons_Veto);
   SR(param, current_channel + syst_flag, trig_pass_for_channel,  current_weight, jets, fatjets, electrons_Tight_all, electrons_Veto, muons_Tight_all, muons_Veto, N_electrons_Tight_all, N_electrons_Veto, N_muons_Tight_all, N_muons_Veto);
   
   current_weight *= zpt_reweight;
   //cout << "current_weight * zpt_reweight : " << current_weight << endl;
 
   CR_Z_mass(param, current_channel + "DYreweight_"  + syst_flag, trig_pass_for_channel,  current_weight, jets, fatjets, electrons_Tight_all, electrons_Veto, muons_Tight_all, muons_Veto, N_electrons_Tight_all, N_electrons_Veto, N_muons_Tight_all, N_muons_Veto);
-  CR_ttbar_dom(param, current_channel + "DYreweight_"+ syst_flag, trig_pass_for_channel,  current_weight , jets, fatjets, electrons_Tight_all, electrons_Veto, muons_Tight_all, muons_Veto, N_electrons_Tight_all, N_electrons_Veto, N_muons_Tight_all, N_muons_Veto);
+  //CR_ttbar_dom(param, current_channel + "DYreweight_"+ syst_flag, trig_pass_for_channel,  current_weight , jets, fatjets, electrons_Tight_all, electrons_Veto, muons_Tight_all, muons_Veto, N_electrons_Tight_all, N_electrons_Veto, N_muons_Tight_all, N_muons_Veto);
   SR(param, current_channel + "DYreweight_" + syst_flag, trig_pass_for_channel,  current_weight, jets, fatjets, electrons_Tight_all, electrons_Veto, muons_Tight_all, muons_Veto, N_electrons_Tight_all, N_electrons_Veto, N_muons_Tight_all, N_muons_Veto);
   // ==== Run Charge Awared
   /*
@@ -561,7 +561,7 @@ void HN_pair_all::CR_Z_mass(AnalyzerParameter param, TString channel, bool trig_
     if(Lep_1st_Pt < 55 || Lep_2nd_Pt < 55) return;
   }
   else if(channel.Contains("EMu")){
-    if(Lep_1st_Pt < 75 || Lep_2nd_Pt < 55) return;
+    if(Lep_1st_Pt < 55 || Lep_2nd_Pt < 55) return;
   }
   else return;
   
@@ -577,27 +577,18 @@ void HN_pair_all::CR_Z_mass(AnalyzerParameter param, TString channel, bool trig_
   double M_ll = ll.M();
 
   if(fabs(M_Z - M_ll) > 10 ) return;
-  
-  
+    
   std::vector<Jet>      alljets_sub         = JetsVetoLeptonInside(GetJets(param.Jet_ID, 40., 2.7), electrons_veto, muons_veto); //no fatjet veto 
   int N_jet = alljets_sub.size();
 
   int NBJets=0;
   for(unsigned int i=0; i<alljets_sub.size(); i++){
     if( IsBTagged(alljets_sub.at(i), Jet::CSVv2, Jet::Medium, false, 0) ) NBJets++;
-    //if(alljets_sub.at(i).IsTagged(Jet::CSVv2, Jet::Medium)) NBJets++;
   }
-  JSFillHist("CR_Zmass_" + channel, "Nbjet_CR_Zmass_" + channel, NBJets, weight, 10, 0., 10.);
-  JSFillHist("CR_Zmass_" + channel, "Njet_CR_Zmass_" + channel, N_jet, weight, 10, 0., 10.);
-  JSFillHist("CR_Zmass_" + channel, "Nfatjet_CR_Zmass_" + channel, fatjets.size(), weight, 10, 0., 10.);
-  
-
-  
-  
+    
   Event ev_CR_ttbar = GetEvent();
   Particle METv_CR_ttbar = ev_CR_ttbar.GetMETVector();
-  JSFillHist("CR_Zmass_" + channel, "MET_CR_Zmass_" + channel, METv_CR_ttbar.Pt(), weight, 1000, 0., 1000.);
-
+  
   //cout << "[CR_Z_mass] Fill Zmass Hist" << endl;
   if(channel.Contains("DiEle")){
     FillHist("signal_eff", 9.5, weight, 40, 0., 40.); // cutflow - DiEle Z mass CR
@@ -616,36 +607,48 @@ void HN_pair_all::CR_Z_mass(AnalyzerParameter param, TString channel, bool trig_
   
   Event ev = GetEvent();
   int nPV = ev.nPV();
-  
-  /*
-  double pileup_reweight = 1.;
-  if(!IsData){
-    pileup_reweight = mcCorr.GetPileUpWeightAsSampleName(0, nPileUp);
+
+  double delta_R_ll = (*(Leptons_veto.at(0))).DeltaR(*(Leptons_veto.at(1)));
+  JSFillHist(Region_str + channel, "delta_R_ll_" + Region_str + channel, delta_R_ll, weight, 200, 0., 8.);
+
+  double delta_R_ll_Fat_0 = 0.;
+  double delta_R_ll_Fat_1 = 0.;
+  if(fatjets.size() > 0){
+    delta_R_ll_Fat_0 = fatjets.at(0).DeltaR(ll);
+    JSFillHist(Region_str + channel, "delta_R_ll_Fat_0_" + Region_str + channel, delta_R_ll_Fat_0, weight, 200, 0., 8.);
+
+    if(fatjets.size() > 1){
+      delta_R_ll_Fat_1 = fatjets.at(1).DeltaR(ll);
+      JSFillHist(Region_str + channel, "delta_R_ll_Fat_1_" + Region_str + channel, delta_R_ll_Fat_1, weight, 200, 0., 8.);
+
     }
-  JSFillHist(Region_str + channel, "Nvtx_noCorr_" + Region_str + channel, nPV, weight, 1000, 0., 1000.);
-  */
-  JSFillHist(Region_str + channel, "Nvtx_69p2_" + Region_str + channel, nPV, weight, 1000, 0., 1000.);
-  
-  /*
-  JSFillHist(Region_str + channel, "mll_" + Region_str + channel, M_ll, weight, 1000, 0., 1000.);
-  if(Leptons.size() == 2){
-    Particle ll_tight = *(Leptons.at(0)) + *(Leptons.at(1));
-    double M_ll_tight = ll_tight.M();
-    JSFillHist("tight_" + Region_str + channel, "mll_tight_" + Region_str + channel, M_ll_tight, weight, 1000, 0., 1000.);
   }
-  */
-  FillLeptonPlots(Leptons_veto, Region_str + channel, weight);
-  FillLeptonPlots(Leptons, "tight_" + Region_str + channel, weight);
   
-  vector<Particle> Ns = RecoPairN(Leptons, fatjets, jets);
+  vector<FatJet> fatjets_Z_cleaned = Fatjet_Z_clean(fatjets, ll);
+
+  vector<Particle> Ns = RecoPairN(Leptons, fatjets_Z_cleaned, jets);
   if(Ns.size() != 2) return;
-  TString jetbin_str = Get_N_jet_bin(Leptons, fatjets, jets);
+  if(Ns.at(0).M() < 80 || Ns.at(1).M() < 80) return;
+  
+  TString jetbin_str = Get_N_jet_bin(Leptons, fatjets_Z_cleaned, jets);
       
   Particle Zp = Ns.at(0) + Ns.at(1);
-  JSFillHist(Region_str + channel, "mZp_" + Region_str + channel, Zp.M(), weight, 6000, 0., 6000.);
-  FillJetPlots(jets, fatjets, Region_str + channel, weight);
-  FillHNPairPlots(Ns, Region_str + channel, jetbin_str, weight);
+  if(Zp.M() < 300) return;
+
+  JSFillHist("CR_Zmass_" + channel, "Nbjet_CR_Zmass_" + channel, NBJets, weight, 10, 0., 10.);
+  JSFillHist("CR_Zmass_" + channel, "Njet_CR_Zmass_" + channel, N_jet, weight, 10, 0., 10.);
+  JSFillHist("CR_Zmass_" + channel, "Nfatjet_CR_Zmass_" + channel, fatjets_Z_cleaned.size(), weight, 10, 0., 10.);
   
+  JSFillHist("CR_Zmass_" + channel, "MET_CR_Zmass_" + channel, METv_CR_ttbar.Pt(), weight, 1000, 0., 1000.);
+  
+  JSFillHist(Region_str + channel, "Nvtx_69p2_" + Region_str + channel, nPV, weight, 1000, 0., 1000.);
+
+  FillLeptonPlots(Leptons_veto, Region_str + channel, weight);
+  FillLeptonPlots(Leptons, "tight_" + Region_str + channel, weight);
+
+  JSFillHist(Region_str + channel, "mZp_" + Region_str + channel, Zp.M(), weight, 6000, 0., 6000.);
+  FillJetPlots(jets, fatjets_Z_cleaned, Region_str + channel, weight);
+  FillHNPairPlots(Ns, Region_str + channel, jetbin_str, weight);
   
 }
 
@@ -1020,8 +1023,6 @@ void HN_pair_all::SR(AnalyzerParameter param, TString channel, bool trig_pass, d
   }
   else return;
 
-  
-
 
   //Nbjet == 0 
   std::vector<Jet>      alljets_sub         = JetsVetoLeptonInside(GetJets(param.Jet_ID, 40., 2.7), electrons_veto, muons_veto); //no fatjet veto
@@ -1060,6 +1061,23 @@ void HN_pair_all::SR(AnalyzerParameter param, TString channel, bool trig_pass, d
   JSFillHist("SR_" + channel, "Nbjet_SR_" + channel, NBJets, weight, 10, 0., 10.);
   JSFillHist("SR_" + channel, "Njet_SR_" + channel, N_jet, weight, 10, 0., 10.);
   JSFillHist("SR_" + channel, "Nfatjet_SR_" + channel, fatjets.size(), weight, 10, 0., 10.);
+
+  double delta_R_ll = (*(Leptons_veto.at(0))).DeltaR(*(Leptons_veto.at(1)));
+  JSFillHist(Region_str + channel, "delta_R_ll_" + Region_str + channel, delta_R_ll, weight, 200, 0., 8.);    
+
+  double delta_R_ll_Fat_0 = 0.;
+  double delta_R_ll_Fat_1 = 0.;
+
+  if(fatjets.size() > 0){
+    delta_R_ll_Fat_0 = fatjets.at(0).DeltaR(ll);
+    JSFillHist(Region_str + channel, "delta_R_ll_Fat_0_" + Region_str + channel, delta_R_ll_Fat_0, weight, 200, 0., 8.);
+
+    if(fatjets.size() > 1){
+      delta_R_ll_Fat_1 = fatjets.at(1).DeltaR(ll);
+      JSFillHist(Region_str + channel, "delta_R_ll_Fat_1_" + Region_str + channel, delta_R_ll_Fat_1, weight, 200, 0., 8.);
+
+    }
+  }
   
   
   vector<Particle> Ns = RecoPairN(Leptons, fatjets, jets);
@@ -1113,8 +1131,6 @@ void HN_pair_all::SR(AnalyzerParameter param, TString channel, bool trig_pass, d
   JSFillHist(Region_str + channel, "Nvtx_noCorr_" + Region_str + channel, nPV, weight, 1000, 0., 1000.);
   */
   JSFillHist(Region_str + channel, "Nvtx_69p2_" + Region_str + channel, nPV, weight, 1000, 0., 1000.);
-
-  
   
   //TString Region_str = "SR_";
   FillLeptonPlots(Leptons, Region_str + channel, weight);
@@ -1123,7 +1139,14 @@ void HN_pair_all::SR(AnalyzerParameter param, TString channel, bool trig_pass, d
   JSFillHist(Region_str + channel, "mN_" + Region_str + channel, Ns.at(0).M(), weight, 5000, 0., 5000.);
   JSFillHist(Region_str + channel, "mN_" + Region_str + channel, Ns.at(1).M(), weight, 5000, 0., 5000.);
   FillHNPairPlots(Ns, Region_str + channel, jetbin_str, weight);
-  
+
+  if(NBJets > 0) return;
+  FillLeptonPlots(Leptons, Region_str + "b_veto_" + channel, weight);
+  FillJetPlots(jets, fatjets, Region_str + "b_veto_" + channel, weight);
+  JSFillHist(Region_str + "b_veto_" + channel, "mZp_" + Region_str + "b_veto_" + channel, Zp.M(), weight, 6000, 0., 6000.);
+  JSFillHist(Region_str + "b_veto_" + channel, "mN_" + Region_str + "b_veto_" + channel, Ns.at(0).M(), weight, 5000, 0., 5000.);
+  JSFillHist(Region_str + "b_veto_" + channel, "mN_" + Region_str + "b_veto_" + channel, Ns.at(1).M(), weight, 5000, 0., 5000.);
+  FillHNPairPlots(Ns, Region_str + "b_veto_" + channel, jetbin_str, weight);
   
 }
 
@@ -1382,6 +1405,18 @@ TString HN_pair_all::Get_N_jet_bin(vector<Lepton *> lepptrs, vector<FatJet> fatj
   
   return N_jet_bin;
 
+}
+
+vector<FatJet> HN_pair_all::Fatjet_Z_clean(vector<FatJet> fatjets, Particle ll){
+  std::vector<FatJet> out;
+  
+  for(unsigned int i=0; i<fatjets.size(); i++){
+    if(fatjets.at(i).DeltaR(ll) > 0.8){
+      out.push_back( fatjets.at(i) );
+    }
+  }
+
+  return out;
 }
 
 HN_pair_all::HN_pair_all(){

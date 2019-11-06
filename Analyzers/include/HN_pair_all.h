@@ -24,7 +24,7 @@ public:
   
   vector<Particle> RecoPairN(vector<Lepton *> lepptrs, vector<FatJet> fatjets, vector<Jet> jets);
   TString Get_N_jet_bin(vector<Lepton *> lepptrs, vector<FatJet> fatjets, vector<Jet> jets);
-  
+  vector<FatJet> Fatjet_Z_clean(vector<FatJet> fatjets, Particle ll);
   
 
   HN_pair_all();

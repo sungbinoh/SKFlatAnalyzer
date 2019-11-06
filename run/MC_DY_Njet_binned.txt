@@ -1,0 +1,5 @@
+#MC big samples
+DY4Jets_MG
+DY3Jets_MG
+DY2Jets_MG
+DY1Jets_MG

@@ -15,13 +15,15 @@
 ## Skim RUN ###
 ###############
 #MC
-python python/SKFlat.py -a HN_pair_all -l ./run/MC_big_2018.txt --skim SkimTree_LRSMHighPt -y 2018 -q fastq -n 20 #&
-python python/SKFlat.py -a HN_pair_all -l ./run/MC_small_2018.txt --skim SkimTree_LRSMHighPt -y 2018 -q fastq -n 20 #&
-python python/SKFlat.py -a HN_pair_all -l ./run/MC_minor_2018.txt --skim SkimTree_LRSMHighPt -y 2018 -q fastq -n 20 #&
+python python/SKFlat.py -a HN_pair_all -l ./run/MC_WJets_HT_binned.txt --skim SkimTree_LRSMHighPt -y 2018 -q fastq -n 20 &
+#python python/SKFlat.py -a HN_pair_all -l ./run/MC_DY_HT_binned.txt --skim SkimTree_LRSMHighPt -y 2018 -q fastq -n 20 &
+#python python/SKFlat.py -a HN_pair_all -l ./run/MC_big_2018.txt --skim SkimTree_LRSMHighPt -y 2018 -q fastq -n 20 &
+#python python/SKFlat.py -a HN_pair_all -l ./run/MC_small_2018.txt --skim SkimTree_LRSMHighPt -y 2018 -q fastq -n 20 &
+#python python/SKFlat.py -a HN_pair_all -l ./run/MC_minor_2018.txt --skim SkimTree_LRSMHighPt -y 2018 -q fastq -n 20 &
 
 #DATA
-python python/SKFlat.py -a HN_pair_all -i SingleMuon --skim SkimTree_LRSMHighPt -y 2018 -q fastq -n 20 #&
-python python/SKFlat.py -a HN_pair_all -i EGamma --skim SkimTree_LRSMHighPt -y 2018 -q fastq -n 20 #&
+#python python/SKFlat.py -a HN_pair_all -i SingleMuon --skim SkimTree_LRSMHighPt -y 2018 -q fastq -n 20 &
+#python python/SKFlat.py -a HN_pair_all -i EGamma --skim SkimTree_LRSMHighPt -y 2018 -q fastq -n 20 &
 
 #TEST
 #python python/SKFlat.py -a HN_pair_all -i EGamma -p D --skim SkimTree_LRSMHighPt -y 2018 -q fastq -n 3 &
