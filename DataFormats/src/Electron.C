@@ -27,8 +27,15 @@ Electron::Electron(){
   j_trkiso = -999.;
   j_dr03EcalRecHitSumEt = -999.;
   j_dr03HcalDepth1TowerSumEt = -999.;
+  j_dr03HcalTowerSumEt = -999.;
+  j_dr03TkSumPt = -999.;
+  j_ecalPFClusterIso = -999.;
+  j_hcalPFClusterIso = -999.;
+  j_isEcalDriven = false;
   j_IDBit = 0;
+  j_IDCutBit.clear();
   j_Rho = -999.;
+  j_isGsfCtfScPixChargeConsistent = false;
   this->SetLeptonFlavour(ELECTRON);
 }
 
@@ -79,7 +86,12 @@ void Electron::SetCutBasedIDVariables(
     double e1x5OverE5x5,
     double trackIso,
     double dr03EcalRecHitSumEt,
-    double dr03HcalDepth1TowerSumEt
+    double dr03HcalDepth1TowerSumEt,
+    double dr03HcalTowerSumEt,
+    double dr03TkSumPt,
+    double ecalPFClusterIso,
+    double hcalPFClusterIso,
+    int ecalDriven
   ){
   j_Full5x5_sigmaIetaIeta = Full5x5_sigmaIetaIeta;
   j_dEtaSeed = dEtaSeed;
@@ -91,10 +103,21 @@ void Electron::SetCutBasedIDVariables(
   j_trkiso = trackIso;
   j_dr03EcalRecHitSumEt = dr03EcalRecHitSumEt;
   j_dr03HcalDepth1TowerSumEt = dr03HcalDepth1TowerSumEt;
+  j_dr03HcalTowerSumEt = dr03HcalTowerSumEt;
+  j_dr03TkSumPt = dr03TkSumPt;
+  j_ecalPFClusterIso = ecalPFClusterIso;
+  j_hcalPFClusterIso = hcalPFClusterIso;
+
+  if(ecalDriven==0) j_isEcalDriven = false;
+  else j_isEcalDriven = true;
 }
 
 void Electron::SetIDBit(unsigned int idbit){
   j_IDBit = idbit;
+}
+
+void Electron::SetIDCutBit(vector<int> idcutbit){
+  j_IDCutBit = idcutbit;
 }
 
 void Electron::SetRelPFIso_Rho(double r){
@@ -119,7 +142,7 @@ double Electron::EA(){
 
 }
 
-bool Electron::PassID(TString ID){
+bool Electron::PassID(TString ID) const{
 
   //==== XXX veto Gap Always
   if(etaRegion()==GAP) return false;
@@ -156,7 +179,7 @@ bool Electron::PassID(TString ID){
   return false;
 }
 
-bool Electron::Pass_SUSYMVAWP(TString wp){
+bool Electron::Pass_SUSYMVAWP(TString wp) const{
 
   double sceta = fabs(scEta());
 
@@ -184,7 +207,7 @@ bool Electron::Pass_SUSYMVAWP(TString wp){
 
 }
 
-bool Electron::Pass_SUSYTight(){
+bool Electron::Pass_SUSYTight() const{
   if(! Pass_SUSYMVAWP("Tight") ) return false;
   if(! (MiniRelIso()<0.1) ) return false;	
   if(! (fabs(dXY())<0.05 && fabs(dZ())<0.1 && fabs(IP3D()/IP3Derr())<8.) ) return false;
@@ -194,7 +217,7 @@ bool Electron::Pass_SUSYTight(){
   return true;
 }
 
-bool Electron::Pass_SUSYLoose(){
+bool Electron::Pass_SUSYLoose() const{
   if(! Pass_SUSYMVAWP("Loose") ) return false;
   if(! (MiniRelIso()<0.4) ) return false;
   if(! (fabs(dXY())<0.05 && fabs(dZ())<0.1 && fabs(IP3D()/IP3Derr())<8.) ) return false;
@@ -357,13 +380,13 @@ bool Electron::Pass_HNWRVeto(){
 
 //==== TEST ID
 
-bool Electron::Pass_TESTID(){
+bool Electron::Pass_TESTID() const{
   return true;
 }
 
 
 
-bool Electron::Pass_CutBasedLooseNoIso(){
+bool Electron::Pass_CutBasedLooseNoIso() const{
 
   if( fabs(scEta()) <= 1.479 ){
 
@@ -394,7 +417,7 @@ bool Electron::Pass_CutBasedLooseNoIso(){
 
 }
 
-bool Electron::Pass_CutBasedVetoNoIso(){
+bool Electron::Pass_CutBasedVetoNoIso() const{
   
   if( fabs(scEta()) <= 1.479 ){
     
@@ -425,7 +448,7 @@ bool Electron::Pass_CutBasedVetoNoIso(){
 
 }
 
-bool Electron::Pass_CutBasedLoose(){
+bool Electron::Pass_CutBasedLoose() const{
 
   if( fabs(scEta()) <= 1.479 ){
 
@@ -458,7 +481,7 @@ bool Electron::Pass_CutBasedLoose(){
 
 }
 
-bool Electron::Pass_CutBasedVeto(){
+bool Electron::Pass_CutBasedVeto() const{
 
   if( fabs(scEta()) <= 1.479 ){
 
@@ -493,4 +516,8 @@ bool Electron::Pass_CutBasedVeto(){
 
 void Electron::SetRho(double r){
   j_Rho = r;
+}
+
+void Electron::SetIsGsfCtfScPixChargeConsistent(bool b){
+  j_isGsfCtfScPixChargeConsistent = b;
 }

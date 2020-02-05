@@ -36,11 +36,11 @@ public:
   inline bool Pass_tightJetID() const { return j_tightJetID; }
   inline bool Pass_tightLepVetoJetID() const { return j_tightLepVetoJetID; }
 
-  bool PassID(TString ID);
+  bool PassID(TString ID) const;
 
   enum Tagger{
     CSVv2,
-    DeepCSV, DeepCvsL, DeepCvsB,
+    DeepCSV,DeepJet, DeepCvsL, DeepCvsB,
     CvsL, CvsB,
     DeepFlavour_b, DeepFlavour_bb, DeepFlavour_lepb, DeepFlavour_c, DeepFlavour_uds, DeepFlavour_g,
   };
@@ -48,6 +48,7 @@ public:
   inline TString TaggerString(Jet::Tagger t) const {
     if(t == Jet::CSVv2) return "CSVv2"; 
     if(t == Jet::DeepCSV) return "DeepCSV";    
+    if(t == Jet::DeepJet) return "DeepJet";    
     if(t == Jet::DeepCvsL) return "DeepCvsL";    
     if(t == Jet::CvsL) return "CvsL";    
     if(t == Jet::CvsB) return "CvsB";    

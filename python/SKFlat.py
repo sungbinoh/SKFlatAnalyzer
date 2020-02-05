@@ -4,6 +4,7 @@ import os,sys,time
 import argparse
 import datetime
 from CheckJobStatus import *
+from GetXSECTable import *
 from TimeTools import *
 import random
 import subprocess
@@ -23,7 +24,9 @@ parser.add_argument('--skim', dest='Skim', default="")
 parser.add_argument('--no_exec', action='store_true')
 parser.add_argument('--FastSim', action='store_true')
 parser.add_argument('--userflags', dest='Userflags', default="")
+parser.add_argument('--nmax', dest='NMax', default=0, type=int)
 parser.add_argument('--reduction', dest='Reduction', default=1, type=float)
+parser.add_argument('--batchname',dest='BatchName', default="")
 args = parser.parse_args()
 
 ## make userflags as a list
@@ -151,6 +154,10 @@ else:
     StringForHash += args.InputSample
 FileRangesForEachSample = []
 
+## add flags to hash
+for flag in Userflags:
+  StringForHash += flag
+
 ## Get Random Number for webdir
 
 random.seed(hash(StringForHash+timestamp+args.Year))
@@ -187,6 +194,7 @@ os.system('cp '+SKFlat_LIB_PATH+'/* '+MasterJobDir+'/lib')
 SampleFinishedForEachSample = []
 PostJobFinishedForEachSample = []
 BaseDirForEachSample = []
+XsecForEachSample = []
 for InputSample in InputSamples:
 
   NJobs = args.NJobs
@@ -237,7 +245,7 @@ for InputSample in InputSamples:
 
   NTotalFiles = len(lines_files)
 
-  if NJobs>NTotalFiles:
+  if NJobs>NTotalFiles or NJobs==0:
     NJobs = NTotalFiles
 
   SubmitOutput = open(base_rundir+'/SubmitOutput.log','w')
@@ -277,8 +285,8 @@ for InputSample in InputSamples:
   ## Get xsec and SumW
 
   this_dasname = ""
-  this_xsec = 1.
-  this_sumw = 1.
+  this_xsec = -1
+  this_sumw = -1
   if not IsDATA:
     lines_SamplePath = open(SAMPLE_DATA_DIR+'/CommonSampleInfo/'+InputSample+'.txt').readlines()
     for line in lines_SamplePath:
@@ -290,6 +298,8 @@ for InputSample in InputSamples:
         this_xsec = words[2]
         this_sumw = words[4]
         break
+
+  XsecForEachSample.append(this_xsec)
 
   ## Write run script
 
@@ -310,6 +320,9 @@ Trial=0
 
 #### make sure use C locale
 export LC_ALL=C
+
+#### Don't make root history
+export ROOT_HIST=0
 
 #### use cvmfs for root ####
 export CMS_PATH=/cvmfs/cms.cern.ch
@@ -386,9 +399,9 @@ queue {0}
 '''.format(str(NJobs), commandsfilename)
       submit_command.close()
     elif IsTAMSA:
-      requirements=''
-      if IsSkimTree:
-        requirements='Requirements = Machine=="{}"'.format(subprocess.check_output('condor_status -avail -constraint "TotalCpus<50" -af Machine -sort Cpus|tail -n1',shell=True).strip())
+      concurrency_limits=''
+      if args.NMax:
+        concurrency_limits='concurrency_limits = n'+str(args.NMax)+'.'+os.getenv("USER")
       print>>submit_command,'''executable = {1}.sh
 universe   = vanilla
 arguments  = $(Process)
@@ -398,11 +411,10 @@ should_transfer_files = YES
 when_to_transfer_output = ON_EXIT
 output = job_$(Process).log
 error = job_$(Process).err
-accounting_group=group_cms
 transfer_output_remaps = "hists.root = output/hists_$(Process).root"
 {2}
 queue {0}
-'''.format(str(NJobs), commandsfilename,requirements)
+'''.format(str(NJobs), commandsfilename,concurrency_limits)
       submit_command.close()
 
   CheckTotalNFile=0
@@ -431,8 +443,9 @@ queue {0}
     IncludeLine += 'R__LOAD_LIBRARY(libHist.so)\n'
     IncludeLine += 'R__LOAD_LIBRARY({0}libDataFormats.so)\n'.format(libdir)
     IncludeLine += 'R__LOAD_LIBRARY({0}libAnalyzerTools.so)\n'.format(libdir)
+    IncludeLine += 'R__LOAD_LIBRARY({0}libGEScaleSyst.so)\n'.format(libdir)
     IncludeLine += 'R__LOAD_LIBRARY({0}libAnalyzers.so)\n'.format(libdir)
-    IncludeLine += 'R__LOAD_LIBRARY(/cvmfs/cms.cern.ch/slc6_amd64_gcc630/external/lhapdf/6.2.1-fmblme/lib/libLHAPDF.so)\n'
+    IncludeLine += 'R__LOAD_LIBRARY(/cvmfs/cms.cern.ch/slc7_amd64_gcc700/external/lhapdf/6.2.1-gnimlf3/lib/libLHAPDF.so)\n'
 
     out = open(runCfileFullPath, 'w')
     print>>out,'''{3}
@@ -476,7 +489,7 @@ void {2}(){{
       tmp_filename = lines_files[ FileRanges[it_job][0] ].strip('\n')
       ## /data7/DATA/SKFlat/v949cand2_2/2017/DATA/SingleMuon/periodB/181107_231447/0000/SKFlatNtuple_2017_DATA_100.root
       ## /data7/DATA/SKFlat/v949cand2_2/2017/MC/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8/181108_152345/0000/SKFlatNtuple_2017_MC_100.root
-      skimoutdir = '/data9/DATA/SKFlat/'+SKFlatV+'/'+args.Year+'/'
+      skimoutdir = '/gv0/DATA/SKFlat/'+SKFlatV+'/'+args.Year+'/'
       skimoutfilename = ""
       if IsDATA:
         skimoutdir += "DATA_"+args.Analyzer+"/"+InputSample+"/period"+DataPeriod+"/"
@@ -536,7 +549,10 @@ root -l -b -q run.C 1>stdout.log 2>stderr.log
     cwd = os.getcwd()
     os.chdir(base_rundir)
     if not args.no_exec:
-      os.system('condor_submit submit.jds')
+      condorOptions = ''
+      if args.BatchName!="":
+        condorOptions = ' -batch-name '+args.BatchName
+      os.system('condor_submit submit.jds '+condorOptions)
     os.chdir(cwd)
 
   else:
@@ -567,7 +583,7 @@ if args.Outputdir=="":
   if IsDATA:
     FinalOutputPath += '/DATA/'
 if IsSkimTree:
-  FinalOutputPath = '/data9/DATA/SKFlat/'+SKFlatV+'/'+args.Year+'/'
+  FinalOutputPath = '/gv0/DATA/SKFlat/'+SKFlatV+'/'+args.Year+'/'
 
 os.system('mkdir -p '+FinalOutputPath)
 
@@ -771,6 +787,7 @@ try:
         ThisTime = datetime.datetime.now()
         string_ThisTime =  ThisTime.strftime('%Y-%m-%d %H:%M:%S')
 
+        statuslog.write('XSEC = '+str(XsecForEachSample[it_sample])+'\n')
         statuslog.write('EventDone = '+str(EventDone)+'\n')
         statuslog.write('EventTotal = '+str(EventTotal)+'\n')
         statuslog.write('EventLeft = '+str(EventTotal-EventDone)+'\n')
@@ -870,11 +887,13 @@ JobFinishEmail = '''#### Job Info ####
 HOST = {3}
 JobID = {6}
 Analyzer = {0}
+Year = {7}
 Skim = {5}
 # of Jobs = {4}
 InputSample = {1}
+{8}
 Output sent to : {2}
-'''.format(args.Analyzer,InputSamples,FinalOutputPath,HOSTNAME,NJobs,args.Skim,str_RandomNumber)
+'''.format(args.Analyzer,InputSamples,FinalOutputPath,HOSTNAME,NJobs,args.Skim,str_RandomNumber,args.Year,GetXSECTable(InputSamples,XsecForEachSample))
 JobFinishEmail += '''##################
 Job started at {0}
 Job finished at {1}

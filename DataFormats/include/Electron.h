@@ -44,7 +44,7 @@ public:
   enum EtaRegion{
     IB, OB, GAP, EC
   };
-  inline EtaRegion etaRegion(){
+  inline EtaRegion etaRegion() const {
     double sceta = fabs(scEta());
     if( sceta < 0.8 ) return IB;
     else if( sceta < 1.444 ) return OB;
@@ -62,7 +62,12 @@ public:
     double e1x5OverE5x5,
     double trackIso,
     double dr03EcalRecHitSumEt,
-    double dr03HcalDepth1TowerSumEt
+    double dr03HcalDepth1TowerSumEt,
+    double dr03HcalTowerSumEt,
+    double dr03TkSumPt,
+    double ecalPFClusterIso,
+    double hcalPFClusterIso,
+    int ecalDriven
   );
   inline double Full5x5_sigmaIetaIeta() const { return j_Full5x5_sigmaIetaIeta; }
   inline double dEtaSeed() const { return j_dEtaSeed; }
@@ -74,9 +79,18 @@ public:
   inline double TrkIso() const {return j_trkiso; }
   inline double dr03EcalRecHitSumEt() const { return j_dr03EcalRecHitSumEt; }
   inline double dr03HcalDepth1TowerSumEt() const { return j_dr03HcalDepth1TowerSumEt; }
+  inline double dr03HcalTowerSumEt() const { return j_dr03HcalTowerSumEt; }
+  inline double dr03TkSumPt() const { return j_dr03TkSumPt; }
+  inline double ecalPFClusterIso() const { return j_ecalPFClusterIso; }
+  inline double hcalPFClusterIso() const { return j_hcalPFClusterIso; }
+  inline bool isEcalDriven() const { return j_isEcalDriven; }
 
   void SetIDBit(unsigned int idbit);
 
+  void SetIDCutBit(vector<int> idcutbit);
+  inline vector<int> IDCutBit() const { return j_IDCutBit; }
+
+  static const int N_SELECTOR = 12;
   enum Selector {
     POG_CB_VETO = 1<< 0,
     POG_CB_LOOSE = 1<< 1,
@@ -104,33 +118,36 @@ public:
   inline bool passMVAID_iso_WP90() const {return PassSelector(POG_MVA_ISO_WP90); }
   inline bool passHEEPID() const {return PassSelector(POG_HEEP); }
 
-  bool Pass_SUSYMVAWP(TString wp);
-  bool Pass_SUSYTight();
-  bool Pass_SUSYLoose();
-  bool Pass_HEEP_OR_LooseNoIso();
-  bool Pass_HEEP_dZ();
-  bool Pass_HNPairTight();
-  bool Pass_HNPairLoose();
-  bool Pass_HNPairLooseNoIP();
-  bool Pass_HNPairVeto();
-  bool Pass_HNWRTight();
-  bool Pass_HNWRLoose();
-  bool Pass_HNWRVeto();
+  bool Pass_SUSYMVAWP(TString wp) const;
+  bool Pass_SUSYTight() const;
+  bool Pass_SUSYLoose() const;
+  bool Pass_HEEP_OR_LooseNoIso() const;
+  bool Pass_HEEP_dZ() const;
+  bool Pass_HNPairTight() const;
+  bool Pass_HNPairLoose() const;
+  bool Pass_HNPairLooseNoIP() const;
+  bool Pass_HNPairVeto() const;
+  bool Pass_HNWRTight() const;
+  bool Pass_HNWRLoose() const;
+  bool Pass_HNWRVeto() const;
 
   void SetRelPFIso_Rho(double r);
   double EA();
 
   //==== ID
-  bool PassID(TString ID);
-  bool Pass_TESTID();
+  bool PassID(TString ID) const;
+  bool Pass_TESTID() const;
 
-  bool Pass_CutBasedLooseNoIso();
-  bool Pass_CutBasedVetoNoIso();
-  bool Pass_CutBasedLoose();
-  bool Pass_CutBasedVeto();
+  bool Pass_CutBasedLooseNoIso() const;
+  bool Pass_CutBasedVetoNoIso() const;
+  bool Pass_CutBasedLoose() const;
+  bool Pass_CutBasedVeto() const;
   void SetRho(double r);
   inline double Rho() const { return j_Rho; }
 
+  void SetIsGsfCtfScPixChargeConsistent(bool b);
+  inline bool IsGsfCtfScPixChargeConsistent() const { return j_isGsfCtfScPixChargeConsistent; }
+    
 private:
 
   double j_En_up;
@@ -143,10 +160,14 @@ private:
   bool j_passConversionVeto;
   int j_NMissingHits;
   double j_Full5x5_sigmaIetaIeta, j_dEtaSeed, j_dPhiIn, j_HoverE, j_InvEminusInvP, j_e2x5OverE5x5, j_e1x5OverE5x5, j_trkiso, j_dr03EcalRecHitSumEt, j_dr03HcalDepth1TowerSumEt;
+  double j_dr03HcalTowerSumEt, j_dr03TkSumPt, j_ecalPFClusterIso, j_hcalPFClusterIso;
+  bool j_isEcalDriven;
   unsigned int j_IDBit;
+  vector<int> j_IDCutBit;
   double j_RelPFIso_Rho;
 
   double j_Rho;
+  int j_isGsfCtfScPixChargeConsistent;
 
   ClassDef(Electron,1)
 
