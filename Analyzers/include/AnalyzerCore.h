@@ -18,6 +18,7 @@
 #include "Muon.h"
 #include "Electron.h"
 #include "Photon.h"
+#include "JetTaggingParameters.h"
 #include "Jet.h"
 #include "FatJet.h"
 
@@ -26,7 +27,6 @@
 #include "PuppiSoftdropMassCorr.h"
 #include "FakeBackgroundEstimator.h"
 #include "CFBackgroundEstimator.h"
-#include "BTagSFUtil.h"
 #include "GeneralizedEndpoint.h"
 #include "GEScaleSyst.h"
 #include "PDFReweight.h"
@@ -151,13 +151,6 @@ public:
   GeneralizedEndpoint *muonGE;
   GEScaleSyst *muonGEScaleSyst;
 
-  //==== Btag setup
-  void SetupBTagger(std::vector<Jet::Tagger> taggers, std::vector<Jet::WP> wps, bool setup_systematics, bool period_dependant);
-  
-  //==== Is Btagged (using SF)
-  bool IsBTagged(Jet j, Jet::Tagger tagger, Jet::WP WP, bool applySF, int systematic );
-
- 
   //==== Using new PDF set
   PDFReweight *pdfReweight;
   double GetPDFWeight(LHAPDF::PDF* pdf_);
@@ -265,9 +258,6 @@ public:
   void SwitchToTempDir();
   TFile *outfile;
   void SetOutfilePath(TString outname);
-
-  std::map<TString,BTagSFUtil*> MapBTagSF;
-  
 
 };
 
