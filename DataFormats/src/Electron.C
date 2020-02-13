@@ -169,6 +169,7 @@ bool Electron::PassID(TString ID) const{
   if(ID=="HNWRTight") return Pass_HNWRTight();
   if(ID=="HNWRLoose") return Pass_HNWRLoose();
   if(ID=="HNWRVeto") return Pass_HNWRVeto();
+  if(ID=="CutBasedLooseNoIso") return Pass_CutBasedLooseNoIso();
 
   if(ID=="NOCUT") return true;
   if(ID=="TEST") return Pass_TESTID();
@@ -229,7 +230,7 @@ bool Electron::Pass_SUSYLoose() const{
 
 
 //==== HN Pair
-bool Electron::Pass_HEEP_OR_LooseNoIso(){
+bool Electron::Pass_HEEP_OR_LooseNoIso() const{
   if(!Pass_CutBasedLooseNoIso() && !passHEEPID() ) return false;
 
   if( fabs(scEta()) <= 1.479 ){
@@ -243,7 +244,7 @@ bool Electron::Pass_HEEP_OR_LooseNoIso(){
 
   return true;
 }
-bool Electron::Pass_HEEP_dZ(){
+bool Electron::Pass_HEEP_dZ() const{
   if(!Pass_CutBasedLooseNoIso() && !passHEEPID() ) return false;
 
   if( fabs(scEta()) <= 1.479 ){
@@ -256,7 +257,7 @@ bool Electron::Pass_HEEP_dZ(){
   return true;
 }
 
-bool Electron::Pass_HNPairTight(){
+bool Electron::Pass_HNPairTight() const{
 /*
   if(! Pass_SUSYMVAWP("Tight") ) return false;
   if(! (MiniRelIso()<0.1) ) return false;
@@ -280,7 +281,7 @@ bool Electron::Pass_HNPairTight(){
   return true;
 }
 
-bool Electron::Pass_HNPairLoose(){
+bool Electron::Pass_HNPairLoose() const{
 /*
   if(! Pass_SUSYMVAWP("Loose") ) return false;
   if(! (MiniRelIso()<0.4) ) return false;
@@ -305,7 +306,7 @@ bool Electron::Pass_HNPairLoose(){
 
 }
 
-bool Electron::Pass_HNPairLooseNoIP(){
+bool Electron::Pass_HNPairLooseNoIP() const{
 /*
   if(! Pass_SUSYMVAWP("Loose") ) return false;
   if(! (MiniRelIso()<0.4) ) return false;
@@ -321,7 +322,7 @@ bool Electron::Pass_HNPairLooseNoIP(){
 
 }
 
-bool Electron::Pass_HNPairVeto(){
+bool Electron::Pass_HNPairVeto() const{
 /*
   if(! Pass_SUSYMVAWP("Loose") ) return false;
   if(! (MiniRelIso()<0.4) ) return false;
@@ -335,7 +336,7 @@ bool Electron::Pass_HNPairVeto(){
 
 //==== HN WR
 
-bool Electron::Pass_HNWRTight(){
+bool Electron::Pass_HNWRTight() const{
 
   if(!Pass_CutBasedLooseNoIso()) return false;
   if(! (RelIso()<0.15) ) return false;
@@ -352,7 +353,7 @@ bool Electron::Pass_HNWRTight(){
   return true;
 }
 
-bool Electron::Pass_HNWRLoose(){
+bool Electron::Pass_HNWRLoose() const{
 
   if(!Pass_CutBasedVetoNoIso()) return false;
   if(! (RelIso()<0.6) ) return false;
@@ -370,7 +371,7 @@ bool Electron::Pass_HNWRLoose(){
 
 }
 
-bool Electron::Pass_HNWRVeto(){
+bool Electron::Pass_HNWRVeto() const{
 
   if(!Pass_CutBasedVetoNoIso()) return false;
   if(! (RelIso()<0.6) ) return false;

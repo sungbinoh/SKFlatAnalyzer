@@ -94,16 +94,18 @@ void SR_signal::Select_syst_objects(AnalyzerParameter param){
   
   // ==== Save Muons with TuneP
   std::vector<Muon> muons_all;
-  if(!IsData) muons_all = ScaleTunePMuons(UseTunePMuon( GetAllMuons() ), 0);   else muons_all = UseTunePMuon( GetAllMuons() );
+  if(!IsData) muons_all = ScaleMuons(UseTunePMuon( GetAllMuons() ), 0);   else muons_all = UseTunePMuon( GetAllMuons() );
   std::vector<Muon> muons_all_Scale_Up;
-  if(!IsData) muons_all_Scale_Up = ScaleTunePMuons(muons_all, 1);              else muons_all_Scale_Up = UseTunePMuon( GetAllMuons() );
+  if(!IsData) muons_all_Scale_Up = ScaleMuons(muons_all, 1);              else muons_all_Scale_Up = UseTunePMuon( GetAllMuons() );
   std::vector<Muon> muons_all_Scale_Down;
-  if(!IsData) muons_all_Scale_Down = ScaleTunePMuons(muons_all, -1);           else muons_all_Scale_Down = UseTunePMuon( GetAllMuons() );
+  if(!IsData) muons_all_Scale_Down = ScaleMuons(muons_all, -1);           else muons_all_Scale_Down = UseTunePMuon( GetAllMuons() );
   std::vector<Muon> muons_all_Smear_Up;   
-  if(!IsData) muons_all_Smear_Up = SmearTunePMuons(muons_all, 1);              else muons_all_Smear_Up = UseTunePMuon( GetAllMuons() );
+  //if(!IsData) muons_all_Smear_Up = SmearTunePMuons(muons_all, 1);              else muons_all_Smear_Up = UseTunePMuon( GetAllMuons() );
+  muons_all_Smear_Up = UseTunePMuon( GetAllMuons() ); 
   std::vector<Muon> muons_all_Smear_Down; 
-  if(!IsData) muons_all_Smear_Down = SmearTunePMuons(muons_all, -1);           else muons_all_Smear_Down = UseTunePMuon( GetAllMuons() );
-  
+  //if(!IsData) muons_all_Smear_Down = SmearTunePMuons(muons_all, -1);           else muons_all_Smear_Down = UseTunePMuon( GetAllMuons() );
+  muons_all_Smear_Down = UseTunePMuon( GetAllMuons() );
+
   std::sort(muons_all.begin(), muons_all.end(), PtComparing);
   std::sort(muons_all_Scale_Up.begin(), muons_all_Scale_Up.end(), PtComparing);
   std::sort(muons_all_Scale_Down.begin(), muons_all_Scale_Down.end(), PtComparing);
