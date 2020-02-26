@@ -13,6 +13,7 @@ public:
   void executeEventFromParameter(AnalyzerParameter param, std::vector<Electron> electron_all, std::vector<Muon> muons_all, std::vector<Jet> jets_all, std::vector<FatJet> fatjets_all, TString syst_flag, double PDF_weight);
   TH1D *hist_DYPtReweight;
 
+  std::vector<JetTagging::Parameters> jtps;
   vector<TString> Triggers_Electron, Triggers_Muon;
   TString TriggerNameForSF_Electron, TriggerNameForSF_Muon;
   double TriggerSafePt_Electron, TriggerSafePt_Muon;
