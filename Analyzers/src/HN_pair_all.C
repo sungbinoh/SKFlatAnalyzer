@@ -168,6 +168,7 @@ void HN_pair_all::executeEvent(){
     zpt_reweight = mcCorr->GetOfficialDYReweight(gens);
     //cout << "zpt_reweight : " << zpt_reweight << endl; 
   }
+  
   if(is_TTLL){// -- Calculate top pt reweight value
     std::vector<Gen> gens = GetGens();
     double top_pt = 9999.;
@@ -194,6 +195,24 @@ void HN_pair_all::executeEvent(){
     }
   }
 
+  //only for signal sample
+  
+  std::vector<Gen> gen_signal = GetGens();
+  int N_Bmeson = 0;
+  int N_Bquark = 0;
+  for(unsigned int i_gen = 0; i_gen < gen_signal.size(); i_gen++){
+    int current_pid = gen_signal.at(i_gen).PID();
+    int current_status = gen_signal.at(i_gen).Status();
+    if(abs(current_pid) > 499 && abs(current_pid) < 600){
+      N_Bmeson ++;
+    }
+    if(abs(current_pid) ==  5 && current_status == 21 && current_status == 23){
+      N_Bquark ++;
+    }
+  }
+  cout << "==================" << endl;
+  cout << "N_Bmeson : "  << N_Bmeson << endl;
+  cout << "N_Bquark : "  << N_Bquark << endl;
   //=======================
   //==== Run Main Function
   //=======================
@@ -499,7 +518,10 @@ void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector
     double this_discr = this_jet.GetTaggerResult(JetTagging::DeepCSV);
     if( mcCorr->IsBTagged_2a(jtps.at(0), this_jet) ) NBJets++; //2a
   }
-
+  if(syst_flag.Contains("central")){
+    cout << "NBJets : " << NBJets << endl;
+    cout << "=====================" << endl;
+  }
   // -- Get Prefire weight
   //std::vector<Photon> photons            = GetPhotons("passMediumID", 20., 3.0);
   //std::vector<Jet>    jets_prefire       = JetsAwayFromPhoton(GetJets("tight", 40., 3.5), photons, 0.4);
