@@ -1,6 +1,7 @@
 #Signal
 #python python/SKFlat.py -a HN_pair_all -l ./run/MC_signal_2016.txt -y 2016 -q fastq -n 1 &
-python python/SKFlat.py -a Signal_study -l ./run/MC_signal_2016.txt -y 2016 -q fastq -n 1 &
+#python python/SKFlat.py -a Signal_study -l ./run/MC_signal_2016.txt -y 2016 -q fastq -n 1 &
+python python/SKFlat.py -a GetEffLumi -l ./run/MC_signal_2016.txt -y 2016 -q fastq -n 1 &
 
 
 ###############
