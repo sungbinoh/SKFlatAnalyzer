@@ -71,8 +71,8 @@ source $SKFlat_WD/tmp/ToDoLists.sh
 rm $SKFlat_WD/tmp/ToDoLists.sh
 
 ## Log Dir ##
-echo "* Your Log Directory Usage"
-du -sh $SKFlatRunlogDir
-echo "-----------------------------------------------------------------"
-CurrentGitBranch=`git branch | grep \* | cut -d ' ' -f2`
-printf "> Current SKFlatAnalyzer branch : "${BRed}$CurrentGitBranch${Color_Off}"\n"
+#echo "* Your Log Directory Usage"
+#du -sh $SKFlatRunlogDir
+#echo "-----------------------------------------------------------------"
+#CurrentGitBranch=`git branch | grep \* | cut -d ' ' -f2`
+#printf "> Current SKFlatAnalyzer branch : "${BRed}$CurrentGitBranch${Color_Off}"\n"

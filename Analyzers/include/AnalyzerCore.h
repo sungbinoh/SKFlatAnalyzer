@@ -253,7 +253,7 @@ public:
   void FillLeptonPlots(std::vector<Lepton *> leps, TString this_region, double weight);
   void FillJetPlots(std::vector<Jet> jets, std::vector<FatJet> fatjets, TString this_region, double weight);
   void FillHNPairPlots(vector<Particle> Ns, TString this_region, TString jetbin_str, double weight);
-
+  void FillHNPairPlots(vector<Particle> Ns, TString this_region, TString jetbin_str, TString current_error, double weight);
   //==== Output rootfile
   void SwitchToTempDir();
   TFile *outfile;

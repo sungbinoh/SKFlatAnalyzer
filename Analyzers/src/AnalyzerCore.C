@@ -2201,3 +2201,14 @@ void AnalyzerCore::FillHNPairPlots(vector<Particle> Ns, TString this_region, TSt
   JSFillHist(this_region, "mN_" + jetbin_str + "_" + this_region, Ns.at(1).M(), weight, 5000, 0., 5000.);
 
 }
+
+void AnalyzerCore::FillHNPairPlots(vector<Particle> Ns, TString this_region, TString jetbin_str, TString current_error, double weight){
+  if(Ns.size() != 2) return;
+
+  Particle Zp = Ns.at(0) + Ns.at(1);
+
+  JSFillHist(this_region, "mZp_" + jetbin_str + "_" + this_region + "_" + current_error, Zp.M(), weight, 6000, 0., 6000.);
+  //JSFillHist(this_region, "mN_" + jetbin_str + "_" + this_region + "_" + current_error, Ns.at(0).M(), weight, 5000, 0., 5000.);
+  //JSFillHist(this_region, "mN_" + jetbin_str + "_" + this_region + "_" + current_error, Ns.at(1).M(), weight, 5000, 0., 5000.);
+
+}

@@ -11,6 +11,7 @@
 #pragma link C++ class ExampleRun+;
 #pragma link C++ class HN_pair_all+;
 #pragma link C++ class Signal_study+;
+#pragma link C++ class SR_ZpNN+;
 //#pragma link C++ class SR_prompt+;
 //#pragma link C++ class SR_nonprompt+;
 //#pragma link C++ class SR_signal+;
