@@ -10,7 +10,8 @@ public:
   void initializeAnalyzer();
   void executeEventFromParameter(AnalyzerParameter param);
   void executeEvent();
-
+  vector<double> muon_matched_pt;
+  vector<double> muon_matched_eta;
   SkimTree_LRSMHighPt();
   ~SkimTree_LRSMHighPt();
 
