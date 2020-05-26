@@ -163,14 +163,7 @@ void HN_pair_all::executeEvent(){
   if(!IsDATA) current_MC = MCSample;
   bool is_TTLL = current_MC.Contains("TTLL");
   bool is_TTLJ = current_MC.Contains("TTLJ");
-  bool is_DY = current_MC.Contains("DY") && current_MC.Contains("Jets_MG"); // -- https://github.com/IzaakWN/NanoTreeProducer/blob/master/corrections/RecoilCorrectionTool.py#L95-L109 : available only for LO level DY Samples
-  zpt_reweight = 1.;
   top_pt_reweight = 1.;
-  if(is_DY){
-    vector<Gen> gens = GetGens();
-    zpt_reweight = mcCorr->GetOfficialDYReweight(gens);
-    //cout << "zpt_reweight : " << zpt_reweight << endl; 
-  }
   
   if(is_TTLL || is_TTLJ){// -- Calculate top pt reweight value
     std::vector<Gen> gens = GetGens();
@@ -213,9 +206,9 @@ void HN_pair_all::executeEvent(){
       N_Bquark ++;
     }
   }
-  cout << "==================" << endl;
-  cout << "N_Bmeson : "  << N_Bmeson << endl;
-  cout << "N_Bquark : "  << N_Bquark << endl;
+  //cout << "==================" << endl;
+  //cout << "N_Bmeson : "  << N_Bmeson << endl;
+  //cout << "N_Bquark : "  << N_Bquark << endl;
   //=======================
   //==== Run Main Function
   //=======================
@@ -455,7 +448,6 @@ void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector
   if(!IsDATA) current_MC = MCSample;
   // -- Corrections Based on Truth Level Particles
   bool is_TTLL = current_MC.Contains("TTLL");
-  bool is_DY = current_MC.Contains("DYJets_MG"); // -- https://github.com/IzaakWN/NanoTreeProducer/blob/master/corrections/RecoilCorrectionTool.py#L95-L109 : available only for LO level DY samples
 
   //cout << "[executeEventFromParameter pileup_reweight : " << pileup_reweight << endl;
   weight_trig_diele = weight_trig_diele * weight_1pb * pileup_reweight;
@@ -522,10 +514,12 @@ void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector
     double this_discr = this_jet.GetTaggerResult(JetTagging::DeepCSV);
     if( mcCorr->IsBTagged_2a(jtps.at(0), this_jet) ) NBJets++; //2a
   }
+  /*
   if(syst_flag.Contains("central")){
     cout << "NBJets : " << NBJets << endl;
     cout << "=====================" << endl;
   }
+  */
   // -- Get Prefire weight
   //std::vector<Photon> photons            = GetPhotons("passMediumID", 20., 3.0);
   //std::vector<Jet>    jets_prefire       = JetsAwayFromPhoton(GetJets("tight", 40., 3.5), photons, 0.4);
@@ -595,6 +589,19 @@ void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector
   if(syst_flag.Contains("ElectronTriggerSFDown")) syst_ElectronTriggerSF = -1;
   if(syst_flag.Contains("ZPtRwDown")) syst_ZPtRwUp = -1;
 
+  // -- EXO Z-pt Reweight : https://github.com/IzaakWN/NanoTreeProducer/blob/master/corrections/RecoilCorrectionTool.py#L95-L109 : available only for LO level DY Samples 
+  bool is_DY = current_MC.Contains("DY") && current_MC.Contains("Jets_MG");
+  if(is_DY){
+    vector<Gen> gens = GetGens();
+    zpt_reweight = mcCorr->GetOfficialDYReweight(gens, syst_ZPtRwUp);
+    /*
+    if(syst_flag.Contains("central") || syst_flag.Contains("ZPtRw")){
+      cout << "syst_flag : " << syst_flag<< endl;
+      cout << "zpt_reweight : " << zpt_reweight << endl;
+    }
+    */
+  }
+
   if(!IsDATA){
     current_weight = current_weight * PDF_weight * top_pt_reweight;
     
@@ -647,7 +654,7 @@ void HN_pair_all::executeEventFromParameter(AnalyzerParameter param, std::vector
   current_weight *= zpt_reweight;
   //cout << "current_weight * zpt_reweight : " << current_weight << endl;
 
-  //CR_Z_mass(param, current_channel + "DYreweight_"  + syst_flag, trig_pass_for_channel,  current_weight, jets, fatjets, electrons_Tight_all, electrons_Veto, muons_Tight_all, muons_Veto, N_electrons_Tight_all, N_electrons_Veto, N_muons_Tight_all, N_muons_Veto);
+  CR_Z_mass(param, current_channel + "DYreweight_"  + syst_flag, trig_pass_for_channel,  current_weight, jets, fatjets, electrons_Tight_all, electrons_Veto, muons_Tight_all, muons_Veto, N_electrons_Tight_all, N_electrons_Veto, N_muons_Tight_all, N_muons_Veto);
   SR(param, current_channel + "DYreweight_" + syst_flag, trig_pass_for_channel,  current_weight, jets, fatjets, electrons_Tight_all, electrons_Veto, muons_Tight_all, muons_Veto, N_electrons_Tight_all, N_electrons_Veto, N_muons_Tight_all, N_muons_Veto);
 
 }

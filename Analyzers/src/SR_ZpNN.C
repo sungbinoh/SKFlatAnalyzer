@@ -92,10 +92,13 @@ void SR_ZpNN::executeEvent(){
   
   Event ev_dem = GetEvent();
 
+  //cout << "Get pdf size" << endl;
   double central_PDF = PDFWeights_Scale->at(0);
+  //cout << "here?" << endl;
   unsigned int size_scale_err = PDFWeights_Scale->size();
   unsigned int size_PDF_err = PDFWeights_Error->size();
   unsigned int size_renorm_err = PDFWeights_AlphaS->size();
+  
   /*
   cout << "=====================" << endl;
   cout << "central_PDF : " << central_PDF << endl;
@@ -125,6 +128,7 @@ void SR_ZpNN::executeEvent(){
   //=========================
   //==== Get PileUp Reweight
   //=========================
+  //cout << "Get pileup reweight" << endl;
   N_VTX = nPV;
   if(!IsDATA){
     //==== nPileUp starts from 0
@@ -254,7 +258,7 @@ void SR_ZpNN::executeEvent(){
 }
 
 void SR_ZpNN::Select_syst_objects(AnalyzerParameter param){
-
+  
   //cout << "[Select_syst_objects] call object vectors" << endl;
   //cout << "[Select_syst_objects] call electron vectors" << endl;
 
