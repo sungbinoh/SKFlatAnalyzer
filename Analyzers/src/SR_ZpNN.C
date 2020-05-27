@@ -20,7 +20,7 @@ void SR_ZpNN::initializeAnalyzer(){
       "HLT_Mu50_v",
       "HLT_TkMu50_v",
     };
-    TriggerNameForSF_Electron = "WREGammaTrigger";
+    TriggerNameForSF_Electron = "ZpNNTrigger";
     TriggerNameForSF_Muon = "Mu50";
     TriggerSafePt_Electron = 65.;
     TriggerSafePt_Muon = 52.;
@@ -36,7 +36,7 @@ void SR_ZpNN::initializeAnalyzer(){
       "HLT_OldMu100_v",
       "HLT_TkMu100_v",
     };
-    TriggerNameForSF_Electron = "WREGammaTrigger";
+    TriggerNameForSF_Electron = "ZpNNTrigger";
     TriggerNameForSF_Muon = "Mu50";
     TriggerSafePt_Electron = 75.;
     TriggerSafePt_Muon = 52.;
@@ -52,7 +52,7 @@ void SR_ZpNN::initializeAnalyzer(){
       "HLT_OldMu100_v",
       "HLT_TkMu100_v",
     };
-    TriggerNameForSF_Electron = "WREGammaTrigger";
+    TriggerNameForSF_Electron = "ZpNNTrigger";
     TriggerNameForSF_Muon = "Mu50";
     TriggerSafePt_Electron = 75.;
     TriggerSafePt_Muon = 52.;
@@ -159,6 +159,7 @@ void SR_ZpNN::executeEvent(){
   param.Electron_Loose_ID = "CutBasedLooseNoIso";
   param.Electron_Veto_ID = "CutBasedLooseNoIso";
   param.Electron_ID_SF_Key = "HEEP";
+  param.Electron_Trigger_SF_Key = "HEEP";
   param.Electron_MinPt = TriggerSafePt_Electron; // HLT_DoublePhoton70_v
   
   param.Muon_Tight_ID = "POGHighPtWithLooseTrkIso";
@@ -632,27 +633,30 @@ void SR_ZpNN::executeEventFromParameter(AnalyzerParameter param, std::vector<Ele
   if(syst_flag.Contains("ZPtRwDown")) syst_ZPtRwUp = -1;
 
   if(!IsDATA){
-    current_weight = current_weight * PDF_weight * top_pt_reweight;
+    current_weight = current_weight * PDF_weight;
     
     mcCorr->IgnoreNoHist = param.MCCorrrectionIgnoreNoHist;
 
     for(unsigned int i = 0; i < electrons_Veto.size(); i++){
       double this_recosf = mcCorr->ElectronReco_SF(electrons_Veto.at(i).scEta(), electrons_Veto.at(i).Pt(), syst_ElectronRecoSF);
-      double this_idsf = mcCorr->ElectronID_SF(param.Electron_ID_SF_Key, electrons_Veto.at(i).scEta(), electrons_Veto.at(i).Pt(), syst_ElectronIDSF);
+      //double this_idsf = mcCorr->ElectronID_SF(param.Electron_ID_SF_Key, electrons_Veto.at(i).scEta(), electrons_Veto.at(i).Pt(), syst_ElectronIDSF);
       
-      current_weight *= this_recosf*this_idsf;
+      current_weight *= this_recosf;//*this_idsf;
     }
     //cout << "electron sf current_weight : " << current_weight << endl;
-
+    for(unsigned int i = 0; i < electrons_Tight.size(); i++){
+      double this_idsf = mcCorr->ElectronID_SF(param.Electron_ID_SF_Key, electrons_Tight.at(i).scEta(), electrons_Tight.at(i).Pt(), syst_ElectronIDSF);
+      current_weight *= this_idsf;
+    }
 
     for(unsigned int i = 0; i < muons_Veto.size(); i++){
       double MiniAODP = sqrt( muons_Veto.at(i).MiniAODPt() * muons_Veto.at(i).MiniAODPt() + muons_Veto.at(i).Pz() * muons_Veto.at(i).Pz() );
 
       double this_recosf = mcCorr->MuonReco_SF(param.Muon_RECO_SF_Key, muons_Veto.at(i).Eta(), MiniAODP, syst_MuonRecoSF);
       double this_idsf  = mcCorr->MuonID_SF (param.Muon_ID_SF_Key,  muons_Veto.at(i).Eta(), muons_Veto.at(i).MiniAODPt(), syst_MuonIDSF);
-      double this_isosf = mcCorr->MuonISO_SF(param.Muon_ISO_SF_Key, muons_Veto.at(i).Eta(), muons_Veto.at(i).MiniAODPt(), syst_MuonISOSF);
+      //double this_isosf = mcCorr->MuonISO_SF(param.Muon_ISO_SF_Key, muons_Veto.at(i).Eta(), muons_Veto.at(i).MiniAODPt(), syst_MuonISOSF);
 
-      current_weight *= this_recosf * this_idsf * this_isosf;
+      current_weight *= this_recosf * this_idsf;// * this_isosf;
     }
     //cout << "muon sf current_weight : " << current_weight << endl;
 
@@ -662,10 +666,14 @@ void SR_ZpNN::executeEventFromParameter(AnalyzerParameter param, std::vector<Ele
     }
     
     //double trigger_sf_SingleElectron = mcCorr->ElectronTrigger_SF(param.Electron_Trigger_SF_Key, TriggerNameForSF_Electron, electrons_Veto, 0);
+    double trigger_sf_DoublePhoton = 1.;
+    //cout << "syst_flag : " << syst_flag<< endl;
+
+    if(electrons_Tight.size() > 0) trigger_sf_DoublePhoton = mcCorr->ElectronTrigger_SF(param.Electron_Trigger_SF_Key, TriggerNameForSF_Electron, electrons_Tight, syst_ElectronTriggerSF);
     double trigger_sf_SingleMuon = 1.;
     if(muons_Tight.size() > 0) trigger_sf_SingleMuon = mcCorr->MuonTrigger_SF(param.Muon_Trigger_SF_Key, TriggerNameForSF_Muon, muons_Tight, syst_MuonTriggerSF);
     
-    current_weight *= trigger_sf_SingleMuon;// *trigger_sf_SingleElectron;
+    current_weight *= trigger_sf_SingleMuon * trigger_sf_DoublePhoton;// *trigger_sf_SingleElectron;
     //cout << "muons_Tight.size() : " << muons_Tight.size() << endl;
     //cout << "trigger_sf_SingleMuon : " << trigger_sf_SingleMuon << endl;
     //cout << "trig sf current_weight : " << current_weight << endl;

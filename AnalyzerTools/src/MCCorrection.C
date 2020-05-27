@@ -645,12 +645,94 @@ double MCCorrection::ElectronTrigger_Eff(TString ID, TString trig, int DataOrMC,
 
 }
 
+double MCCorrection::ElectronTrigger_SF_per_electron(TString ID, TString trig, double sceta, double pt, int sys){
+  
+  if(ID=="Default") return 1.;
+  if(trig=="Default") return 1.;
+
+  //cout << "[MCCorrection::ElectronTrigger_SF_per_electron] Start" << endl;
+  
+  double value = 1.;
+  double error = 0.;
+
+  if(trig=="ZpNNTrigger"){
+    
+    double pt_min = 75.;
+    double pt_max = 1000.;
+    if(DataYear == 2016) pt_min = 65;
+    if(pt<pt_min) pt = pt_min + 1.;
+    if(pt>pt_max) pt = pt_max - 10.;
+    
+    if(sceta<-2.5) sceta = -2.49;
+    if(sceta>=2.5) sceta = 2.49;
+
+    TString etaregion = "Barrel";
+    if(fabs(sceta) > 1.566) etaregion = "EndCap";
+    
+    TString histkey_filter1 = "Trigger_SF_"+trig+"_"+ID+"_"+etaregion+"_Filter1";
+    TString histkey_filter2 = "Trigger_SF_"+trig+"_"+ID+"_"+etaregion+"_Filter2";
+
+    TGraphAsymmErrors *graph_filter1 = map_graph_Electron[histkey_filter1];
+    TGraphAsymmErrors *graph_filter2 = map_graph_Electron[histkey_filter2];
+    
+    //cout << "[MCCorrection::ElectronTrigger_SF_per_electron] histkey_filter1 : " << histkey_filter1 << endl;
+    //cout << "[MCCorrection::ElectronTrigger_SF_per_electron] histkey_filter2 : " << histkey_filter2 << endl;
+
+    if(!graph_filter1){
+      if(IgnoreNoHist) return 1.;
+      else{
+        cerr << "[MCCorrection::ElectronTrigger_Eff] No "<<histkey_filter1<<endl;
+        exit(EXIT_FAILURE);
+      }
+    }
+    if(!graph_filter2){
+      if(IgnoreNoHist) return 1.;
+      else{
+        cerr << "[MCCorrection::ElectronTrigger_Eff] No "<<histkey_filter2<<endl;
+        exit(EXIT_FAILURE);
+      }
+    }
+
+    int size_of_graph = graph_filter1 -> GetN();
+    int current_bin = 0.;
+    // -- Find Current bin
+    for(int i_size = 0; i_size < size_of_graph; i_size++){
+      double x, y, ex;
+      graph_filter1 -> GetPoint(i_size, x,y);
+      ex = graph_filter1 -> GetErrorXlow(i_size);
+      if(fabs(pt - x) < ex) current_bin = i_size;
+    }
+
+    double value_filter1 = 1., value_filter2 = 1., error_filter1 = 0., error_filter2 = 0., current_x = 0.;
+    graph_filter1 -> GetPoint(current_bin, current_x, value_filter1);
+    graph_filter2 -> GetPoint(current_bin, current_x, value_filter2);
+    if(sys == -1){
+      error_filter1 = graph_filter1 -> GetErrorYlow(current_bin);
+      error_filter2 = graph_filter2 -> GetErrorYlow(current_bin);
+    }
+    if(sys == 1){
+      error_filter1 = graph_filter1 -> GetErrorYhigh(current_bin);
+      error_filter2 = graph_filter2 -> GetErrorYhigh(current_bin);
+    }
+
+    value = value_filter1 * value_filter2;
+    error = error_filter1 + error_filter2;
+  }
+
+  //cout << "[MCCorrection::ElectronTrigger_SF_per_electron] value = " << value + double(sys)*error << ", sys : " << sys << endl;
+
+  return value+double(sys)*error;
+
+}
+
 double MCCorrection::ElectronTrigger_SF(TString ID, TString trig, const std::vector<Electron>& electrons, int sys){
 
   if(ID=="Default") return 1.;
   if(trig=="Default") return 1.;
 
   double value = 1.;
+
+  //cout << "[MCCorrection::ElectronTrigger_SF] trig : " << trig << ", ID : " << ID << endl;
 
   if(trig=="WREGammaTrigger"){
 
@@ -678,6 +760,14 @@ double MCCorrection::ElectronTrigger_SF(TString ID, TString trig, const std::vec
     }
     */
 
+  }
+
+  if(trig=="ZpNNTrigger"){
+    double SF = 1.;
+    for(unsigned int i=0; i<electrons.size(); i++){
+      SF *= ElectronTrigger_SF_per_electron(ID, trig, electrons.at(i).scEta(), electrons.at(i).Pt(), sys);
+    }
+    value = SF;
   }
 
   return value;
