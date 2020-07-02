@@ -167,6 +167,8 @@ void SR_ZpNN::executeEvent(){
   //param.Muon_Veto_ID = "POGHighPt";
   param.Muon_Loose_ID = "POGLoose";
   param.Muon_Veto_ID = "POGLoose";
+  //param.Muon_Loose_ID = "POGMedium";
+  //param.Muon_Veto_ID = "POGMedium";
   param.Muon_MinPt = TriggerSafePt_Muon; // HLT_Mu50_v
   param.Muon_RECO_SF_Key = "HighPtMuonRecoSF";
   param.Muon_ID_SF_Key = "NUM_HighPtID_DEN_genTracks";
@@ -516,7 +518,7 @@ void SR_ZpNN::executeEventFromParameter(AnalyzerParameter param, std::vector<Ele
 
   // -- Save Muons and Numbers of them
   std::vector<Muon> muons_Veto  = SelectMuons(muons_all, param.Muon_Veto_ID,  10., 2.4);
-  std::vector<Muon> muons_Loose = SelectMuons(muons_all, param.Muon_Loose_ID, 10., 2.4);
+  std::vector<Muon> muons_Loose = SelectMuons(muons_all, param.Muon_Loose_ID, param.Muon_MinPt, 2.4);
   std::vector<Muon> muons_Tight = SelectMuons(muons_all, param.Muon_Tight_ID, param.Muon_MinPt, 2.4);
   std::vector<Muon> muons_Tight_all = SelectMuons(muons_all, param.Muon_Tight_ID, param.Muon_MinPt, 2.4);
 
@@ -577,8 +579,8 @@ void SR_ZpNN::executeEventFromParameter(AnalyzerParameter param, std::vector<Ele
   //cout << "[executeEventFromParameter] N_electrons_Loose = " << N_electrons_Loose << ", N_electrons_Veto = " << N_electrons_Veto << endl;
   //cout << "[executeEventFromParameter] N_muons_Loose = " <<N_muons_Loose << ", N_muons_Veto = " <<N_muons_Veto << endl;
   
-  if(N_electrons_Loose != N_electrons_Veto) return;
-  if(N_muons_Loose != N_muons_Veto) return;
+  //if(N_electrons_Loose != N_electrons_Veto) return;
+  //if(N_muons_Loose != N_muons_Veto) return;
   
   //cout << "[executeEventFromParameter] Passed N loose = N veto cut " << endl;
 
@@ -586,15 +588,15 @@ void SR_ZpNN::executeEventFromParameter(AnalyzerParameter param, std::vector<Ele
   // ==== Check Number of veto letpons and assign channel string
   bool trig_pass_for_channel = false;
   TString current_channel;
-  if(N_electrons_Veto == 2 && N_muons_Veto == 0){
+  if(N_electrons_Loose == 2 && N_muons_Loose == 0){
     current_channel = "DiEle_";
     trig_pass_for_channel = Pass_diele;
   }
-  else if(N_muons_Veto == 2 && N_electrons_Veto == 0){
+  else if(N_muons_Loose == 2 && N_electrons_Loose == 0){
     current_channel = "DiMu_";
     trig_pass_for_channel = Pass_mu50;
   }
-  else if(N_muons_Veto == 1 && N_electrons_Veto == 1){
+  else if(N_muons_Loose == 1 && N_electrons_Loose == 1){
     current_channel = "EMu_";
     trig_pass_for_channel = Pass_mu50;
   }
@@ -683,8 +685,8 @@ void SR_ZpNN::executeEventFromParameter(AnalyzerParameter param, std::vector<Ele
   current_weight *= top_pt_reweight;
   //cout << "current_weight : " << current_weight << endl;
   
-  SR(param, current_channel + "DYreweight_" + syst_flag, trig_pass_for_channel,  current_weight * prefire_weight, jets, fatjets, electrons_Tight_all, electrons_Veto, muons_Tight_all, muons_Veto, N_electrons_Tight_all, N_electrons_Veto, N_muons_Tight_all, N_muons_Veto);
-  SR(param, current_channel + "DYreweight_NoPFweight" + syst_flag, trig_pass_for_channel,  current_weight, jets, fatjets, electrons_Tight_all, electrons_Veto, muons_Tight_all, muons_Veto, N_electrons_Tight_all, N_electrons_Veto, N_muons_Tight_all, N_muons_Veto);
+  SR(param, current_channel + "DYreweight_" + syst_flag, trig_pass_for_channel,  current_weight * prefire_weight, jets, fatjets, electrons_Tight_all, electrons_Loose, muons_Tight_all, muons_Loose, N_electrons_Tight_all, N_electrons_Loose, N_muons_Tight_all, N_muons_Loose);
+  SR(param, current_channel + "DYreweight_NoPFweight" + syst_flag, trig_pass_for_channel,  current_weight, jets, fatjets, electrons_Tight_all, electrons_Loose, muons_Tight_all, muons_Loose, N_electrons_Tight_all, N_electrons_Loose, N_muons_Tight_all, N_muons_Loose);
 
 }
 

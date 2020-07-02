@@ -8,7 +8,7 @@ Trigger	Eff_DATA	WREGammaTrigger_HEEP_Barrel	WREGammaTriggerEff.root	DataEff_TH2
 Trigger	Eff_DATA	WREGammaTrigger_HEEP_EndCap	WREGammaTriggerEff.root	DataEff_TH2F_EndCap	TH2F
 Trigger	Eff_MC	WREGammaTrigger_HEEP_Barrel	WREGammaTriggerEff.root	MCEff_TH2F_Barrel	TH2F
 Trigger	Eff_MC	WREGammaTrigger_HEEP_EndCap	WREGammaTriggerEff.root	MCEff_TH2F_EndCap	TH2F
-Trigger SF      ZpNNTrigger_HEEP_Barrel_Filter1 electronTriggerSF_2016.root                     Filter1_barrel	TGraphAsymmErrors
-Trigger SF      ZpNNTrigger_HEEP_EndCap_Filter1 electronTriggerSF_2016.root                     Filter1_endcap  TGraphAsymmErrors
-Trigger SF      ZpNNTrigger_HEEP_Barrel_Filter2 electronTriggerSF_2016.root                     Filter2_barrel  TGraphAsymmErrors
-Trigger SF      ZpNNTrigger_HEEP_EndCap_Filter2 electronTriggerSF_2016.root                     Filter2_endcap  TGraphAsymmErrors
+Trigger SF      ZpNNTrigger_HEEP_Barrel_Filter1 electronTriggerSF_2018.root                     Filter1_barrel	TGraphAsymmErrors
+Trigger SF      ZpNNTrigger_HEEP_EndCap_Filter1 electronTriggerSF_2018.root                     Filter1_endcap  TGraphAsymmErrors
+Trigger SF      ZpNNTrigger_HEEP_Barrel_Filter2 electronTriggerSF_2018.root                     Filter2_barrel  TGraphAsymmErrors
+Trigger SF      ZpNNTrigger_HEEP_EndCap_Filter2 electronTriggerSF_2018.root                     Filter2_endcap  TGraphAsymmErrors
